@@ -593,32 +593,32 @@ function showAlertPopup(msg){
   d.innerHTML='<div style="font-size:36px;margin-bottom:12px">\u26a0\ufe0f</div><div style="font-size:13px;font-weight:700;color:var(--rose);margin-bottom:10px;letter-spacing:.5px">\u062a\u0646\u0628\u064a\u0647 \u0645\u0646 \u0627\u0644\u0623\u062f\u0645\u0646</div><div style="font-size:15px;color:var(--txt);margin-bottom:20px;line-height:1.5">'+esc(msg)+'</div><button id="alertPopOk" style="background:var(--rose);color:#fff;border:none;border-radius:12px;padding:12px 28px;font-size:15px;font-weight:700;cursor:pointer;width:100%">\u0645\u0648\u0627\u0641\u0642</button>';
   document.body.appendChild(d);
   document.getElementById("alertPopOk").onclick=function(){
-    console.log("✓ Alert dismissed by user");
+    logDebug("✓ Alert dismissed by user");
     d.remove();
     if(db&&CURRENT_HRID){
       db.ref("alerts/"+CURRENT_HRID).remove().then(function(){
-        console.log("✓ Alert deleted from database");
+        logDebug("✓ Alert deleted from database");
       }).catch(function(err){
-        console.error("❌ Failed to delete alert:", err.message);
+        logDebug("❌ Failed to delete alert: " + err.message);
       });
     }
   };
   if(navigator.vibrate)navigator.vibrate([300,100,300,100,300]);
 }
 function startAlertListener(){
-  if(!db||!CURRENT_HRID){console.log("❌ Alert listener: no db or HRID");return;}
-  console.log("🔔 Alert listener started for HRID:", CURRENT_HRID);
+  if(!db||!CURRENT_HRID){logDebug("❌ Alert listener: no db or HRID");return;}
+  logDebug("🔔 Alert listener started for HRID: " + CURRENT_HRID);
   var ref = db.ref("alerts/"+CURRENT_HRID);
   ref.off();
   ref.on("value", function(snap){
     var data = snap.val();
-    console.log("📬 Alert data received:", data);
+    logDebug("📬 Alert data received: " + JSON.stringify(data));
     if(data && data.msg){
-      console.log("⚠️ Showing alert popup");
+      logDebug("⚠️ Showing alert popup");
       showAlertPopup(data.msg);
     }
   }, function(err){
-    console.error("❌ Alert listener error:", err.code, err.message);
+    logDebug("❌ Alert listener error: " + err.code + " - " + err.message);
   });
 }
 
@@ -635,5 +635,32 @@ function startAlertListener(){
 })();
 </script>
 
+
+<div id="debugPanel" style="position:fixed;bottom:0;right:0;width:100%;max-height:200px;background:#1a1a2e;color:#00ff00;font-family:monospace;font-size:11px;overflow-y:auto;z-index:99999;border-top:2px solid #00ff00;display:none">
+  <div style="padding:8px;border-bottom:1px solid #333">🐛 Debug Console <button onclick="document.getElementById('debugPanel').style.display='none'" style="float:right;background:none;border:none;color:#00ff00;cursor:pointer">✕</button></div>
+  <div id="debugOutput" style="padding:8px"></div>
+</div>
+<button id="toggleDebug" onclick="document.getElementById('debugPanel').style.display=document.getElementById('debugPanel').style.display==='none'?'block':'none'" style="position:fixed;bottom:10px;left:10px;z-index:99998;background:#00ff00;color:#000;border:none;padding:8px 12px;border-radius:6px;font-weight:700;cursor:pointer">🐛</button>
+
+<script>
+var debugLogs = [];
+window.logDebug = function(msg) {
+  var time = new Date().toLocaleTimeString('ar-SA');
+  debugLogs.push('[' + time + '] ' + msg);
+  var out = document.getElementById('debugOutput');
+  if(out) {
+    out.innerHTML += '<div style="margin:4px 0;border-bottom:1px solid #333">[' + time + '] ' + msg + '</div>';
+    out.scrollTop = out.scrollHeight;
+  }
+  console.log(msg);
+};
+
+// Intercept old logging
+var oldLog = window.console.log;
+window.console.log = function() {
+  var msg = Array.from(arguments).join(' ');
+  logDebug(msg);
+};
+</script>
 </body>
 </html>
