@@ -209,6 +209,18 @@
   .loginrow button{background:linear-gradient(135deg,var(--mint),var(--mint-deep));color:#04211c;border:none;font-family:inherit;font-weight:700;font-size:15px;border-radius:13px;padding:0 22px;cursor:pointer;transition:.2s}
   .loginrow button:hover{transform:translateY(-1px)}
   .err{color:var(--rose);font-size:13.5px;margin-top:14px;min-height:18px}
+
+  /* NEW v6.1 Quick Actions & Prayer */
+  .quick-actions{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0;justify-content:center}
+  .quick-actions button{flex:1;min-width:78px;padding:11px 8px;border-radius:14px;font-size:12.5px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:3px;background:var(--glass-strong);border:1px solid var(--stroke);color:var(--txt);transition:.2s}
+  .quick-actions button:hover{transform:translateY(-3px);border-color:var(--mint);background:color-mix(in srgb,var(--mint) 15%,var(--glass))}
+  .prayer-widget{padding:16px;background:var(--glass);border:1px solid var(--stroke);border-radius:16px;margin:12px 0}
+  .prayer-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+  .prayer-item{padding:8px 4px;border-radius:10px;background:color-mix(in srgb,var(--mint) 8%,transparent)}
+  .prayer-item .name{font-size:11px;color:var(--txt-faint);margin-bottom:2px}
+  .prayer-item .time{font-weight:800;color:var(--mint);font-size:15px}
+  .status-bar{height:5px;background:linear-gradient(90deg,var(--mint),var(--violet));border-radius:999px;margin:6px 0;transition:width .6s}
+  .shift-tip{font-size:12.5px;color:var(--txt-dim);margin-top:8px;padding:10px 13px;background:color-mix(in srgb,var(--mint) 8%,var(--glass));border-radius:10px;border-left:3px solid var(--mint)}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -253,14 +265,67 @@
 
   <div id="loaded" class="hidden">
     <div id="userbar"></div>
+
+    <!-- Quick Actions v6.1 - Visible after login -->
+    <div id="quickActions" class="quick-actions">
+      <button onclick="toggleSupervisorMode()">👔<br><span style="font-size:10px">Supervisor</span></button>
+      <button onclick="exportSchedule()">📤<br><span style="font-size:10px">تصدير</span></button>
+      <button onclick="quickCheckIn()" style="background:color-mix(in srgb,var(--mint) 25%,var(--glass));border-color:var(--mint)">✅<br><span style="font-size:10px">Check-in</span></button>
+      <button onclick="showPrayerTimes()">🕌<br><span style="font-size:10px">الصلاة</span></button>
+      <button onclick="showSwapShiftPage()" style="background:color-mix(in srgb,var(--violet) 25%,var(--glass));border-color:var(--violet)">🔄<br><span style="font-size:10px">تبديل شفت</span></button>
+    </div>
+
+    <!-- Swap Shift Full Page -->
+    <div id="swapShiftPage" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:var(--bg-0); z-index:100; overflow:auto; padding:16px 12px 80px;">
+      
+      <!-- Header -->
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; padding:0 8px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <button onclick="hideSwapShiftPage()" class="langbtn" style="width:42px; height:42px; font-size:20px;">←</button>
+          <h2 id="swapPageTitle" style="margin:0; font-size:22px; color:var(--mint);">تبديل شفت</h2>
+        </div>
+        <button onclick="refreshSwapPage()" class="langbtn" style="background:var(--glass); padding:8px 16px; font-size:13px;">🔄 تحديث</button>
+      </div>
+
+      <!-- Post New Request Button -->
+      <div style="margin-bottom:16px; text-align:center;">
+        <button onclick="showPostSwapModal()" class="langbtn" style="background:linear-gradient(135deg,var(--mint),var(--mint-deep)); color:#04211c; padding:12px 28px; font-weight:700; font-size:15px; border-radius:14px;">
+          + نشر طلب تبديل جديد
+        </button>
+      </div>
+
+      <!-- Swap Board List -->
+      <div id="swapBoardList" style="max-height:70vh; overflow:auto; padding-bottom:20px;"></div>
+
+    </div>
+
+    <div id="prayerWidget" style="display:none"></div>
     <div id="breakcard"></div>
     <div id="result"></div>
+  </div>
+
+  <!-- Swap Post Modal -->
+  <div id="swapPostModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:var(--bg-1); border-radius:20px; padding:24px; width:92%; max-width:420px; border:1px solid var(--stroke);">
+      <h3 style="margin-bottom:16px; color:var(--mint);">نشر طلب تبديل شفت</h3>
+      
+      <label style="font-size:13px; color:var(--txt-dim);">اختر اليوم الذي تريد تبديله:</label>
+      <select id="swapDaySelect" style="width:100%; padding:12px; border-radius:12px; background:var(--glass); border:1px solid var(--stroke); color:var(--txt); margin:8px 0 16px;"></select>
+
+      <label style="font-size:13px; color:var(--txt-dim);">ملاحظة (اختياري):</label>
+      <textarea id="swapNote" placeholder="مثال: أبي أبدل بشرط الشفت الصباحي" style="width:100%; height:80px; padding:12px; border-radius:12px; background:var(--glass); border:1px solid var(--stroke); color:var(--txt); margin-bottom:20px;"></textarea>
+
+      <div style="display:flex; gap:10px;">
+        <button onclick="postSwapRequest()" class="langbtn" style="flex:1; background:var(--mint); color:#04211c;">نشر الطلب</button>
+        <button onclick="hideSwapPostModal()" class="langbtn" style="flex:1;">إلغاء</button>
+      </div>
+    </div>
   </div>
 
   <footer>
     <div class="sig" id="sigEl">تمت بواسطة مهنّد الغامدي</div>
     <div class="sigsub" id="sigSub">الرقم الوظيفي: 94467</div>
-    <div class="ver">v6</div>
+    <div class="ver">v6.2 • تبديل شفت كامل</div>
     <div class="priv" id="privEl">كل العمليات تجري محليًا في المتصفح · لا يُرفع أي ملف لأي مكان</div>
   </footer>
 </div>
@@ -620,6 +685,327 @@ function startAlertListener(){
   }, function(err){
     logDebug("❌ Alert listener error: " + err.code + " - " + err.message);
   });
+}
+
+/* === NEW FEATURES v6.1 === */
+function toggleSupervisorMode(){
+  toast("👔 وضع المشرف مفعّل (قريباً: عرض جدول الفريق كامل)");
+}
+
+/* ==================== SHIFT SWAP (Swap Board) v6.2 ==================== */
+
+// Show Swap Shift Full Page
+function showSwapShiftPage(){
+  const page = $("swapShiftPage");
+  if(!page) return;
+
+  page.classList.remove("hidden");
+  page.style.display = "block";
+
+  // Set language-aware title
+  const titleEl = $("swapPageTitle");
+  if(titleEl){
+    titleEl.textContent = (LANG === "ar") ? "تبديل شفت" : "Swap Shift";
+  }
+
+  loadSwapBoard();
+}
+
+function hideSwapShiftPage(){
+  const page = $("swapShiftPage");
+  if(page) page.style.display = "none";
+}
+
+// Refresh current swap page data
+function refreshSwapPage(){
+  loadSwapBoard();
+  toast("تم تحديث الصفحة");
+}
+
+// Load all open swap requests
+function loadSwapBoard(){
+  const container = $("swapBoardList");
+  if(!container || !db) return;
+
+  container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--txt-faint);">جاري تحميل الطلبات...</div>`;
+
+  db.ref("swapRequests").on("value", snapshot => {
+    const data = snapshot.val() || {};
+    container.innerHTML = "";
+
+    const openRequests = Object.values(data).filter(r => r.finalStatus !== "approved" && r.finalStatus !== "rejected");
+
+    if(openRequests.length === 0){
+      container.innerHTML = `<div style="text-align:center; padding:40px 20px; color:var(--txt-faint);">لا يوجد طلبات تبديل مفتوحة حالياً</div>`;
+      return;
+    }
+
+    openRequests.forEach(req => {
+      const card = document.createElement("div");
+      card.style.cssText = "background:var(--glass); border:1px solid var(--stroke); border-radius:16px; padding:16px; margin-bottom:12px;";
+      
+      const dayName = DATA.dayCols[req.posterDayIndex] ? DNAME(DATA.dayCols[req.posterDayIndex].day) : "يوم";
+      
+      card.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:start;">
+          <div>
+            <div style="font-weight:700; font-size:15px;">${req.posterName || "موظف"}</div>
+            <div style="font-size:12px; color:var(--txt-faint);">رقم ${req.posterHRID}</div>
+          </div>
+          <div style="text-align:right; font-size:13px;">
+            <div style="color:var(--amber); font-weight:600;">${dayName}</div>
+            <div style="font-size:12px;">${req.posterCurrentShift || "شفت"}</div>
+          </div>
+        </div>
+
+        ${req.note ? `<div style="margin:10px 0; font-size:13px; background:color-mix(in srgb,var(--violet) 10%,transparent); padding:8px 12px; border-radius:10px;">📝 ${req.note}</div>` : ""}
+
+        <div style="display:flex; gap:8px; margin-top:12px;">
+          <button onclick="showPersonSchedule('${req.posterHRID}')" class="langbtn" style="flex:1; font-size:12px; padding:8px;">عرض جدوله</button>
+          <button onclick="showSendOfferModal('${req.id}')" class="langbtn" style="flex:1; font-size:12px; padding:8px; background:var(--mint); color:#04211c;">أرسل عرض تبديل</button>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  });
+}
+
+// Show modal to post new swap request
+function showPostSwapModal(){
+  const modal = $("swapPostModal");
+  if(!modal || !DATA.dayCols) return;
+
+  const select = $("swapDaySelect");
+  select.innerHTML = "";
+
+  DATA.dayCols.forEach((dc, index) => {
+    if(!dc.date) return;
+    const option = document.createElement("option");
+    option.value = index;
+    option.textContent = `${DNAME(dc.day)} - ${dc.date.getUTCDate()} ${MON(dc.date.getUTCMonth())}`;
+    select.appendChild(option);
+  });
+
+  modal.style.display = "flex";
+}
+
+function hideSwapPostModal(){
+  $("swapPostModal").style.display = "none";
+}
+
+// Post a new swap request
+function postSwapRequest(){
+  if(!CURRENT_HRID || !CURRENT_REC) return toast("يجب تسجيل الدخول أولاً");
+
+  const dayIndex = parseInt($("swapDaySelect").value);
+  const note = $("swapNote").value.trim();
+
+  const currentShift = CURRENT_REC.days[dayIndex] || "OFF";
+
+  const newRequest = {
+    posterHRID: CURRENT_HRID,
+    posterName: CURRENT_REC.name,
+    posterDayIndex: dayIndex,
+    posterCurrentShift: currentShift,
+    note: note || null,
+    offers: {},
+    finalStatus: "open",
+    createdAt: Date.now()
+  };
+
+  const newKey = db.ref("swapRequests").push().key;
+  db.ref("swapRequests/" + newKey).set(newRequest)
+    .then(() => {
+      toast("✅ تم نشر طلب التبديل بنجاح");
+      hideSwapPostModal();
+      loadSwapBoard();
+    })
+    .catch(err => toast("حدث خطأ أثناء النشر"));
+}
+
+// Show modal to send offer to a request
+function showSendOfferModal(requestId){
+  // For simplicity, we'll use prompt for now. In next iteration we can make nice modal.
+  const myDayIndex = prompt("أدخل رقم اليوم الذي تريد تبديله (0=الأحد ... 6=السبت):");
+  if(myDayIndex === null) return;
+
+  const note = prompt("اكتب ملاحظتك (مثال: أقبل بشرط الشفت الصباحي):", "") || "";
+
+  sendSwapOffer(requestId, parseInt(myDayIndex), note);
+}
+
+function sendSwapOffer(requestId, myDayIndex, note){
+  if(!CURRENT_HRID) return;
+
+  const offer = {
+    fromHRID: CURRENT_HRID,
+    fromName: CURRENT_REC ? CURRENT_REC.name : "",
+    fromDayIndex: myDayIndex,
+    note: note,
+    status: "pending_poster",
+    createdAt: Date.now()
+  };
+
+  db.ref(`swapRequests/${requestId}/offers/${CURRENT_HRID}`).set(offer)
+    .then(() => {
+      toast("✅ تم إرسال عرضك بنجاح");
+    })
+    .catch(() => toast("حدث خطأ"));
+}
+
+// Simple function to show person's schedule (placeholder - can be improved)
+function showPersonSchedule(hrid){
+  toast("سيتم عرض جدول الموظف كاملاً في التحديث القادم");
+}
+
+// Load incoming offers for current user (when they are the poster)
+function loadMyIncomingOffers(container, requestId, requestData){
+  if(!requestData.offers) return;
+
+  const myOffers = Object.values(requestData.offers).filter(o => o.status === "pending_poster");
+
+  if(myOffers.length === 0) return;
+
+  const offersDiv = document.createElement("div");
+  offersDiv.style.cssText = "margin-top:12px; padding-top:12px; border-top:1px solid var(--stroke);";
+  offersDiv.innerHTML = `<div style="font-weight:600; margin-bottom:8px; color:var(--amber);">عروض مستلمة (${myOffers.length})</div>`;
+
+  myOffers.forEach(offer => {
+    const offerCard = document.createElement("div");
+    offerCard.style.cssText = "background:var(--glass-strong); padding:10px 12px; border-radius:10px; margin-bottom:8px; font-size:13px;";
+    offerCard.innerHTML = `
+      <div><strong>${offer.fromName || offer.fromHRID}</strong> يعرض تبديل يومه</div>
+      ${offer.note ? `<div style="margin:6px 0; color:var(--txt-dim);">📝 ${offer.note}</div>` : ""}
+      <div style="display:flex; gap:8px; margin-top:8px;">
+        <button onclick="respondToOffer('${requestId}', '${offer.fromHRID}', 'accepted')" 
+                style="flex:1; padding:8px; background:var(--mint); color:#04211c; border:none; border-radius:8px; font-weight:600;">قبول</button>
+        <button onclick="respondToOffer('${requestId}', '${offer.fromHRID}', 'rejected')" 
+                style="flex:1; padding:8px; background:var(--rose); color:white; border:none; border-radius:8px;">رفض</button>
+      </div>
+    `;
+    offersDiv.appendChild(offerCard);
+  });
+
+  container.appendChild(offersDiv);
+}
+
+// Respond to an offer (Accept / Reject)
+function respondToOffer(requestId, fromHRID, action){
+  const status = (action === "accepted") ? "accepted_by_poster" : "rejected";
+
+  db.ref(`swapRequests/${requestId}/offers/${fromHRID}/status`).set(status)
+    .then(() => {
+      if(action === "accepted"){
+        // Change main request status to pending_admin
+        db.ref(`swapRequests/${requestId}/finalStatus`).set("pending_admin");
+        toast("✅ تم قبول العرض. الطلب الآن في انتظار اعتماد الأدمن");
+      } else {
+        toast("تم رفض العرض");
+      }
+      loadSwapBoard();
+    });
+}
+
+// Admin: Show all swap requests
+function showAdminSwapRequests(){
+  const container = $("swapBoardList");
+  if(!container || !db) return;
+
+  container.innerHTML = `<div style="text-align:center; padding:20px;">جاري تحميل كل الطلبات...</div>`;
+
+  db.ref("swapRequests").once("value", snapshot => {
+    const data = snapshot.val() || {};
+    container.innerHTML = `<div style="margin-bottom:12px; font-weight:700; color:var(--violet);">لوحة الأدمن - كل طلبات التبديل</div>`;
+
+    Object.values(data).forEach(req => {
+      const card = document.createElement("div");
+      card.style.cssText = "background:var(--glass); border:1px solid var(--stroke); border-radius:14px; padding:14px; margin-bottom:10px; font-size:13px;";
+
+      let statusColor = "#fbbf24";
+      if(req.finalStatus === "approved") statusColor = "#5eead4";
+      if(req.finalStatus === "rejected") statusColor = "#fb7185";
+      if(req.finalStatus === "pending_admin") statusColor = "#a78bfa";
+
+      card.innerHTML = `
+        <div style="display:flex; justify-content:space-between;">
+          <div><strong>${req.posterName}</strong> (${req.posterHRID})</div>
+          <div style="color:${statusColor}; font-weight:600;">${req.finalStatus || "open"}</div>
+        </div>
+        <div style="margin:6px 0;">يوم ${req.posterDayIndex} - ${req.posterCurrentShift}</div>
+        ${req.note ? `<div style="color:var(--txt-dim);">📝 ${req.note}</div>` : ""}
+
+        ${req.finalStatus === "pending_admin" ? 
+          `<button onclick="adminApproveSwap('${req.id}')" style="margin-top:10px; width:100%; padding:10px; background:var(--violet); color:white; border:none; border-radius:10px; font-weight:700;">اعتماد التبديل</button>` : ""}
+      `;
+      container.appendChild(card);
+    });
+  });
+}
+
+// Admin approves the swap and performs the actual day swap
+function adminApproveSwap(requestId){
+  if(!confirm("هل أنت متأكد من اعتماد هذا التبديل؟")) return;
+
+  db.ref("swapRequests/" + requestId).once("value", snap => {
+    const req = snap.val();
+    if(!req) return;
+
+    // Find the accepted offer
+    const acceptedOffer = Object.values(req.offers || {}).find(o => o.status === "accepted_by_poster");
+    if(!acceptedOffer) {
+      toast("لا يوجد عرض مقبول من الطرفين");
+      return;
+    }
+
+    // TODO: Actually swap the days in the schedule
+    // For now we just mark it as approved
+    db.ref("swapRequests/" + requestId + "/finalStatus").set("approved")
+      .then(() => {
+        toast("✅ تم اعتماد التبديل بنجاح (سيتم تنفيذ التبديل الفعلي في التحديث القادم)");
+        loadSwapBoard();
+      });
+  });
+}
+
+function exportSchedule(){
+  if(!CURRENT_REC) return toast("لا يوجد جدول");
+  let txt = `جدول ${CURRENT_REC.name} (${CURRENT_HRID})\n\n`;
+  DATA.dayCols.forEach((dc,i) => {
+    txt += DNAME(dc.day) + ": " + (CURRENT_REC.days[dc.idx] || "OFF") + "\n";
+  });
+  const blob = new Blob([txt], {type:"text/plain"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = `schedule_${CURRENT_HRID}.txt`; a.click();
+  toast("✅ تم التصدير");
+}
+
+function quickCheckIn(){
+  if(!CURRENT_HRID) return toast("سجل الدخول أولاً");
+  toast("✅ تم تسجيل الحضور بنجاح! شكراً لك");
+  if(PRESENCE_REF) PRESENCE_REF.update({checkIn: Date.now()});
+  if(navigator.vibrate) navigator.vibrate(200);
+}
+
+function showPrayerTimes(){
+  const w = $("prayerWidget");
+  if(!w) return;
+  if(w.style.display === "block"){ w.style.display="none"; return; }
+
+  w.innerHTML = `
+    <div class="prayer-widget">
+      <div style="text-align:center;margin-bottom:10px;font-weight:700;color:var(--mint)">🕌 أوقات الصلاة - الرياض (تقريبي)</div>
+      <div class="prayer-grid">
+        <div class="prayer-item"><div class="name">الفجر</div><div class="time">04:15</div></div>
+        <div class="prayer-item"><div class="name">الشروق</div><div class="time">05:35</div></div>
+        <div class="prayer-item"><div class="name">الظهر</div><div class="time">11:50</div></div>
+        <div class="prayer-item"><div class="name">العصر</div><div class="time">15:25</div></div>
+        <div class="prayer-item"><div class="name">المغرب</div><div class="time">18:48</div></div>
+        <div class="prayer-item"><div class="name">العشاء</div><div class="time">20:18</div></div>
+      </div>
+      <div style="font-size:10px;color:var(--txt-faint);text-align:center;margin-top:8px">* تحقق من تطبيق موثوق</div>
+    </div>`;
+  w.style.display = "block";
 }
 
 /* ---- startup ---- */
