@@ -7,48 +7,173 @@
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%230f172a' width='192' height='192'/><circle cx='96' cy='96' r='80' fill='%2300d9ff'/></svg>">
   <meta name="theme-color" content="#0f172a">
-  <style>
+<style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#0f172a;--glass:#1a1f3a;--border:#00d9ff;--text:#e0e7ff;--accent:#a78bfa}
-body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:12px;overflow-x:hidden}
-body.light{--bg:#f8fafc;--glass:#e0e7ff;--border:#06b6d4;--text:#1e293b;--accent:#9333ea}
+:root{
+  --bg:#0a0e1a;--glass:rgba(255,255,255,0.04);--glass-brd:rgba(255,255,255,0.1);
+  --mint:#34d399;--teal:#2dd4bf;--violet:#a78bfa;--purple:#8b5cf6;
+  --text:#e6ecff;--text-dim:#9aa6c4;--text-faint:#6b7694;
+}
+*{-webkit-tap-highlight-color:transparent}
+body{
+  font-family:'SF Pro Display','Segoe UI','Tajawal',system-ui,Arial,sans-serif;
+  color:var(--text);min-height:100vh;padding:16px 14px 40px;overflow-x:hidden;
+  background:
+    radial-gradient(1100px 600px at 80% -5%, rgba(45,212,191,0.18), transparent 55%),
+    radial-gradient(900px 700px at 10% 110%, rgba(139,92,246,0.20), transparent 55%),
+    linear-gradient(180deg,#0a0e1a 0%,#0c1226 100%);
+  background-attachment:fixed;
+}
+body.light{
+  --bg:#eef2fb;--glass:rgba(255,255,255,0.7);--glass-brd:rgba(15,23,42,0.08);
+  --text:#0f172a;--text-dim:#475569;--text-faint:#94a3b8;
+  background:
+    radial-gradient(1100px 600px at 80% -5%, rgba(45,212,191,0.20), transparent 55%),
+    radial-gradient(900px 700px at 10% 110%, rgba(139,92,246,0.18), transparent 55%),
+    linear-gradient(180deg,#f4f7fe 0%,#e8edfb 100%);
+}
 
-.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;gap:8px}
-.topbar .title{flex:1;text-align:center;padding:12px;background:rgba(0,217,255,0.1);border:1px solid var(--border);border-radius:20px;font-weight:600;font-size:14px}
-.btn-theme{width:44px;height:44px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer;font-size:20px}
-.btn-lang{width:44px;height:44px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer}
+/* ===== TOPBAR ===== */
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;gap:10px}
+.topbar .title{
+  flex:1;text-align:center;padding:14px 16px;font-weight:700;font-size:14.5px;letter-spacing:.2px;
+  background:var(--glass);border:1px solid var(--glass-brd);border-radius:18px;
+  backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);
+  box-shadow:0 8px 32px rgba(0,0,0,0.25),inset 0 1px 0 rgba(255,255,255,0.08);
+}
+.btn-theme,.btn-lang{
+  width:48px;height:48px;border-radius:16px;border:1px solid var(--glass-brd);
+  background:var(--glass);color:var(--text);cursor:pointer;font-size:20px;font-weight:700;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  box-shadow:0 8px 24px rgba(0,0,0,0.2),inset 0 1px 0 rgba(255,255,255,0.08);
+  transition:transform .15s ease,box-shadow .2s ease;flex-shrink:0;
+}
+.btn-theme:active,.btn-lang:active{transform:scale(0.94)}
 
-#loginCard{max-width:400px;margin:40px auto;padding:24px;background:rgba(26,31,58,0.5);border:1px solid var(--border);border-radius:16px;backdrop-filter:blur(10px)}
-#loginCard input{width:100%;padding:12px;margin:12px 0;border:1px solid var(--border);border-radius:8px;background:rgba(255,255,255,0.05);color:var(--text);font-size:16px}
-#loginCard button{width:100%;padding:14px;margin-top:20px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:16px}
+/* ===== LOGIN CARD ===== */
+#loginCard{
+  max-width:440px;margin:24px auto;padding:32px 26px;
+  background:var(--glass);border:1px solid var(--glass-brd);border-radius:26px;
+  backdrop-filter:blur(28px) saturate(160%);-webkit-backdrop-filter:blur(28px) saturate(160%);
+  box-shadow:0 20px 60px rgba(0,0,0,0.35),inset 0 1px 0 rgba(255,255,255,0.1);
+}
+#loginCard h2{
+  text-align:center;margin-bottom:14px;font-size:30px;font-weight:800;letter-spacing:-.5px;
+  background:linear-gradient(135deg,#fff 0%,var(--teal) 60%,var(--violet) 120%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+body.light #loginCard h2{background:linear-gradient(135deg,#0f172a 0%,var(--teal) 90%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+#loginCard p{text-align:center;margin-bottom:22px;font-size:14px;color:var(--text-dim);line-height:1.7}
+#loginCard input{
+  width:100%;padding:16px 18px;margin:6px 0;font-size:16px;color:var(--text);
+  background:rgba(255,255,255,0.05);border:1px solid var(--glass-brd);border-radius:16px;
+  transition:border-color .2s ease,box-shadow .2s ease;outline:none;
+}
+#loginCard input::placeholder{color:var(--text-faint)}
+#loginCard input:focus{border-color:var(--teal);box-shadow:0 0 0 4px rgba(45,212,191,0.15)}
+#loginCard button{
+  width:100%;padding:17px;margin-top:18px;font-size:17px;font-weight:800;color:#fff;cursor:pointer;
+  background:linear-gradient(135deg,var(--violet),var(--purple));border:none;border-radius:16px;
+  box-shadow:0 12px 28px rgba(139,92,246,0.4),inset 0 1px 0 rgba(255,255,255,0.2);
+  transition:transform .15s ease,box-shadow .2s ease;
+}
+#loginCard button:active{transform:scale(0.97)}
 
-#scheduleContainer{display:none}
-.week{margin-bottom:40px;padding:20px;background:rgba(26,31,58,0.4);border:1px solid var(--border);border-radius:12px}
-.weekTitle{font-size:20px;font-weight:700;margin-bottom:16px;color:var(--border)}
-.agents{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
-.agent{padding:16px;background:rgba(167,139,250,0.1);border:1px solid var(--border);border-radius:10px;text-align:center;cursor:pointer;transition:all 0.3s}
-.agent:hover{transform:translateY(-4px);background:rgba(167,139,250,0.2)}
-.agent .name{font-weight:600;margin-bottom:4px}
-.agent .status{font-size:11px;margin-top:4px;padding:4px;background:rgba(0,217,255,0.2);border-radius:4px}
+/* ===== SCHEDULE ===== */
+#scheduleContainer{display:none;max-width:760px;margin:0 auto}
 
-#breakCard{padding:20px;background:rgba(26,31,58,0.5);border:1px solid var(--border);border-radius:12px;margin-bottom:20px;text-align:center}
-#breakTimer{font-size:48px;font-weight:700;color:var(--accent);margin:16px 0}
-#breakStatus{font-size:14px;opacity:0.8}
-.breakBtn{padding:12px 24px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;margin-top:12px}
+/* ===== BREAK CARD ===== */
+#breakCard{
+  padding:26px 24px;margin-bottom:24px;text-align:center;
+  background:var(--glass);border:1px solid var(--glass-brd);border-radius:24px;
+  backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);
+  box-shadow:0 16px 44px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.08);
+}
+#breakStatus{font-size:14.5px;color:var(--text-dim);margin-bottom:6px;font-weight:600}
+#breakTimer{
+  font-size:60px;font-weight:800;letter-spacing:-1px;margin:8px 0 20px;
+  font-variant-numeric:tabular-nums;
+  background:linear-gradient(135deg,var(--violet),var(--teal));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+.breakBtn{
+  padding:14px 26px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;
+  background:linear-gradient(135deg,var(--violet),var(--purple));border:none;border-radius:14px;
+  box-shadow:0 10px 24px rgba(139,92,246,0.35);transition:transform .15s ease;
+}
+.breakBtn:active{transform:scale(0.95)}
 
-#alertPopup{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;display:none;justify-content:center;align-items:center}
-#alertPopup.show{display:flex}
-#alertContent{background:var(--glass);border:2px solid var(--border);border-radius:16px;padding:32px;max-width:90%;text-align:center;backdrop-filter:blur(10px)}
-#alertContent .icon{font-size:60px;margin-bottom:16px}
-#alertContent .message{font-size:18px;margin:16px 0;line-height:1.6}
-#alertContent button{padding:12px 32px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:16px;margin-top:20px}
+/* ===== WEEKS / DAYS ===== */
+.week{
+  margin-bottom:28px;padding:22px 20px;
+  background:var(--glass);border:1px solid var(--glass-brd);border-radius:24px;
+  backdrop-filter:blur(22px) saturate(160%);-webkit-backdrop-filter:blur(22px) saturate(160%);
+  box-shadow:0 14px 40px rgba(0,0,0,0.28),inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.weekTitle{
+  font-size:20px;font-weight:800;margin-bottom:18px;
+  background:linear-gradient(135deg,var(--teal),var(--mint));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+.agents{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+.agent{
+  padding:18px 14px;text-align:center;cursor:default;
+  background:rgba(255,255,255,0.04);border:1px solid var(--glass-brd);border-radius:18px;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;
+}
+.agent:hover{transform:translateY(-4px);border-color:rgba(45,212,191,0.4);box-shadow:0 12px 28px rgba(0,0,0,0.3)}
+.agent .name{font-weight:700;margin-bottom:10px;font-size:14px;color:var(--text-dim)}
+.agent .status{
+  font-size:20px;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums;
+}
+/* today highlight */
+.agent.today{
+  border-color:var(--teal);
+  background:linear-gradient(160deg,rgba(45,212,191,0.14),rgba(45,212,191,0.03));
+  box-shadow:0 0 0 1px rgba(45,212,191,0.3),0 16px 40px rgba(45,212,191,0.18);
+}
 
-.footer{text-align:center;margin-top:40px;opacity:0.6;font-size:12px}
-.ver{display:inline-block;padding:4px 12px;border:1px solid var(--border);border-radius:4px;margin:0 4px}
+/* ===== ALERT POPUP ===== */
+#alertPopup{
+  position:fixed;inset:0;width:100%;height:100%;z-index:9999;display:none;
+  justify-content:center;align-items:center;padding:24px;
+  background:rgba(5,8,18,0.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+}
+#alertPopup.show{display:flex;animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+#alertContent{
+  max-width:380px;width:100%;padding:36px 28px;text-align:center;
+  background:linear-gradient(160deg,rgba(255,255,255,0.1),rgba(255,255,255,0.04));
+  border:1px solid rgba(255,255,255,0.18);border-radius:28px;
+  backdrop-filter:blur(30px) saturate(180%);-webkit-backdrop-filter:blur(30px) saturate(180%);
+  box-shadow:0 30px 80px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.15);
+  animation:popIn .3s cubic-bezier(.2,1.2,.4,1);
+}
+@keyframes popIn{from{opacity:0;transform:scale(.85) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+#alertContent .icon{font-size:64px;margin-bottom:18px;animation:shake .5s ease}
+@keyframes shake{0%,100%{transform:rotate(0)}25%{transform:rotate(-12deg)}75%{transform:rotate(12deg)}}
+#alertContent .message{font-size:19px;font-weight:600;margin:14px 0;line-height:1.7;color:var(--text)}
+#alertContent button{
+  padding:14px 40px;margin-top:22px;font-size:16px;font-weight:800;color:#fff;cursor:pointer;
+  background:linear-gradient(135deg,var(--violet),var(--purple));border:none;border-radius:14px;
+  box-shadow:0 12px 28px rgba(139,92,246,0.4);transition:transform .15s ease;
+}
+#alertContent button:active{transform:scale(0.96)}
+
+/* ===== FOOTER ===== */
+.footer{text-align:center;margin-top:36px;color:var(--text-faint);font-size:13px}
+.ver{
+  display:inline-block;padding:5px 14px;margin:0 6px;font-weight:700;font-size:12px;
+  border:1px solid var(--glass-brd);border-radius:10px;background:var(--glass);
+}
 
 @media(max-width:480px){
-  .agents{grid-template-columns:repeat(2,1fr)}
-  #alertContent{max-width:95%}
+  .agents{grid-template-columns:repeat(3,1fr);gap:10px}
+  #breakTimer{font-size:52px}
+  #loginCard h2{font-size:26px}
+  .agent{padding:14px 8px}
+  .agent .status{font-size:17px}
 }
   </style>
 </head>
