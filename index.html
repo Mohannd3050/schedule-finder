@@ -252,18 +252,8 @@ function loginHRID(){
   if(!hrid){alert("أدخل رقمك الوظيفي");return;}
   CURRENT_HRID = hrid;
   localStorage.setItem("hrid", hrid);
-  dbg("🔐 محاولة تسجيل دخول مجهول...");
-  auth.signInAnonymously().then(function(){
-    dbg("✅ تم تسجيل الدخول بنجاح");
-    showSchedule();
-  }).catch(function(err){
-    dbg("❌ فشل الدخول: " + err.code + " - " + err.message);
-    if(err.code === "auth/admin-restricted-operation" || err.code === "auth/operation-not-allowed"){
-      alert("⚠️ التسجيل المجهول غير مفعّل!\n\nالحل: افتح Firebase Console ← Authentication ← Sign-in method ← فعّل Anonymous\n\nرمز الخطأ: " + err.code);
-    } else {
-      alert("خطأ في الدخول: " + err.message);
-    }
-  });
+  dbg("✅ دخول مباشر لـ " + hrid);
+  showSchedule();
 }
 
 function showSchedule(){
@@ -279,10 +269,10 @@ function showSchedule(){
 // ===== PRESENCE =====
 function startPresenceTracking(){
   if(!db || !CURRENT_HRID) return;
-  var sid = auth.currentUser.uid;
+  var sid = localStorage.getItem("sid");
+  if(!sid){ sid = "s_" + CURRENT_HRID + "_" + Date.now() + "_" + Math.floor(Math.random()*10000); localStorage.setItem("sid", sid); }
   var ref = db.ref("presence/" + sid);
-  
-  setInterval(function(){
+  function pushPresence(){
     var onBreak = breakState.state === "running";
     ref.set({
       ts: firebase.database.ServerValue.TIMESTAMP,
@@ -290,8 +280,11 @@ function startPresenceTracking(){
       name: "الموظف #" + CURRENT_HRID,
       lob: "OPS",
       onBreak: onBreak
-    }).catch(function(e){console.log("Presence error:", e.message);});
-  }, 20000);
+    }).then(function(){ dbg("📍 تحديث الحضور"); }).catch(function(e){ dbg("❌ خطأ الحضور: " + e.message); });
+  }
+  pushPresence();
+  setInterval(pushPresence, 20000);
+  ref.onDisconnect().remove();
 }
 
 // ===== ALERTS =====
