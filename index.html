@@ -285,28 +285,35 @@
   <div id="loginView" class="loginwrap">
     <h1 style="text-align:center;margin-bottom:6px"><span data-i18n="t1">باحث</span> <span class="accent" data-i18n="t2">الجدول</span></h1>
     <div class="card loginbox">
-      <!-- step 1: form -->
-      <div id="loginStep1">
-        <p class="hint" data-i18n="loginHint">أدخل رقمك الوظيفي ورقم جوالك المسجّل في الجدول</p>
-        <input id="hridInput" inputmode="numeric" data-i18n-ph="loginPh" placeholder="رقمك الوظيفي" autocomplete="off">
-        <input id="phoneInput" type="tel" inputmode="numeric" data-i18n-ph="phonePh" placeholder="05XXXXXXXX" autocomplete="tel" style="margin-top:10px" onkeydown="if(event.key==='Enter')startLogin()">
+      <!-- LOGIN mode -->
+      <div id="modeLogin">
+        <p class="hint" data-i18n="logHint">سجّل دخولك بالإيميل وكلمة المرور</p>
+        <input id="liEmail" type="email" inputmode="email" data-i18n-ph="emailPh" placeholder="الإيميل" autocomplete="email">
+        <input id="liPass" type="password" data-i18n-ph="passPh" placeholder="كلمة المرور" autocomplete="current-password" style="margin-top:10px" onkeydown="if(event.key==='Enter')doEmailLogin()">
         <label style="display:flex;align-items:center;gap:9px;margin-top:14px;cursor:pointer;font-size:13.5px;color:var(--txt-dim)">
           <input type="checkbox" id="rememberMe" checked style="width:17px;height:17px;accent-color:var(--mint)">
-          <span data-i18n="rememberMe">حفظ بيانات الدخول (تذكّرني)</span>
+          <span data-i18n="rememberMe">تذكّرني</span>
         </label>
-        <button class="btn" onclick="startLogin()" data-i18n="loginBtn" style="margin-top:14px">دخول</button>
+        <button class="btn" onclick="doEmailLogin()" data-i18n="loginBtn" style="margin-top:14px">دخول</button>
+        <div style="display:flex;justify-content:space-between;margin-top:13px;font-size:13px">
+          <a onclick="showRegister()" style="color:var(--mint);cursor:pointer" data-i18n="toRegister">تسجيل جديد</a>
+          <a onclick="forgotPass()" style="color:var(--txt-dim);cursor:pointer" data-i18n="forgot">نسيت كلمة المرور؟</a>
+        </div>
       </div>
-      <!-- step 2: otp -->
-      <div id="loginStep2" class="hidden">
-        <div style="font-size:34px;text-align:center;margin-bottom:6px">💬</div>
-        <p class="hint" data-i18n="otpHint">أرسل رمز التحقق عبر واتساب ثم أدخله هنا</p>
-        <button class="btn" onclick="sendWaCode()" data-i18n="otpSend" style="background:linear-gradient(120deg,#25d366,#128c7e);color:#fff">📲 إرسال الرمز عبر واتساب</button>
-        <input id="otpInput" inputmode="numeric" maxlength="4" data-i18n-ph="otpPh" placeholder="أدخل الرمز" style="margin-top:12px;letter-spacing:8px;text-align:center;font-size:22px" onkeydown="if(event.key==='Enter')confirmOtp()">
-        <button class="btn" onclick="confirmOtp()" data-i18n="otpConfirm" style="margin-top:12px">تأكيد الدخول</button>
-        <button class="btn" onclick="backToLogin()" data-i18n="otpBack" style="margin-top:8px;background:var(--glass-strong);color:var(--txt)">رجوع</button>
+      <!-- REGISTER mode -->
+      <div id="modeRegister" class="hidden">
+        <p class="hint" data-i18n="regHint">تسجيل لأول مرة — تحقّق بهويتك ثم أنشئ حسابك</p>
+        <input id="reHrid" inputmode="numeric" data-i18n-ph="loginPh" placeholder="رقمك الوظيفي" autocomplete="off">
+        <input id="rePhone" type="tel" inputmode="numeric" data-i18n-ph="phonePh" placeholder="05XXXXXXXX" autocomplete="tel" style="margin-top:10px">
+        <div style="height:1px;background:var(--stroke-soft);margin:14px 0"></div>
+        <input id="reEmail" type="email" inputmode="email" data-i18n-ph="emailPh" placeholder="الإيميل" autocomplete="email">
+        <input id="rePass" type="password" data-i18n-ph="newPassPh" placeholder="كلمة مرور (6 أحرف+)" autocomplete="new-password" style="margin-top:10px">
+        <input id="rePass2" type="password" data-i18n-ph="pass2Ph" placeholder="تأكيد كلمة المرور" autocomplete="new-password" style="margin-top:10px" onkeydown="if(event.key==='Enter')doRegister()">
+        <button class="btn" onclick="doRegister()" data-i18n="regBtn" style="margin-top:14px">إنشاء الحساب</button>
+        <div style="text-align:center;margin-top:13px;font-size:13px"><a onclick="showLogin()" style="color:var(--mint);cursor:pointer" data-i18n="toLogin">لدي حساب — تسجيل الدخول</a></div>
       </div>
       <div class="loginErr" id="loginErr"></div>
-      <div class="loginnote" data-i18n="loginNote">يجب تطابق الرقم الوظيفي والجوال مع الجدول</div>
+      <div class="loginnote" data-i18n="loginNote">التسجيل يتطلب تطابق الرقم الوظيفي والجوال مع الجدول</div>
     </div>
   </div>
 
@@ -393,7 +400,7 @@ var firebaseConfig = {
 };
 
 var db=null, AUTH_OK=false, CURRENT_HRID=null, CURRENT_REC=null, LAST_RECORDS=null;
-var SID=null, ALERT_REF=null, WEEKS_REF=null, NOTIF_REF=null, ALL_NOTIFS={}, REMEMBER=true, PENDING=null;
+var SID=null, ALERT_REF=null, WEEKS_REF=null, NOTIF_REF=null, ALL_NOTIFS={}, REMEMBER=true, PENDING=null, REGISTERING=false;
 /* ===== بيانات احتياطية مدمجة (Week 24) للدخول بدون رفع ===== */
 var FALLBACK_DATA={"weekId":"Sch-Week 24","meta":{"sheetName":"Sch-Week 24","dayCols":[{"day":"sun","serial":46173},{"day":"mon","serial":46174},{"day":"tue","serial":46175},{"day":"wed","serial":46176},{"day":"thu","serial":46177},{"day":"fri","serial":46178},{"day":"sat","serial":46179},{"day":"sun","serial":46180},{"day":"mon","serial":46181},{"day":"tue","serial":46182},{"day":"wed","serial":46183},{"day":"thu","serial":46184},{"day":"fri","serial":46185},{"day":"sat","serial":46186}]},"agents":{"94083":{"n":"Ahad mohammed dhafer alshehri","p":"500552571","t":"AlHanouf AlQahtani","l":"IB","d":[0.33333,0.33333,0.33333,0.33333,0.33333,"OFF","OFF","Annual","Annual","Annual","Annual","Annual","Annual","Annual"]},"94757":{"n":"Alaa Abdullah ali alfaifi","p":"559170052","t":"AlHanouf AlQahtani","l":"IB","d":[0.29167,0.29167,0.29167,0.29167,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF",0.29167]},"93715":{"n":"AlJohra Mansoor Abdullah AlMutaywia","p":"504577476","t":"AlHanouf AlQahtani","l":"IB","d":["Annual","Annual","Annual","Annual","Annual","Annual","Annual",0.29167,0.29167,0.29167,0.29167,"OFF","OFF",0.29167]},"95037":{"n":"Amjad Mohammed Abdullah Althunayyan","p":"556210772","t":"Manal Alrashed","l":"IB","d":[0.33333,0.33333,0.33333,0.33333,0.33333,"OFF","OFF",0.33333,0.33333,0.33333,0.33333,0.33333,"OFF","OFF"]},"94902":{"n":"ANOUD ABDULLAH MOHAMMED ALANAZI","p":"532352621","t":"Manal Alrashed","l":"IB","d":["OFF","OFF","Annual","Annual",0.29167,0.29167,0.29167,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167]},"94395":{"n":"Areej Mohammad sager alanzi","p":"507704686","t":"Manal Alrashed","l":"IB","d":["OFF",0.29167,0.29167,0.29167,0.29167,"OFF",0.29167,"OFF",0.29167,0.29167,0.29167,0.29167,"OFF",0.29167]},"94756":{"n":"Asma Saleh Falah Alamri","p":"558162892","t":"AlHanouf AlQahtani","l":"IB","d":[0.375,"OFF",0.375,0.375,0.375,"OFF",0.375,0.375,0.375,0.375,0.375,"OFF","OFF",0.375]},"93428":{"n":"Dalal Abdulaziz Abdullah Alyahya","p":"558782228","t":"Manal Alrashed","l":"IB","d":[0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF"]},"94085":{"n":"Dalia ali Alhumidan","p":"555172465","t":"AlHanouf AlQahtani","l":"IB","d":[0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF"]},"94377":{"n":"Fatima mohammed hussien alhasani","p":"550979507","t":"Manal Alrashed","l":"IB","d":["Annual",0.29167,0.29167,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF",0.29167,0.29167]},"94915":{"n":"Hadeel Khalid abdurahaman alhazmi","p":"556967078","t":"Manal Alrashed","l":"IB","d":[0.33333,0.33333,0.33333,"OFF","OFF",0.33333,0.33333,0.33333,0.33333,0.33333,"OFF","OFF",0.33333,0.33333]},"93757":{"n":"Ihsan Ismail Abdullah AlMowais","p":"555197170","t":"Manal Alrashed","l":"IB","d":[0.41667,0.41667,"OFF","OFF",0.41667,0.41667,0.41667,0.41667,0.41667,"OFF","OFF",0.41667,0.41667,0.41667]},"94936":{"n":"Iman Mohammed Saad Alghamdi","p":"534745696","t":"Manal Alrashed","l":"IB","d":[0.29167,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF",0.29167,0.29167,0.29167,0.29167]},"94907":{"n":"Manal Mubarak saad alqahtani","p":"505435865","t":"Manal Alrashed","l":"IB","d":["OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167]},"94895":{"n":"Manar Mamdouh Mohammed Alorifej","p":"568372575","t":"AlHanouf AlQahtani","l":"IB","d":[0.29167,0.29167,0.29167,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF",0.29167]},"93665":{"n":"Maram Bander Bader AlOtaibi","p":"559171895","t":"AlHanouf AlQahtani","l":"IB","d":[0.33333,0.33333,0.33333,0.33333,0.33333,"OFF","OFF","Eid Vacation",0.33333,0.33333,0.33333,0.33333,"OFF","OFF"]},"93631":{"n":"Maryam Abdulaziz Ibrahim AlDokhi","p":"504510231","t":"AlHanouf AlQahtani","l":"IB","d":[0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF"]},"93776":{"n":"Njoud Ibrahim Mohammed BinHamin","p":"501016204","t":"AlHanouf AlQahtani","l":"IB","d":[0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF",0.29167,"Annual",0.29167,0.29167,0.29167,"OFF","OFF"]},"93758":{"n":"Noor Saud Saad AlSalih","p":"599636658","t":"AlHanouf AlQahtani","l":"IB","d":[0.29167,0.29167,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF",0.29167,0.29167,0.29167]},"93784":{"n":"Nouf Ibrahim Ali AlNadeef","p":"535893672","t":"AlHanouf AlQahtani","l":"IB","d":["Annual","Annual","Annual","Annual","Annual","OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF"]},"93712":{"n":"Razan Haza Abdulrehman AlGalawe","p":"502206649","t":"AlHanouf AlQahtani","l":"IB","d":[0.33333,0.33333,0.33333,"OFF","OFF",0.29167,0.29167,0.33333,0.33333,0.33333,"OFF","OFF",0.29167,0.29167]},"93711":{"n":"Reem Mohammed Hadi AlDossary","p":"559192262","t":"AlHanouf AlQahtani","l":"IB","d":[0.33333,0.33333,0.33333,0.33333,0.33333,"OFF","OFF",0.33333,0.33333,0.33333,0.33333,0.33333,"OFF","OFF"]},"93756":{"n":"Renad Ali Dibashi AlWadai","p":"553551721","t":"AlHanouf AlQahtani","l":"IB","d":[0.375,0.375,"OFF","OFF",0.45833,0.375,0.375,0.375,0.375,"OFF","OFF",0.45833,0.375,0.375]},"94075":{"n":"Reouf khalid abdulrahman almugaiteb","p":"554838834","t":"AlHanouf AlQahtani","l":"IB","d":[0.375,0.375,0.375,0.375,0.375,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF"]},"94270":{"n":"Sara Fahad jeda alroqi","p":"533621009","t":"AlHanouf AlQahtani","l":"IB","d":[0.375,0.375,0.375,0.375,0.375,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF"]},"93764":{"n":"Shahad Yahya Ibrahim Tharawi","p":"580376857","t":"AlHanouf AlQahtani","l":"IB","d":[0.33333,0.33333,0.33333,0.33333,0.33333,"OFF","OFF",0.33333,0.33333,0.33333,0.33333,"Eid vacation","OFF","OFF"]},"93718":{"n":"Shaima Mohammed Shujaa AlAmmaj","p":"501096026","t":"Manal Alrashed","l":"IB","d":[0.29167,0.29167,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF",0.29167,0.29167,0.29167]},"93794":{"n":"Shmooa Saad Abdul Rahim AlFawzan","p":"558108381","t":"AlHanouf AlQahtani","l":"IB","d":["OFF","OFF",0.45833,0.375,0.375,0.375,0.375,"OFF","OFF",0.45833,0.375,0.375,0.375,0.375]},"94901":{"n":"Wosaif Fraih Saleem Alenzi","p":"560760250","t":"Manal Alrashed","l":"IB","d":[0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF"]},"95058":{"n":"Alhanouf Ali Saeed Abu Daqn","p":"549510512","t":"AlHanouf AlQahtani","l":"IB","d":["OFF",0.375,0.375,0.375,0.375,"OFF",0.375,0.375,0.375,0.375,0.375,0.375,"OFF","OFF"]},"93914":{"n":"Abdul majed ali alhazmi","p":"558853536","t":"Mohammed Aldoshan","l":"IB","d":["OFF","OFF",0.91667,0.91667,0.91667,0.91667,0.91667,"OFF","OFF",0.91667,0.91667,0.91667,0.91667,0.91667]},"94938":{"n":"Abdulaziz Ahmed Omar Sharahili","p":"511934210","t":"Mohammed Aldoshan","l":"IB","d":[0.79167,"OFF","OFF",0.91667,0.91667,0.91667,0.91667,0.79167,"OFF","OFF",0.91667,0.91667,0.91667,0.91667]},"94122":{"n":"Abdulaziz Ali Amer Albariqi","p":"530895870","t":"Mohammed Aldoshan","l":"IB","d":[0.79167,0.79167,0.79167,0.79167,0.79167,"OFF","OFF",0.79167,0.79167,0.79167,0.79167,0.79167,"OFF","OFF"]},"94769":{"n":"Abdulaziz dakhilallah naif alharbi","p":"503510113","t":"Muhanad alharthi","l":"IB","d":[0.79167,0.79167,0.79167,0.79167,"OFF","OFF",0.79167,0.83333,0.83333,0.83333,0.83333,"OFF","OFF",0.83333]},"94389":{"n":"Abdulaziz fahad abdulaziz aldarmu","p":"558263243","t":"Muhanad alharthi","l":"IB","d":[0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF"]},"94053":{"n":"Abdulaziz Fahad Hamoud Alkharji","p":"534017823","t":"Muhanad alharthi","l":"IB","d":[0.83333,0.83333,0.83333,0.83333,0.83333,"OFF","OFF",0.83333,0.83333,0.83333,0.83333,0.83333,"OFF","OFF"]},"94766":{"n":"Abdulellah Zaid Saleh Al-Tamimi","p":"501052215","t":"Muhanad alharthi","l":"IB","d":[0.41667,0.41667,0.41667,0.41667,0.41667,"OFF","OFF",0.41667,0.41667,0.41667,0.41667,0.41667,"OFF","OFF"]},"94460":{"n":"Abdullah Abdulrahman Alabdulali","p":"503880899","t":"Muhanad alharthi","l":"IB","d":[0.375,0.375,0.375,0.375,0.375,"OFF","OFF",0.375,0.375,0.375,0.375,0.375,"OFF","OFF"]},"94114":{"n":"Abdullah adnan abdullah Almansour","p":"590922155","t":"Yahya mohammed","l":"IB","d":[0.91667,0.91667,0.91667,0.91667,0.91667,"OFF","OFF",0.91667,0.91667,0.91667,0.91667,0.91667,"OFF","OFF"]},"94509":{"n":"Abdullah Ali Mohammed Aldhafian","p":"555645966","t":"Manal Alrashed","l":"IB","d":["OFF","OFF",0.79167,0.79167,0.79167,0.79167,0.79167,"OFF","OFF",0.79167,0.79167,0.79167,0.79167,0.79167]},"94039":{"n":"Abdullah Ayoob Suliman Almuharib","p":"552264974","t":"Yahya mohammed","l":"IB","d":[0.79167,0.79167,0.79167,0.79167,0.79167,"OFF","OFF",0.79167,0.79167,0.79167,0.79167,0.79167,"OFF","OFF"]},"95044":{"n":"Abdullah brrak abdulaziz almubarak","p":"559493100","t":"Muhanad alharthi","l":"IB","d":[0.66667,0.66667,"OFF","OFF",0.66667,0.66667,0.66667,0.91667,0.91667,"OFF","OFF",0.91667,0.91667,0.91667]},"94506":{"n":"Abdullah ghanem Hussin alqaysi","p":"507881998","t":"Muhanad alharthi","l":"IB","d":[0.91667,0.91667,0.91667,0.91667,0.91667,"OFF","OFF",0.91667,0.91667,0.91667,0.91667,0.91667,"OFF","OFF"]},"94009":{"n":"Abdullah Mohammed Abdullkarim Alrasheed","p":"555222443","t":"Mohammed Aldoshan","l":"IB","d":[0.29167,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,"Exam Leave","OFF","Exam Leave","OFF","Exam Leave",0.41667,0.41667]},"94699":{"n":"Abdullah Youssef Mohammed Al-Harbi","p":"550729166","t":"Yahya mohammed","l":"IB","d":["OFF","OFF",0.66667,0.66667,0.66667,0.66667,0.66667,"OFF","OFF",0.66667,0.66667,0.66667,0.66667,0.66667]},"94108":{"n":"Abdulmajed Abdulhadi obid Bakhedar","p":"565677717","t":"Muhanad alharthi","l":"IB","d":["MA","MA","OFF","OFF",0.58333,0.58333,0.58333,0.58333,0.58333,"OFF","OFF",0.58333,0.58333,0.58333]},"94896":{"n":"Ahmad sultan suliman aljaser","p":"533216650","t":"Mohammed Aldoshan","l":"IB","d":[0.41667,0.41667,0.41667,0.41667,"OFF","OFF",0.41667,0.41667,0.41667,0.41667,0.41667,"OFF","OFF",0.41667]},"94704":{"n":"Ahmed Saleh Mohammed Alazzam","p":"591199213","t":"Muhanad alharthi","l":"IB","d":[0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF","Annual","Annual","Annual","Annual","Annual","Annual","Annual"]},"94939":{"n":"Ali Mohammed Ali Alali","p":"553824841","t":"Mohammed Aldoshan","l":"IB","d":[0.41667,0.41667,0.41667,"OFF","OFF",0.41667,0.41667,0.41667,0.41667,0.41667,"OFF","OFF",0.41667,0.41667]},"93633":{"n":"Ali Mohammed Awad AlShaban","p":"565562804","t":"Yahya mohammed","l":"IB","d":[0.54167,0.54167,0.54167,"OFF","OFF",0.54167,0.54167,0.54167,0.54167,0.54167,"OFF","OFF",0.54167,0.54167]},"94887":{"n":"Ali nasser Abdullah al-masradi","p":"505309269","t":"Mohammed Aldoshan","l":"IB","d":[0.75,0.75,0.75,0.75,0.75,"OFF","OFF",0.75,0.75,0.75,0.75,0.75,"OFF","OFF"]},"94946":{"n":"Amer Mater Abudllah Alghmadi","p":"536758723","t":"Yahya mohammed","l":"IB","d":[0.91667,0.91667,0.91667,0.91667,"OFF","OFF",0.91667,0.91667,0.91667,0.91667,0.91667,"OFF","OFF",0.91667]},"94698":{"n":"Awad Ahmed Alrashid","p":"555923422","t":"Yahya mohammed","l":"IB","d":[0.91667,0.91667,0.91667,0.91667,"OFF","OFF",0.75,0.91667,0.91667,0.91667,0.91667,"OFF","OFF",0.75]},"94702":{"n":"FAISAL DHAFER ALI ALSHEHRY","p":"532345269","t":"Yahya mohammed","l":"IB","d":[0.54167,0.54167,0.54167,0.54167,0.54167,"OFF","OFF",0.54167,0.54167,0.54167,0.54167,0.54167,"OFF","OFF"]},"93668":{"n":"Faisal Naif Meshal AlOtaibi","p":"531397582","t":"Yahya mohammed","l":"IB","d":[0.83333,"AE","AE","OFF","OFF",0.91667,0.83333,0.83333,0.83333,0.83333,"OFF","OFF",0.91667,0.83333]},"94382":{"n":"Fawaz Abdullah Abdulrahman Alasim","p":"569080460","t":"Mohammed Aldoshan","l":"IB","d":[0.83333,0.83333,0.83333,0.83333,0.83333,"OFF","OFF",0.54167,0.54167,0.54167,0.54167,0.54167,"OFF","OFF"]},"94904":{"n":"Fihied Ghunaiman Fahad Al-Rashidi","p":"501100386","t":"Muhanad alharthi","l":"IB","d":[0.83333,0.83333,"OFF","OFF",0.91667,0.91667,0.91667,0.83333,0.83333,"OFF","OFF",0.91667,0.91667,0.91667]},"94593":{"n":"Khaled Abdulkarim Abdullah Alqahtani","p":"549421107","t":"Mohammed Aldoshan","l":"IB","d":["OFF","OFF",0.41667,0.41667,0.41667,0.41667,0.41667,"OFF","OFF",0.41667,0.41667,0.41667,0.41667,0.41667]},"93825":{"n":"Khaled Atiyah AlAnezi","p":"582425878","t":"Mohammed AlDoshan","l":"IB","d":[0.625,0.625,0.625,0.625,0.625,"OFF","OFF",0.625,0.625,0.625,0.625,0.625,"OFF","OFF"]},"94385":{"n":"majed faiz n alotaibi","p":"503476513","t":"Manal Alrashed","l":"IB","d":[0.41667,"AE","AE","OFF","OFF",0.33333,0.33333,0.29167,0.29167,0.29167,"OFF","OFF",0.29167,0.29167]},"94941":{"n":"Mamdouh Ali saad Alqasem","p":"562481488","t":"Muhanad alharthi","l":"IB","d":[0.33333,0.33333,0.33333,0.33333,0.33333,"OFF","OFF",0.33333,0.33333,0.33333,0.33333,0.33333,"OFF","OFF"]},"94755":{"n":"MANHAL ATIAH ZAID ALZAHRANI","p":"503850947","t":"Mohammed Aldoshan","l":"IB","d":[0.41667,0.41667,0.41667,0.41667,0.41667,"OFF","OFF",0.41667,0.41667,0.41667,0.41667,0.41667,"OFF","OFF"]},"95039":{"n":"Mansour Alhajj","p":"594059998","t":"Yahya mohammed","l":"IB","d":[0.54167,0.54167,0.54167,0.54167,"OFF","OFF",0.54167,0.54167,0.54167,0.54167,0.54167,"OFF","OFF",0.54167]},"94013":{"n":"Mazen saad ateeq Almawash","p":"506236087","t":"Mohammed Aldoshan","l":"OB-IB","d":[0.33333,0.33333,0.33333,0.33333,0.33333,"OFF","OFF",0.33333,0.33333,0.33333,0.33333,0.33333,"OFF","OFF"]},"93830":{"n":"Mohammed Abdullah Ibrahim AlHumud","p":"500718557","t":"Mohammed Aldoshan","l":"IB","d":["OFF","OFF",0.70833,0.70833,0.70833,0.70833,0.70833,"OFF","OFF",0.70833,0.70833,0.70833,0.70833,0.70833]},"94935":{"n":"Mohammed saleh surur Alrashidi","p":"500977343","t":"Yahya mohammed","l":"IB","d":[0.375,0.375,0.375,0.375,0.375,"OFF","OFF",0.375,0.375,0.375,0.375,0.375,"OFF","OFF"]},"94014":{"n":"MOHMMED WALEED MOHMMED ALSHABILI","p":"538082555","t":"Yahya mohammed","l":"OB-IB","d":[0.41667,0.41667,0.41667,0.41667,0.41667,"OFF","OFF",0.41667,0.41667,0.41667,0.41667,0.41667,"OFF","OFF"]},"94589":{"n":"Mohommed Ahmad Qasm Alanzi","p":"544406070","t":"Muhanad alharthi","l":"IB","d":[0.54167,0.54167,"OFF","OFF",0.54167,0.54167,0.54167,0.54167,0.54167,"OFF","OFF",0.54167,0.54167,0.54167]},"94933":{"n":"Mosab saud Samel alajaji","p":"555923692","t":"Yahya mohammed","l":"IB","d":[0.45833,0.45833,"OFF","OFF",0.45833,0.45833,0.45833,0.45833,0.45833,"OFF","OFF",0.45833,0.45833,0.45833]},"94467":{"n":"Muhannad Ahmed Alghamdi","p":"550570675","t":"Yahya mohammed","l":"IB","d":[0.66667,0.66667,0.66667,0.66667,0.66667,"OFF","OFF",0.66667,0.66667,0.66667,0.66667,0.66667,"OFF","OFF"]},"94924":{"n":"Muhannad ali salman alahmadi","p":"553867565","t":"Muhanad alharthi","l":"IB","d":[0.58333,0.58333,0.58333,0.58333,0.58333,"OFF","OFF",0.58333,0.58333,0.58333,0.58333,0.58333,"OFF","OFF"]},"93895":{"n":"NAIF sultan Abdul latif Al Suhail","p":"545089542","t":"Muhanad alharthi","l":"IB","d":["OFF","OFF",0.79167,0.79167,0.79167,0.79167,0.79167,"OFF","OFF",0.79167,0.79167,0.79167,0.79167,0.79167]},"94378":{"n":"Raed Mosaed Al-Budairi","p":"554731002","t":"Mohammed Aldoshan","l":"IB","d":[0.91667,0.91667,0.91667,"OFF","OFF",0.91667,0.91667,0.91667,0.91667,0.91667,"OFF","OFF",0.91667,0.91667]},"94502":{"n":"Rakan Muteb Hassan Alharbi","p":"583130806","t":"Manal Alrashed","l":"IB","d":[0.33333,0.33333,0.33333,0.33333,0.33333,"OFF","OFF",0.33333,0.33333,0.33333,0.33333,0.33333,"OFF","OFF"]},"94029":{"n":"Rayan ali aiez al-mutairi","p":"509015272","t":"Yahya mohammed","l":"IB","d":[0.375,0.375,0.375,0.375,0.375,"OFF","OFF",0.375,0.375,0.375,0.375,0.375,"OFF","OFF"]},"94501":{"n":"Reda Hamed Hassan Barniyah","p":"555014214","t":"Muhanad alharthi","l":"IB","d":["OFF","OFF",0.625,0.625,0.625,0.625,0.625,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167]},"94884":{"n":"Saleh Mohammed saleh alshalwah","p":"545666441","t":"Mohammed Aldoshan","l":"IB","d":[0.41667,0.41667,0.41667,0.41667,0.41667,"OFF","OFF",0.41667,0.41667,0.41667,0.41667,0.41667,"OFF","OFF"]},"94215":{"n":"Saleh Saeed Saleh Alahmari","p":"556960973","t":"Yahya mohammed","l":"IB","d":[0.54167,0.54167,0.54167,0.54167,0.54167,"OFF","OFF",0.54167,0.54167,0.54167,0.54167,0.54167,"OFF","OFF"]},"94037":{"n":"Sami Mislat Qutaim Almotairi","p":"556937965","t":"Mohammed Aldoshan","l":"IB","d":[0.66667,0.66667,0.66667,0.66667,"OFF","OFF",0.66667,0.66667,0.66667,0.66667,0.66667,"OFF","OFF",0.66667]},"94926":{"n":"suhail abdullah saleh althyab","p":"533595585","t":"Muhanad alharthi","l":"IB","d":[0.625,0.625,0.625,0.625,0.625,"OFF","OFF",0.625,0.625,0.625,0.625,0.625,"OFF","OFF"]},"95040":{"n":"Sultan Abdulrahman Abdullah Hashbal","p":"544930380","t":"Yahya mohammed","l":"IB","d":["OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167]},"93834":{"n":"Sultan Badr Sultan AlOtaibi","p":"505876912","t":"Mohammed Aldoshan","l":"IB","d":[0.66667,0.66667,0.66667,0.66667,"OFF","OFF",0.66667,0.66667,0.66667,0.66667,0.66667,"OFF","OFF",0.66667]},"94694":{"n":"sultan muzeil H alontar","p":"537738324","t":"Yahya mohammed","l":"IB","d":["OFF","OFF",0.54167,0.54167,0.54167,0.54167,0.54167,"OFF","OFF",0.54167,0.54167,0.54167,0.54167,0.54167]},"94927":{"n":"TARIQ TALAB DUBAYAN","p":"501472956","t":"Muhanad alharthi","l":"IB","d":[0.625,0.625,0.625,0.625,0.625,"OFF","OFF",0.625,0.625,0.625,0.625,0.625,"OFF","OFF"]},"94464":{"n":"Turki Mohammed Jamman Alzahrani","p":"500710910","t":"Yahya mohammed","l":"IB","d":["Annual","Annual","Annual","Annual",0.625,0.625,0.625,0.625,0.625,0.625,"OFF","OFF",0.625,0.625]},"94272":{"n":"Turki Shaddad H Alosaimi","p":"508086539","t":"Mohammed Aldoshan","l":"IB","d":[0.5,0.5,0.5,0.5,0.5,"OFF","OFF",0.5,0.5,0.5,0.5,0.5,"OFF","OFF"]},"94116":{"n":"Wael alnabhi alhailm aljafry","p":"534612925","t":"Yahya mohammed","l":"IB","d":[0.75,"OFF","OFF",0.75,0.75,0.75,0.75,0.75,"OFF","OFF",0.75,0.75,0.75,0.75]},"94888":{"n":"Waleed badr al Saif","p":"536413155","t":"Mohammed Aldoshan","l":"IB","d":[0.79167,"OFF","OFF",0.83333,0.83333,0.83333,0.83333,0.79167,0.79167,"OFF","OFF",0.79167,0.79167,0.79167]},"94103":{"n":"Waleed Naif alharbi","p":"559581815","t":"Muhanad alharthi","l":"IB","d":[0.375,0.375,0.375,0.375,0.375,"OFF","OFF",0.375,0.375,0.375,0.375,0.375,"OFF","OFF"]},"93915":{"n":"Yahya ibrahim mohammed oteif","p":"537542973","t":"Yahya mohammed","l":"IB","d":[0.45833,0.45833,0.45833,0.45833,"OFF","OFF",0.45833,0.375,"Annual","OFF","OFF",0.375,0.375,0.375]},"93908":{"n":"Ziyad Khaled Ali Alriqiei","p":"559083005","t":"Muhanad alharthi","l":"IB","d":[0.91667,"OFF","OFF",0.91667,0.91667,0.91667,0.91667,0.91667,0.91667,"OFF","OFF",0.91667,0.91667,0.91667]},"94708":{"n":"yahya moraya abdu sharahili","p":"532147110","t":"Yahya mohammed","l":"IB","d":["OFF","OFF",0.58333,0.58333,0.58333,0.58333,0.58333,"OFF","OFF",0.58333,0.58333,0.58333,0.58333,0.58333]},"94595":{"n":"YASER Ahmed Mohammed ALZAHRANI","p":"532637007","t":"Mohammed Aldoshan","l":"IB","d":[0.66667,0.66667,0.66667,0.66667,0.66667,"OFF","OFF","Annual","Annual","Annual","Annual","Annual","Annual","Annual"]},"94700":{"n":"Yazeed hamad abdulrahman alghasham","p":"566269615","t":"Yahya mohammed","l":"IB","d":[0.58333,"OFF","OFF",0.33333,0.33333,0.33333,0.33333,0.58333,"OFF","OFF",0.33333,0.33333,0.33333,0.33333]},"95035":{"n":"ZIYAD ALI ISSA ALHARBI","p":"531168931","t":"Yahya mohammed","l":"IB","d":[0.41667,0.41667,0.41667,0.41667,"OFF","OFF",0.41667,0.41667,0.41667,0.41667,0.41667,"OFF","OFF",0.41667]},"95053":{"n":"Abdulrahman Bader Faleh Alotaibi","p":"595300798","t":"Muhanad alharthi","l":"IB","d":[0.625,0.625,0.625,0.625,0.625,"OFF","OFF",0.625,0.625,0.625,0.625,0.625,"OFF","OFF"]},"95055":{"n":"Majed abdulhadi Shthan alzahrani","p":"502235385","t":"Mohammed Aldoshan","l":"IB","d":[0.625,0.625,0.625,0.625,0.625,"OFF","OFF",0.625,0.625,0.625,0.625,0.625,"OFF","OFF"]},"95043":{"n":"Faris Mohammed Ahmad Almuwallad","p":"554634290","t":"Muhanad alharthi","l":"IB","d":[0.66667,0.66667,0.66667,"OFF","OFF",0.66667,0.66667,0.66667,0.66667,0.66667,"OFF","OFF",0.66667,0.66667]},"95048":{"n":"mosaed talal mansor alahmdi","p":"550408254","t":"Mohammed Aldoshan","l":"IB","d":[0.66667,0.66667,0.66667,0.66667,0.66667,"OFF","OFF",0.66667,0.66667,0.66667,0.66667,0.66667,"OFF","OFF"]},"95073":{"n":"Bader Thamer Thani Alanazi","p":"558257674","t":"Muhanad alharthi","l":"IB","d":[0.625,0.625,0.625,"OFF","OFF",0.625,0.625,0.625,0.625,0.625,"OFF","OFF",0.625,0.625]},"95074":{"n":"Ibrahim Mohammed Ibrahim Alrashdi","p":"537118017","t":"Mohammed Aldoshan","l":"IB","d":[0.625,0.625,0.625,"OFF","OFF",0.625,0.625,0.625,0.625,0.625,"OFF","OFF",0.625,0.625]},"95068":{"n":"Abdulhkeem Mohammed nafj Alotaipi","p":"533668825","t":"Yahya mohammed","l":"IB","d":[0.45833,0.45833,"OFF","OFF",0.45833,0.45833,0.45833,0.45833,0.45833,"OFF","OFF",0.45833,0.45833,0.45833]},"95069":{"n":"Rayan qaid marji alshammriy","p":"553212897","t":"Muhanad alharthi","l":"IB","d":["OFF","OFF",0.66667,0.66667,0.66667,0.66667,0.66667,"OFF","OFF",0.66667,0.66667,0.66667,0.66667,0.66667]},"95077":{"n":"Khaled Waleed Al-Sulateen","p":"565957344","t":"Mohammed Aldoshan","l":"IB","d":["OFF","OFF",0.70833,0.70833,0.70833,0.70833,0.70833,"OFF","OFF",0.70833,0.70833,0.70833,0.70833,0.70833]},"95066":{"n":"Mohammad shebnan Saad Alshahrani","p":"562343452","t":"Yahya mohammed","l":"IB","d":["OFF","OFF",0.54167,0.54167,0.54167,0.54167,0.54167,"OFF","OFF",0.54167,0.54167,0.54167,0.54167,0.54167]}}};
 var LANG = localStorage.getItem("lang")||"ar";
@@ -455,8 +462,9 @@ var I18N={
     dir:"rtl",
     badge:"جدول الفريق · OPS Schedule", t1:"باحث", t2:"الجدول",
     loginHint:"أدخل رقمك الوظيفي ورقم جوالك المسجّل في الجدول", loginPh:"رقمك الوظيفي", phonePh:"05XXXXXXXX",
-    loginBtn:"دخول", loginNote:"يجب تطابق الرقم الوظيفي والجوال مع الجدول", rememberMe:"حفظ بيانات الدخول (تذكّرني)",
-    otpHint:"أرسل رمز التحقق عبر واتساب ثم أدخله هنا", otpSend:"📲 إرسال الرمز عبر واتساب", otpPh:"أدخل الرمز", otpConfirm:"تأكيد الدخول", otpBack:"رجوع",
+    loginBtn:"دخول", loginNote:"التسجيل يتطلب تطابق الرقم الوظيفي والجوال مع الجدول", rememberMe:"تذكّرني",
+    logHint:"سجّل دخولك بالإيميل وكلمة المرور", emailPh:"الإيميل", passPh:"كلمة المرور", newPassPh:"كلمة مرور (6 أحرف+)", pass2Ph:"تأكيد كلمة المرور",
+    toRegister:"تسجيل جديد", forgot:"نسيت كلمة المرور؟", regHint:"تسجيل لأول مرة — تحقّق بهويتك ثم أنشئ حسابك", regBtn:"إنشاء الحساب", toLogin:"لدي حساب — تسجيل الدخول",
     notifTitle:"الإشعارات", notifClear:"مسح الكل", notifEmpty:"لا توجد إشعارات",
     change:"تغيير", swap:"🔁 تبديل الشفت",
     brkReady:"بريك ساعة كاملة · جاهز", brkStart:"بدء البريك", brkReset:"إعادة ضبط",
@@ -477,8 +485,9 @@ var I18N={
     dir:"ltr",
     badge:"Team Schedule · OPS", t1:"Schedule", t2:"Finder",
     loginHint:"Enter your HRID and the phone number registered in the schedule", loginPh:"Your HRID", phonePh:"05XXXXXXXX",
-    loginBtn:"Enter", loginNote:"HRID and phone must match the schedule", rememberMe:"Remember me",
-    otpHint:"Send a verification code via WhatsApp, then enter it here", otpSend:"📲 Send code via WhatsApp", otpPh:"Enter code", otpConfirm:"Confirm login", otpBack:"Back",
+    loginBtn:"Enter", loginNote:"Registration requires HRID and phone to match the schedule", rememberMe:"Remember me",
+    logHint:"Sign in with email and password", emailPh:"Email", passPh:"Password", newPassPh:"Password (6+ chars)", pass2Ph:"Confirm password",
+    toRegister:"Create account", forgot:"Forgot password?", regHint:"First time — verify your identity, then create your account", regBtn:"Create account", toLogin:"I have an account — sign in",
     notifTitle:"Notifications", notifClear:"Clear all", notifEmpty:"No notifications",
     change:"Change", swap:"🔁 Shift Swap",
     brkReady:"Full-hour break · Ready", brkStart:"Start break", brkReset:"Reset",
@@ -526,26 +535,34 @@ window.addEventListener("load", function(){
     dbg("✅ تهيئة Firebase");
   }catch(e){ dbg("❌ فشل التهيئة: "+e.message); }
 
-  // مصادقة مجهولة (مُبقاة عمداً لضمان auth != null)
+  // مصادقة: مجهول مؤقت للقراءة قبل الدخول · إيميل/كلمة مرور للموظف
+  var VISIT_DONE=false;
   firebase.auth().onAuthStateChanged(function(user){
     if(user){
       AUTH_OK=true;
-      dbg("🔐 مصادقة مجهولة جاهزة · UID="+user.uid.slice(0,8));
-      bumpVisits();
-      if(localStorage.getItem("loggedOut")==="1"){ dbg("🚪 خرج سابقاً — لا دخول تلقائي"); localStorage.removeItem("loggedOut"); clearHrid(); return; }
-      var saved=getSavedHrid();
-      if(saved){
-        REMEMBER = !!localStorage.getItem("hrid");
-        if(idleExpired()){ dbg("⏲️ انتهت الجلسة (خمول)"); clearHrid(); }
-        else { touchActivity(); dbg("↩️ دخول محفوظ: "+saved); proceedWithHrid(saved, true); }
-      }
+      if(!VISIT_DONE){ VISIT_DONE=true; bumpVisits(); }
     }
-  });
-  firebase.auth().signInAnonymously().catch(function(e){
-    dbg("❌ فشل تسجيل الدخول المجهول: "+e.code+" — "+e.message);
-    showErr("تعذّر الاتصال بالخادم. حدّث الصفحة.");
+    if(user && !user.isAnonymous){
+      if(REGISTERING) return;            // التسجيل الجديد يكمل يدوياً
+      dbg("🔐 جلسة مسجّلة · UID="+user.uid.slice(0,8));
+      resolveHridAndEnter(user);
+    } else if(!user){
+      firebase.auth().signInAnonymously().catch(function(e){
+        dbg("❌ فشل المجهول: "+e.code); showErr(LANG==="ar"?"تعذّر الاتصال بالخادم. حدّث الصفحة.":"Connection failed, refresh.");
+      });
+    }
+    // user && anonymous → شاشة الدخول الافتراضية
   });
 });
+
+function resolveHridAndEnter(user){
+  var done=function(h){
+    if(h){ REMEMBER=true; touchActivity(); proceedWithHrid(String(h), true); }
+    else { showErr(LANG==="ar"?"تعذّر إيجاد رقمك الوظيفي لهذا الحساب":"Couldn't find your HRID"); }
+  };
+  if(user.displayName) done(user.displayName);
+  else db.ref("uidHrid/"+user.uid).once("value").then(function(s){ done(s.val()); }).catch(function(){ done(null); });
+}
 
 function bumpVisits(){
   try{ db.ref("stats/visits").transaction(function(c){return (c||0)+1;}); }catch(e){}
@@ -558,72 +575,93 @@ function showErr(t){ var e=document.getElementById("loginErr"); if(e) e.textCont
 function phoneIntl(p){var d=String(p==null?"":p).replace(/[^0-9]/g,"");if(d.indexOf("966")===0)return d;if(d.indexOf("0")===0)return "966"+d.slice(1);if(d.length===9&&d.indexOf("5")===0)return "966"+d;return d;}
 function validPhone(p){return /^9665\d{8}$/.test(phoneIntl(p));}
 
-/* ---- session storage helpers ---- */
-function saveHrid(hrid){ if(REMEMBER){ localStorage.setItem("hrid",hrid); sessionStorage.removeItem("hrid"); } else { sessionStorage.setItem("hrid",hrid); localStorage.removeItem("hrid"); } localStorage.removeItem("loggedOut"); }
+/* ---- session helpers (hrid مخزّن لصفحة swap) ---- */
+function saveHrid(hrid){ if(REMEMBER){ localStorage.setItem("hrid",hrid); sessionStorage.removeItem("hrid"); } else { sessionStorage.setItem("hrid",hrid); localStorage.removeItem("hrid"); } }
 function clearHrid(){ localStorage.removeItem("hrid"); sessionStorage.removeItem("hrid"); }
 function getSavedHrid(){ return localStorage.getItem("hrid") || sessionStorage.getItem("hrid"); }
 
-/* ---- step 1: validate HRID + phone against schedule ---- */
-function startLogin(){
-  var hrid=(document.getElementById("hridInput").value||"").trim();
-  var phone=(document.getElementById("phoneInput").value||"").trim();
-  REMEMBER=document.getElementById("rememberMe").checked;
-  showErr("");
-  if(!hrid){ showErr(LANG==="ar"?"أدخل رقمك الوظيفي":"Enter your HRID"); return; }
-  if(!validPhone(phone)){ showErr(LANG==="ar"?"أدخل رقم جوال صحيح":"Enter a valid phone"); return; }
-  if(!AUTH_OK || !db){ showErr(LANG==="ar"?"جارٍ الاتصال… حاول بعد ثانية":"Connecting… try again"); return; }
-  dbg("🔎 تحقق HRID+جوال "+hrid);
-  db.ref("weeks").once("value").then(function(snap){
-    var weeks=snap.val()||{}, ids=Object.keys(weeks);
-    ids.sort(function(a,b){return ((weeks[b].meta&&weeks[b].meta.updatedAt)||0)-((weeks[a].meta&&weeks[a].meta.updatedAt)||0);});
-    var rec=null;
-    for(var i=0;i<ids.length;i++){ var w=weeks[ids[i]]; if(w&&w.agents&&w.agents[hrid]){ rec=w.agents[hrid]; break; } }
-    if(!rec && typeof FALLBACK_DATA!=="undefined" && FALLBACK_DATA.agents && FALLBACK_DATA.agents[hrid]){
-      var fa=FALLBACK_DATA.agents[hrid]; rec={name:fa.n,phone:fa.p,days:fa.d}; dbg("📦 الموظف من البيانات الاحتياطية");
-    }
-    if(!rec){ showErr(LANG==="ar"?"الرقم الوظيفي غير موجود في الجدول":"HRID not found"); return; }
-    // تطابق الجوال إن وُجد في الجدول
-    if(rec.phone!=null && String(rec.phone).trim()!==""){
-      if(!validPhone(rec.phone) || phoneIntl(rec.phone)!==phoneIntl(phone)){
-        showErr(LANG==="ar"?"رقم الجوال لا يطابق المسجّل في الجدول":"Phone doesn't match the schedule"); return;
-      }
-    } else {
-      dbg("ℹ️ لا يوجد جوال مخزّن لهذا الموظف — تخطّي التطابق");
-    }
-    // أنشئ رمز تحقق وانتقل للخطوة 2
-    var code=String(Math.floor(1000+Math.random()*9000));
-    PENDING={hrid:hrid, phone:phoneIntl(phone), code:code, remember:REMEMBER};
-    document.getElementById("loginStep1").classList.add("hidden");
-    document.getElementById("loginStep2").classList.remove("hidden");
-    document.getElementById("otpInput").value="";
-    showErr("");
-  }).catch(function(err){ showErr((LANG==="ar"?"تعذّر القراءة: ":"Read error: ")+err.code); });
+/* ---- التبديل بين الدخول والتسجيل ---- */
+function showLogin(){ document.getElementById("modeRegister").classList.add("hidden"); document.getElementById("modeLogin").classList.remove("hidden"); showErr(""); }
+function showRegister(){ document.getElementById("modeLogin").classList.add("hidden"); document.getElementById("modeRegister").classList.remove("hidden"); showErr(""); }
+function setPersist(remember){ try{ return firebase.auth().setPersistence(remember?firebase.auth.Auth.Persistence.LOCAL:firebase.auth.Auth.Persistence.SESSION); }catch(e){ return Promise.resolve(); } }
+
+function authErr(e){
+  var c=(e&&e.code)||"";
+  var ar={"auth/invalid-email":"إيميل غير صحيح","auth/user-not-found":"لا يوجد حساب بهذا الإيميل — سجّل جديد","auth/wrong-password":"كلمة المرور غير صحيحة","auth/invalid-credential":"الإيميل أو كلمة المرور غير صحيحة","auth/email-already-in-use":"هذا الإيميل مستخدم — سجّل الدخول","auth/weak-password":"كلمة المرور ضعيفة (6 أحرف+)","auth/too-many-requests":"محاولات كثيرة — حاول لاحقاً","auth/network-request-failed":"تعذّر الاتصال بالشبكة","auth/operation-not-allowed":"مصادقة الإيميل غير مفعّلة في Firebase"};
+  if(LANG==="ar") return ar[c]||("خطأ: "+(c||(e&&e.message)||""));
+  return (e&&e.message)||c||"Error";
 }
 
-/* ---- step 2: WhatsApp code ---- */
-function sendWaCode(){
-  if(!PENDING) return;
-  var txt = (LANG==="ar"?"رمز الدخول إلى باحث الجدول: ":"Schedule Finder login code: ")+PENDING.code;
-  window.open("https://wa.me/"+PENDING.phone+"?text="+encodeURIComponent(txt), "_blank");
-}
-function backToLogin(){
-  PENDING=null;
-  document.getElementById("loginStep2").classList.add("hidden");
-  document.getElementById("loginStep1").classList.remove("hidden");
+/* ---- تسجيل الدخول بالإيميل ---- */
+function doEmailLogin(){
+  var email=(document.getElementById("liEmail").value||"").trim();
+  var pass=document.getElementById("liPass").value||"";
+  REMEMBER=document.getElementById("rememberMe").checked;
   showErr("");
+  if(!email||!pass){ showErr(LANG==="ar"?"أدخل الإيميل وكلمة المرور":"Enter email and password"); return; }
+  if(!db){ showErr(LANG==="ar"?"جارٍ الاتصال…":"Connecting…"); return; }
+  setPersist(REMEMBER)
+    .then(function(){ return firebase.auth().signInWithEmailAndPassword(email, pass); })
+    .then(function(){ dbg("✅ دخول بالإيميل"); /* onAuthStateChanged يكمل */ })
+    .catch(function(e){ showErr(authErr(e)); });
 }
-function confirmOtp(){
-  if(!PENDING){ backToLogin(); return; }
-  var v=(document.getElementById("otpInput").value||"").trim();
-  if(v!==PENDING.code){ showErr(LANG==="ar"?"الرمز غير صحيح":"Wrong code"); return; }
-  REMEMBER=PENDING.remember;
-  var hrid=PENDING.hrid;
-  localStorage.setItem("myphone", PENDING.phone);
-  PENDING=null;
-  document.getElementById("loginStep2").classList.add("hidden");
-  document.getElementById("loginStep1").classList.remove("hidden");
+
+/* ---- التحقق من الهوية (HRID + جوال) ---- */
+function verifyIdentity(hrid, phone){
+  if(typeof FALLBACK_DATA!=="undefined" && FALLBACK_DATA.agents && FALLBACK_DATA.agents[hrid]){
+    var a=FALLBACK_DATA.agents[hrid];
+    return Promise.resolve(!a.p || phoneIntl(a.p)===phoneIntl(phone));
+  }
+  return db.ref("weeks").once("value").then(function(snap){
+    var weeks=snap.val()||{}, ids=Object.keys(weeks), rec=null;
+    for(var i=0;i<ids.length;i++){ var w=weeks[ids[i]]; if(w&&w.agents&&w.agents[hrid]){ rec=w.agents[hrid]; break; } }
+    if(!rec) return false;
+    if(rec.phone!=null && String(rec.phone).trim()!=="") return phoneIntl(rec.phone)===phoneIntl(phone);
+    return true;
+  });
+}
+
+/* ---- التسجيل لأول مرة ---- */
+function doRegister(){
+  var hrid=(document.getElementById("reHrid").value||"").trim();
+  var phone=(document.getElementById("rePhone").value||"").trim();
+  var email=(document.getElementById("reEmail").value||"").trim();
+  var p1=document.getElementById("rePass").value||"", p2=document.getElementById("rePass2").value||"";
   showErr("");
-  proceedWithHrid(hrid, false);
+  if(!hrid){ showErr(LANG==="ar"?"أدخل رقمك الوظيفي":"Enter HRID"); return; }
+  if(!validPhone(phone)){ showErr(LANG==="ar"?"أدخل رقم جوال صحيح":"Enter a valid phone"); return; }
+  if(!email||email.indexOf("@")<1){ showErr(LANG==="ar"?"أدخل إيميل صحيح":"Enter a valid email"); return; }
+  if(p1.length<6){ showErr(LANG==="ar"?"كلمة المرور 6 أحرف على الأقل":"Password ≥ 6 chars"); return; }
+  if(p1!==p2){ showErr(LANG==="ar"?"كلمتا المرور غير متطابقتين":"Passwords don't match"); return; }
+  if(!db){ showErr(LANG==="ar"?"لا يوجد اتصال":"No connection"); return; }
+  dbg("📝 محاولة تسجيل "+hrid);
+  verifyIdentity(hrid, phone).then(function(ok){
+    if(!ok){ showErr(LANG==="ar"?"الرقم الوظيفي أو الجوال لا يطابق الجدول":"HRID/phone don't match the schedule"); return Promise.reject("x"); }
+    return db.ref("users/"+hrid).once("value");
+  }).then(function(snap){
+    if(snap.exists()){ showErr(LANG==="ar"?"هذا الرقم الوظيفي مسجّل مسبقاً — سجّل الدخول":"Already registered — sign in"); showLogin(); return Promise.reject("x"); }
+    REGISTERING=true;
+    return setPersist(true).then(function(){ return firebase.auth().createUserWithEmailAndPassword(email, p1); });
+  }).then(function(cred){
+    var u=cred.user;
+    return u.updateProfile({displayName:hrid})
+      .then(function(){ return db.ref("users/"+hrid).set({email:email, uid:u.uid, ts:firebase.database.ServerValue.TIMESTAMP}); })
+      .then(function(){ return db.ref("uidHrid/"+u.uid).set(hrid); })
+      .then(function(){ REGISTERING=false; REMEMBER=true; touchActivity(); dbg("✅ تسجيل جديد "+hrid); proceedWithHrid(hrid, true); });
+  }).catch(function(e){
+    REGISTERING=false;
+    if(e==="x") return;
+    showErr(authErr(e));
+  });
+}
+
+/* ---- نسيت كلمة المرور ---- */
+function forgotPass(){
+  var email=(document.getElementById("liEmail").value||"").trim();
+  if(!email){ showErr(LANG==="ar"?"اكتب إيميلك بالأعلى ثم اضغط نسيت كلمة المرور":"Enter your email above first"); return; }
+  firebase.auth().sendPasswordResetEmail(email)
+    .then(function(){ showErr(""); alert(LANG==="ar"?("📧 أُرسل رابط إعادة التعيين إلى "+email):("Reset link sent to "+email)); })
+    .catch(function(e){ showErr(authErr(e)); });
 }
 
 function proceedWithHrid(hrid, silent){
@@ -665,17 +703,17 @@ function proceedWithHrid(hrid, silent){
 
 function logout(){
   clearHrid();
-  localStorage.setItem("loggedOut","1");
   if(ALERT_REF){ ALERT_REF.off(); ALERT_REF=null; }
   if(WEEKS_REF){ WEEKS_REF.off(); WEEKS_REF=null; }
   if(NOTIF_REF){ NOTIF_REF.off(); NOTIF_REF=null; }
   if(SID && db){ db.ref("presence/"+SID).remove(); }
   CURRENT_HRID=null; CURRENT_REC=null;
+  try{ firebase.auth().signOut(); }catch(e){}
   document.getElementById("appView").classList.add("hidden");
   document.getElementById("loginView").classList.remove("hidden");
-  document.getElementById("loginStep2").classList.add("hidden");
-  document.getElementById("loginStep1").classList.remove("hidden");
-  var hi=document.getElementById("hridInput"); if(hi) hi.value="";
+  showLogin();
+  var le=document.getElementById("liEmail"); if(le) le.value="";
+  var lp=document.getElementById("liPass"); if(lp) lp.value="";
   showErr("");
   dbg("🚪 تسجيل خروج");
 }
