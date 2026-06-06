@@ -493,6 +493,16 @@ function parseWB(wb){
       if(nameCol>=0&&dayCols.length>=5){
         const dateRow=rows[r-1]||[];
         dayCols.forEach(dc=>{const s=dateRow[dc.idx];dc.serial=(typeof s==="number"&&s>20000)?s:null});
+        // ترميم: عبّئ أي تاريخ مفقود (بسبب عمود فاصل) من الأيام المجاورة المتتالية
+        for(let i=0;i<dayCols.length;i++){
+          if(typeof dayCols[i].serial==="number"&&dayCols[i].serial>20000)continue;
+          let fix=null;
+          for(let j=1;j<dayCols.length;j++){
+            if(i-j>=0&&typeof dayCols[i-j].serial==="number"&&dayCols[i-j].serial>20000){fix=dayCols[i-j].serial+j;break;}
+            if(i+j<dayCols.length&&typeof dayCols[i+j].serial==="number"&&dayCols[i+j].serial>20000){fix=dayCols[i+j].serial-j;break;}
+          }
+          if(fix!=null)dayCols[i].serial=fix;
+        }
         const byLbl=l=>{for(let c=0;c<row.length;c++){if(norm(row[c]).toLowerCase().includes(l))return c}return -1};
         const exact=l=>{for(let c=0;c<row.length;c++){if(norm(row[c]).toLowerCase()===l)return c}return -1};
         const phoneCol=(()=>{const keys=["whatsapp","واتس","mobile","جوال","phone","هاتف","تواصل","contact"];for(let c=0;c<row.length;c++){const s=norm(row[c]).toLowerCase();for(const k of keys){if(s.includes(k))return c}}return -1;})();
