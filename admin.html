@@ -253,7 +253,6 @@ var XLSXLite=(function(){
   </div>
   <div class="grp">
     <div class="nav-btn" id="themeBtn" title="Dark/Light">🌙</div>
-    <div class="nav-btn lang-btn" id="langBtn">EN</div>
     <div class="nav-btn" onclick="openSettings()" title="الإعدادات">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     </div>
@@ -290,7 +289,10 @@ var XLSXLite=(function(){
     </div>
     <div class="stats">
       <div class="stat on"><div class="k"><span class="dot"></span> المتواجدون الآن</div><div class="v" id="online">—</div></div>
-      <div class="stat"><div class="k">👁 إجمالي الزيارات</div><div class="v" id="visits">—</div></div>
+      <div class="stat" onclick="breaksSoon()" style="cursor:pointer">
+        <div class="k">🍵 جدول البريكات</div>
+        <div class="v" style="font-size:clamp(18px,5vw,24px);background:linear-gradient(120deg,var(--mint),var(--violet));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">قريباً</div>
+      </div>
     </div>
     <div id="onlineList" style="margin-top:14px"></div>
 
@@ -387,8 +389,7 @@ function start(){
   updateOnlineList();
   setInterval(updateOnlineList,1500);
   loadWeeksList();
-  // visits live
-  db.ref("stats/visits").on("value",s=>{ $("visits").textContent=(s.val()||0).toLocaleString("en-US"); });
+  // (إجمالي الزيارات أُزيل — استبدل بزر جدول البريكات)
   // online (presence with recent heartbeat)
   db.ref(".info/serverTimeOffset").on("value",s=>{SRV_OFFSET=s.val()||0});
   db.ref("presence").on("value",s=>{
@@ -411,6 +412,8 @@ function start(){
   subscribeRequests();
   loadEmployees();
 }
+
+function breaksSoon(){ toastAdm("🍵 جدول البريكات — ميزة سيتم إضافتها قريباً"); }
 
 /* ---- طلبات الحسابات الجديدة ---- */
 const APP_URL="https://mohannd3050.github.io/schedule-finder/";
@@ -747,6 +750,9 @@ function openSettings(){buildAdminSettings();$("setOv").classList.add("show");}
 function closeSettings(){$("setOv").classList.remove("show");}
 function buildAdminSettings(){
   var u=auth&&auth.currentUser, logged=u&&!u.isAnonymous, h='';
+  h+='<div class="set-row"><div class="k">'+(ADMIN_LANG==="ar"?"اللغة":"Language")+'</div><div class="tseg" id="lseg">'+
+     '<div class="o" data-l="ar" onclick="setAdminLang(\'ar\')">العربية</div>'+
+     '<div class="o" data-l="en" onclick="setAdminLang(\'en\')">English</div></div></div>';
   if(logged){
     h+='<div class="set-row"><div class="set-name"><div class="av">@</div><div><div class="nm">'+esc(u.email||"Admin")+'</div><div class="hr">'+t_adm("adminAcct")+'</div></div></div></div>';
     h+='<div class="set-row"><div class="k">'+t_adm("createUser")+'</div>'+
@@ -759,7 +765,9 @@ function buildAdminSettings(){
     h+='<div class="set-row" style="text-align:center;color:var(--dim)">'+t_adm("loginFirst")+'</div>';
   }
   $("setBody").innerHTML=h;
+  document.querySelectorAll("#lseg .o").forEach(function(o){o.classList.toggle("on",o.getAttribute("data-l")===ADMIN_LANG);});
 }
+function setAdminLang(l){ ADMIN_LANG=l; localStorage.setItem("adminLang",l); applyAdminLang(); buildAdminSettings(); }
 function createAdminUser(){
   var em=($("newAdminEmail").value||"").trim(), pw=$("newAdminPass").value||"", msg=$("newAdminMsg");
   if(!/.+@.+\..+/.test(em)||pw.length<6){ msg.style.color="var(--rose)"; msg.textContent=t_adm("badUser"); return; }
