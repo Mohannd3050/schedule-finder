@@ -251,9 +251,10 @@
 
   /* ===== shared navbar + settings ===== */
   body{padding-top:60px}
-  .navbar{position:fixed;top:0;left:0;right:0;z-index:1000;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;
+  .navbar{position:fixed;top:0;left:0;right:0;z-index:1000;height:60px;display:flex;align-items:center;justify-content:center;padding:0 16px;
     background:color-mix(in srgb,var(--bg-0) 80%,transparent);backdrop-filter:blur(18px) saturate(150%);-webkit-backdrop-filter:blur(18px) saturate(150%);border-bottom:1px solid var(--stroke-soft)}
   .navbar .grp{display:flex;align-items:center;gap:8px}
+  .nav-inner{width:100%;max-width:880px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
   .nav-btn{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;cursor:pointer;background:var(--glass);border:1px solid var(--stroke);color:var(--txt);font-weight:700;font-size:13px;transition:.2s;flex-shrink:0}
   .nav-btn:hover{background:var(--glass-strong);transform:translateY(-1px)}
   .nav-btn svg{width:20px;height:20px;stroke:var(--txt);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -288,6 +289,7 @@
 </head>
 <body>
 <nav class="navbar">
+  <div class="nav-inner">
   <div class="grp">
     <div class="nav-btn" onclick="refreshPage()" title="تحديث">
       <svg viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.8-3.4L23 10M1 14l4.7 4.4A9 9 0 0 0 20.5 15"/></svg>
@@ -302,6 +304,7 @@
     <div class="nav-btn" onclick="openSettings()" title="الإعدادات">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     </div>
+  </div>
   </div>
 </nav>
 <div class="set-ov" id="setOv" onclick="if(event.target===this)closeSettings()">

@@ -56,9 +56,10 @@
 
   /* ===== shared navbar + settings ===== */
   body{padding-top:60px}
-  .navbar{position:fixed;top:0;left:0;right:0;z-index:1000;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;
+  .navbar{position:fixed;top:0;left:0;right:0;z-index:1000;height:60px;display:flex;align-items:center;justify-content:center;padding:0 16px;
     background:color-mix(in srgb,var(--bg) 80%,transparent);backdrop-filter:blur(18px) saturate(150%);-webkit-backdrop-filter:blur(18px) saturate(150%);border-bottom:1px solid var(--stroke2)}
   .navbar .grp{display:flex;align-items:center;gap:8px}
+  .nav-inner{width:100%;max-width:640px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
   .nav-btn{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;cursor:pointer;background:var(--glass);border:1px solid var(--stroke);color:var(--txt);font-weight:700;font-size:13px;transition:.2s;flex-shrink:0}
   .nav-btn:hover{background:var(--glass2);transform:translateY(-1px)}
   .nav-btn svg{width:20px;height:20px;stroke:var(--txt);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -93,8 +94,9 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
-const I18N_ADMIN={ar:{badge:"لوحة الأدمن · d360 · v6",loginTitle:"دخول الأدمن",email:"الإيميل",password:"كلمة المرور",signIn:"دخول",remember:"تذكرني",logout:"خروج",stats:"الإحصائيات",visits:"إجمالي الزيارات",online:"المتواجدون الآن",sched:"إدارة الجدول",upload:"رفع جدول الأسبوع",schedStatus:"حالة الجدول",chooseFile:"اختيار ملف",uploadBtn:"رفع ونشر الجدول",ann:"الإشعار المتحرك",selectDept:"اختر القسم",annText:"نص الإشعار",show:"عرّض",hide:"إخفاء",clear:"حذف",empMgmt:"إدارة الموظفين",searchHrid:"ابحث برقم HRID",empName:"الاسم",empLob:"القسم",delete:"حذف",edit:"تعديل",admin:"الأدمن v5",allTeams:"كل الفرق",allShifts:"كل الأوقات",noEmp:"لا يوجد موظفون — ارفع جدولاً",noMatch:"لا نتائج مطابقة",searchNameHrid:"ابحث بالاسم أو HRID",createUser:"إنشاء مستخدم أدمن جديد",createBtn:"إنشاء المستخدم",passMin:"كلمة مرور (6 أحرف على الأقل)",userCreated:"أُنشئ المستخدم:",badUser:"إيميل غير صحيح أو كلمة مرور قصيرة",loginFirst:"سجّل دخولك أولاً",adminAcct:"حساب أدمن",settings:"الإعدادات"},en:{badge:"Admin Panel · d360 · v6",loginTitle:"Admin Login",email:"Email",password:"Password",signIn:"Sign in",remember:"Remember me",logout:"Sign out",stats:"Statistics",visits:"Total visits",online:"Online now",sched:"Manage schedule",upload:"Upload weekly schedule",schedStatus:"Schedule status",chooseFile:"Choose file",uploadBtn:"Upload & publish",ann:"Announcements",selectDept:"Select department",annText:"Announcement text",show:"Show",hide:"Hide",clear:"Delete",empMgmt:"Employee management",searchHrid:"Search by HRID",empName:"Name",empLob:"Department",delete:"Delete",edit:"Edit",admin:"Admin v5",allTeams:"All teams",allShifts:"All shifts",noEmp:"No employees — upload a schedule",noMatch:"No matching results",searchNameHrid:"Search by name or HRID",createUser:"Create new admin user",createBtn:"Create user",passMin:"Password (6+ chars)",userCreated:"User created:",badUser:"Invalid email or short password",loginFirst:"Sign in first",adminAcct:"Admin account",settings:"Settings"}};
+const I18N_ADMIN={ar:{badge:"لوحة الأدمن · d360 · v6",loginTitle:"دخول الأدمن",email:"الإيميل",password:"كلمة المرور",signIn:"دخول",remember:"تذكرني",logout:"خروج",stats:"الإحصائيات",visits:"إجمالي الزيارات",online:"المتواجدون الآن",sched:"إدارة الجدول",upload:"رفع جدول الأسبوع",schedStatus:"حالة الجدول",chooseFile:"اختيار ملف",uploadBtn:"رفع ونشر الجدول",ann:"الإشعار المتحرك",selectDept:"اختر القسم",annText:"نص الإشعار",show:"عرّض",hide:"إخفاء",clear:"حذف",empMgmt:"إدارة الموظفين",searchHrid:"ابحث برقم HRID",empName:"الاسم",empLob:"القسم",delete:"حذف",edit:"تعديل",admin:"الأدمن v5",allTeams:"كل الفرق",allShifts:"كل الأوقات",noEmp:"لا يوجد موظفون — ارفع جدولاً",noMatch:"لا نتائج مطابقة",searchNameHrid:"ابحث بالاسم أو HRID",createUser:"إنشاء مستخدم أدمن جديد",createBtn:"إنشاء المستخدم",passMin:"كلمة مرور (6 أحرف على الأقل)",userCreated:"أُنشئ المستخدم:",badUser:"إيميل غير صحيح أو كلمة مرور قصيرة",loginFirst:"سجّل دخولك أولاً",adminAcct:"حساب أدمن",settings:"الإعدادات",onlineNow:"المتواجدون الآن",breaksLbl:"🍵 جدول البريكات",soon:"قريباً",newAccts:"🔑 طلبات الحسابات الجديدة",newAcctsHint:"اعتمد الطلب فتُولّد كلمة مرور، أرسلها للموظف على واتسابه بضغطة. يدخل برقمه الوظيفي وكلمة المرور.",uploadWeek:"رفع جدول الأسبوع (ملف إكسل)",uploadAll:"رفع ونشر الجدول للجميع",annLbl:"نص الإشعار المتحرك",annShow:"عرض الإشعار للجميع الآن",saveShow:"حفظ وعرض",swapReqs:"🔁 طلبات تبديل الشفت",swapReqsHint:"الطلبات التي قبلها طرف آخر فيها زر اعتماد ثم تطبيق على الجدول. تقدر تجدّد الطلب أو تغلقه."},en:{badge:"Admin Panel · d360 · v6",loginTitle:"Admin Login",email:"Email",password:"Password",signIn:"Sign in",remember:"Remember me",logout:"Sign out",stats:"Statistics",visits:"Total visits",online:"Online now",sched:"Manage schedule",upload:"Upload weekly schedule",schedStatus:"Schedule status",chooseFile:"Choose file",uploadBtn:"Upload & publish",ann:"Announcements",selectDept:"Select department",annText:"Announcement text",show:"Show",hide:"Hide",clear:"Delete",empMgmt:"Employee management",searchHrid:"Search by HRID",empName:"Name",empLob:"Department",delete:"Delete",edit:"Edit",admin:"Admin v5",allTeams:"All teams",allShifts:"All shifts",noEmp:"No employees — upload a schedule",noMatch:"No matching results",searchNameHrid:"Search by name or HRID",createUser:"Create new admin user",createBtn:"Create user",passMin:"Password (6+ chars)",userCreated:"User created:",badUser:"Invalid email or short password",loginFirst:"Sign in first",adminAcct:"Admin account",settings:"Settings",onlineNow:"Online now",breaksLbl:"🍵 Breaks schedule",soon:"Soon",newAccts:"🔑 New account requests",newAcctsHint:"Approve a request to generate a password, then send it to the employee on WhatsApp in one tap. They sign in with HRID + password.",uploadWeek:"Upload weekly schedule (Excel)",uploadAll:"Upload & publish to everyone",annLbl:"Announcement ticker text",annShow:"Show announcement to everyone now",saveShow:"Save & show",swapReqs:"🔁 Shift swap requests",swapReqsHint:"Requests accepted by another party show Approve, then Apply-to-schedule. You can renew or close."}};
 let ADMIN_LANG="ar";
 function t_adm(k){return I18N_ADMIN[ADMIN_LANG][k]||k}
 /* XLSXLite — tiny self-contained .xlsx reader (no deps). Reads cell values into row arrays. */
@@ -245,6 +247,7 @@ var XLSXLite=(function(){
 </head>
 <body>
 <nav class="navbar">
+  <div class="nav-inner">
   <div class="grp">
     <div class="nav-btn" onclick="refreshPage()" title="تحديث">
       <svg viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.8-3.4L23 10M1 14l4.7 4.4A9 9 0 0 0 20.5 15"/></svg>
@@ -256,6 +259,7 @@ var XLSXLite=(function(){
     <div class="nav-btn" onclick="openSettings()" title="الإعدادات">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     </div>
+  </div>
   </div>
 </nav>
 <div class="set-ov" id="setOv" onclick="if(event.target===this)closeSettings()">
@@ -288,57 +292,57 @@ var XLSXLite=(function(){
       <button class="ghost" id="logoutBtn" style="color:var(--rose)">خروج</button>
     </div>
     <div class="stats">
-      <div class="stat on"><div class="k"><span class="dot"></span> المتواجدون الآن</div><div class="v" id="online">—</div></div>
+      <div class="stat on"><div class="k"><span class="dot"></span> <span data-i18n="onlineNow">المتواجدون الآن</span></div><div class="v" id="online">—</div></div>
       <div class="stat" onclick="breaksSoon()" style="cursor:pointer">
-        <div class="k">🍵 جدول البريكات</div>
-        <div class="v" style="font-size:clamp(18px,5vw,24px);background:linear-gradient(120deg,var(--mint),var(--violet));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">قريباً</div>
+        <div class="k" data-i18n="breaksLbl">🍵 جدول البريكات</div>
+        <div class="v" style="font-size:clamp(18px,5vw,24px);background:linear-gradient(120deg,var(--mint),var(--violet));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent" data-i18n="soon">قريباً</div>
       </div>
     </div>
     <div id="onlineList" style="margin-top:14px"></div>
 
     <div class="card">
-      <label>🔑 طلبات الحسابات الجديدة <span id="reqCount" style="font-size:12px;color:var(--rose);font-weight:700"></span></label>
-      <div style="font-size:12.5px;color:var(--txt-dim);margin-bottom:12px">اعتمد الطلب → تُولّد كلمة مرور → أرسلها للموظف على واتسابه بضغطة. الموظف يدخل برقمه الوظيفي + كلمة المرور.</div>
+      <label><span data-i18n="newAccts">🔑 طلبات الحسابات الجديدة</span> <span id="reqCount" style="font-size:12px;color:var(--rose);font-weight:700"></span></label>
+      <div style="font-size:12.5px;color:var(--txt-dim);margin-bottom:12px" data-i18n="newAcctsHint">اعتمد الطلب → تُولّد كلمة مرور → أرسلها للموظف على واتسابه بضغطة. الموظف يدخل برقمه الوظيفي + كلمة المرور.</div>
       <div id="reqList" style="min-height:40px"></div>
     </div>
 
     <div class="card">
-      <label id="empMgmtLbl" onclick="toggleEmp()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin-bottom:0">إدارة الموظفين <span id="empCaret" style="font-size:18px;color:var(--dim)">▾</span></label>
+      <label id="empMgmtLbl" onclick="toggleEmp()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin-bottom:0"><span data-i18n="empMgmt">إدارة الموظفين</span> <span id="empCaret" style="font-size:18px;color:var(--dim)">▾</span></label>
       <div id="empBody" style="display:none;margin-top:14px">
-        <input type="text" id="empSearch" placeholder="ابحث بالاسم أو HRID..." style="background:var(--glass2);border:1px solid var(--stroke);color:var(--txt);font-family:inherit;font-size:14px;border-radius:12px;padding:12px;width:100%;box-sizing:border-box;margin-bottom:10px;outline:none">
+        <input type="text" id="empSearch" data-i18n-ph="searchNameHrid" placeholder="ابحث بالاسم أو HRID..." style="background:var(--glass2);border:1px solid var(--stroke);color:var(--txt);font-family:inherit;font-size:14px;border-radius:12px;padding:12px;width:100%;box-sizing:border-box;margin-bottom:10px;outline:none">
         <div style="display:flex;gap:8px;margin-bottom:14px">
-          <select id="empShiftFilter" style="flex:1;background:var(--glass2);border:1px solid var(--stroke);color:var(--txt);font-family:inherit;font-size:13px;border-radius:11px;padding:11px;outline:none;cursor:pointer"><option value="">كل الأوقات</option></select>
-          <select id="empTeamFilter" style="flex:1;background:var(--glass2);border:1px solid var(--stroke);color:var(--txt);font-family:inherit;font-size:13px;border-radius:11px;padding:11px;outline:none;cursor:pointer"><option value="">كل الفرق</option></select>
+          <select id="empShiftFilter" style="flex:1;background:var(--glass2);border:1px solid var(--stroke);color:var(--txt);font-family:inherit;font-size:13px;border-radius:11px;padding:11px;outline:none;cursor:pointer"><option value="" data-i18n="allShifts">كل الأوقات</option></select>
+          <select id="empTeamFilter" style="flex:1;background:var(--glass2);border:1px solid var(--stroke);color:var(--txt);font-family:inherit;font-size:13px;border-radius:11px;padding:11px;outline:none;cursor:pointer"><option value="" data-i18n="allTeams">كل الفرق</option></select>
         </div>
         <div id="empResult" style="min-height:60px"></div>
       </div>
     </div>
 
     <div class="card">
-      <label>رفع جدول الأسبوع (ملف إكسل)</label>
+      <label data-i18n="uploadWeek">رفع جدول الأسبوع (ملف إكسل)</label>
       <input type="file" id="schedFile" accept=".xlsx,.xls,.xlsm">
-      <div class="row"><button class="mint" id="uploadBtn" style="flex:1">رفع ونشر الجدول للجميع</button></div>
+      <div class="row"><button class="mint" id="uploadBtn" style="flex:1" data-i18n="uploadAll">رفع ونشر الجدول للجميع</button></div>
       <div class="updated" id="schedStatus"></div>
       <div class="err" id="uploadMsg"></div>
       <div style="margin-top:14px"><div id="weeksList"></div></div>
     </div>
 
     <div class="card">
-      <label for="annText">نص الإشعار المتحرك</label>
+      <label for="annText" data-i18n="annLbl">نص الإشعار المتحرك</label>
       <textarea id="annText" placeholder="اكتب رسالة تظهر كشريط متحرك لكل من يفتح الصفحة… مثال: يرجى الاطلاع على التعليمات الجديدة في قناة الفريق."></textarea>
-      <div class="switch"><input type="checkbox" id="annActive"><label for="annActive" style="margin:0">عرض الإشعار للجميع الآن</label></div>
+      <div class="switch"><input type="checkbox" id="annActive"><label for="annActive" style="margin:0" data-i18n="annShow">عرض الإشعار للجميع الآن</label></div>
       <div class="row">
-        <button class="mint" id="saveBtn" style="flex:1">حفظ وعرض</button>
-        <button class="ghost" id="hideBtn">إخفاء</button>
-        <button class="ghost" id="clearBtn">مسح</button>
+        <button class="mint" id="saveBtn" style="flex:1" data-i18n="saveShow">حفظ وعرض</button>
+        <button class="ghost" id="hideBtn" data-i18n="hide">إخفاء</button>
+        <button class="ghost" id="clearBtn" data-i18n="clear">مسح</button>
       </div>
       <div class="updated" id="updated"></div>
       <div class="err" id="saveMsg"></div>
     </div>
 
     <div class="card">
-      <label>🔁 طلبات تبديل الشفت</label>
-      <div style="font-size:12.5px;color:var(--txt-dim);margin-bottom:12px">الطلبات التي قبلها طرف آخر تظهر بزر "اعتماد". تقدر تجدّد الطلب (٢٤ ساعة) أو تغلقه.</div>
+      <label data-i18n="swapReqs">🔁 طلبات تبديل الشفت</label>
+      <div style="font-size:12.5px;color:var(--txt-dim);margin-bottom:12px" data-i18n="swapReqsHint">الطلبات التي قبلها طرف آخر تظهر بزر "اعتماد". تقدر تجدّد الطلب (٢٤ ساعة) أو تغلقه.</div>
       <div id="swapsAdmin" style="min-height:50px"></div>
     </div>
 
@@ -515,13 +519,16 @@ function subscribeSwapsAdmin(){
       }
       // شارة الحالة
       let st="";
-      if(s.status==="approved") st='<span style="background:rgba(94,234,212,.18);color:#5eead4;padding:4px 10px;border-radius:100px;font-size:11px;font-weight:700">معتمد ✓</span>';
+      if(s.status==="applied") st='<span style="background:rgba(94,234,212,.28);color:#5eead4;padding:4px 10px;border-radius:100px;font-size:11px;font-weight:700">مطبّق على الجدول ✓✓</span>';
+      else if(s.status==="approved") st='<span style="background:rgba(94,234,212,.18);color:#5eead4;padding:4px 10px;border-radius:100px;font-size:11px;font-weight:700">معتمد ✓</span>';
       else if(s.status==="accepted") st='<span style="background:rgba(251,191,36,.18);color:#fbbf24;padding:4px 10px;border-radius:100px;font-size:11px;font-weight:700">بانتظار اعتمادك</span>';
-      else st='<span style="background:rgba(255,255,255,.08);color:var(--txt-dim);padding:4px 10px;border-radius:100px;font-size:11px;font-weight:700">مفتوح</span>';
+      else st='<span style="background:rgba(255,255,255,.08);color:var(--dim);padding:4px 10px;border-radius:100px;font-size:11px;font-weight:700">مفتوح</span>';
       // أزرار التحكم
-      let btns='<button class="mint" style="flex:1;padding:9px" onclick="approveSwap(\''+id+'\')"'+(s.status==="accepted"?"":" disabled")+'>اعتماد</button>'+
-               '<button class="ghost" style="padding:9px" onclick="renewSwap(\''+id+'\')">🔄 تجديد</button>'+
-               '<button class="ghost" style="padding:9px" onclick="closeSwap(\''+id+'\')">إغلاق</button>';
+      let btns="";
+      if(s.status==="accepted") btns+='<button class="mint" style="flex:1;padding:9px" onclick="approveSwap(\''+id+'\')">اعتماد</button>';
+      if(s.status==="approved") btns+='<button class="mint" style="flex:1;padding:9px" onclick="applySwapToSchedule(\''+id+'\')">✅ تطبيق على الجدول</button>';
+      btns+='<button class="ghost" style="padding:9px" onclick="renewSwap(\''+id+'\')">🔄 تجديد</button>'+
+            '<button class="ghost" style="padding:9px" onclick="closeSwap(\''+id+'\')">إغلاق</button>';
       html+='<div style="border:1px solid var(--stroke);border-radius:14px;padding:14px;margin-bottom:10px;'+(expired?'opacity:.55':'')+'">'+
         '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">'+
           '<div><b style="font-size:15px">'+esc(s.name||s.hrid)+'</b> <span style="color:var(--txt-dim);font-size:12px">#'+esc(s.hrid)+(s.lob?' · '+esc(s.lob):'')+'</span></div>'+st+'</div>'+
@@ -640,10 +647,12 @@ function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,m=>({"&":"&amp;",
 function applyAdminLang(){
   document.documentElement.lang=ADMIN_LANG;
   document.documentElement.dir=ADMIN_LANG==="ar"?"rtl":"ltr";
+  var D=I18N_ADMIN[ADMIN_LANG]||{};
+  document.querySelectorAll("[data-i18n]").forEach(function(el){ var k=el.getAttribute("data-i18n"); if(D[k]!=null) el.textContent=D[k]; });
+  document.querySelectorAll("[data-i18n-ph]").forEach(function(el){ var k=el.getAttribute("data-i18n-ph"); if(D[k]!=null) el.setAttribute("placeholder",D[k]); });
   if($("dashTitle"))$("dashTitle").textContent=t_adm("badge");
   if($("langBtn"))$("langBtn").textContent=ADMIN_LANG==="ar"?"EN":"ع";
-  if($("empMgmtLbl"))$("empMgmtLbl").textContent=t_adm("empMgmt");
-  if($("empSearch"))$("empSearch").placeholder=t_adm("searchHrid")+"...";
+  if($("empSearch"))$("empSearch").placeholder=t_adm("searchNameHrid")+"...";
   if($("logoutBtn"))$("logoutBtn").textContent=t_adm("logout");
 }
 function bindThemeLang(){
@@ -913,13 +922,62 @@ function loadWeeksList(){
     const weeks=s.val()||{};
     const ids=Object.keys(weeks).sort((a,b)=>{const ta=(weeks[a].meta||{}).updatedAt||0,tb=(weeks[b].meta||{}).updatedAt||0;return tb-ta});
     if(!ids.length){$("weeksList").innerHTML='<div style="color:var(--faint);font-size:12px">لا يوجد جداول محفوظة</div>';return}
-    $("weeksList").innerHTML=ids.map(id=>{const m=weeks[id].meta||{};const d=m.updatedAt?new Date(m.updatedAt).toLocaleDateString("ar-SA"):"—";return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--glass2);border-radius:10px;margin-bottom:8px;font-size:13px"><span>📅 <b>'+id+'</b> · '+(m.count||0)+'م · '+d+'</span><button data-wid="'+id.replace(/"/g,"&quot;")+'" style="background:var(--rose);color:#fff;border:none;border-radius:7px;padding:5px 10px;cursor:pointer;font-size:12px">حذف</button></div>'}).join("");
+    $("weeksList").innerHTML=ids.map(id=>{const m=weeks[id].meta||{};const d=m.updatedAt?new Date(m.updatedAt).toLocaleDateString("ar-SA"):"—";return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px;background:var(--glass2);border-radius:10px;margin-bottom:8px;font-size:13px"><span>📅 <b>'+id+'</b> · '+(m.count||0)+'م · '+d+'</span><span style="display:flex;gap:6px"><button data-xwid="'+id.replace(/"/g,"&quot;")+'" style="background:linear-gradient(120deg,var(--mint),var(--violet));color:#04211c;border:none;border-radius:7px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:700">📥 Excel</button><button data-wid="'+id.replace(/"/g,"&quot;")+'" style="background:var(--rose);color:#fff;border:none;border-radius:7px;padding:5px 10px;cursor:pointer;font-size:12px">حذف</button></span></div>'}).join("");
     $("weeksList").querySelectorAll("button[data-wid]").forEach(btn=>btn.addEventListener("click",function(){delWeek(this.getAttribute("data-wid"))}));
+    $("weeksList").querySelectorAll("button[data-xwid]").forEach(btn=>btn.addEventListener("click",function(){exportWeekExcel(this.getAttribute("data-xwid"))}));
   });
 }
 function delWeek(id){
   if(!confirm("حذف الأسبوع: "+id))return;
   db.ref("weeks/"+id).remove().then(()=>{loadWeeksList()}).catch(e=>console.error(e));
+}
+/* ---- تصدير الجدول Excel بنفس صيغة الأصل (يشمل التبديلات المطبّقة) ---- */
+function exportWeekExcel(weekId){
+  if(typeof XLSX==="undefined"){ toastAdm("مكتبة Excel لم تُحمّل بعد — أعد المحاولة"); return; }
+  if(!weekId){ toastAdm("اختر أسبوعاً"); return; }
+  db.ref("weeks/"+weekId).once("value").then(function(s){
+    var w=s.val(); if(!w){ toastAdm("لا يوجد جدول"); return; }
+    var meta=w.meta||{}, agents=w.agents||{}, dayCols=meta.dayCols||[];
+    var idHdr=["HRID","Agent Name","TL","LOB","Mobile No."];
+    var cap=function(x){ x=String(x||""); return x.charAt(0).toUpperCase()+x.slice(1); };
+    var row1=idHdr.map(function(){return "";}).concat(dayCols.map(function(c){ return (typeof c.serial==="number")?c.serial:""; }));
+    var row2=idHdr.concat(dayCols.map(function(c){ return cap(c.day); }));
+    var aoa=[row1,row2];
+    Object.keys(agents).forEach(function(hrid){
+      var a=agents[hrid]||{}, days=a.days||[];
+      aoa.push([hrid, a.name||"", a.tl||"", a.lob||"", a.phone||""].concat(dayCols.map(function(_,i){ var v=days[i]; return (v===undefined||v===null)?"":v; })));
+    });
+    var ws=XLSX.utils.aoa_to_sheet(aoa);
+    var ds=idHdr.length;
+    for(var i=0;i<dayCols.length;i++){ var ad=XLSX.utils.encode_cell({r:0,c:ds+i}); if(ws[ad]&&typeof ws[ad].v==="number"){ ws[ad].t="n"; ws[ad].z="m/d/yyyy"; } }
+    ws["!cols"]=idHdr.map(function(_,i){return {wch:i===1?26:12};}).concat(dayCols.map(function(){return {wch:11};}));
+    var wb=XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, (meta.sheetName||"Schedule").replace(/[\\/?*:\[\]]/g,"_").slice(0,31));
+    XLSX.writeFile(wb, weekId+".xlsx");
+    toastAdm("📥 تم تصدير الجدول");
+  }).catch(function(e){ toastAdm("❌ "+(e.code||e.message)); });
+}
+/* ---- تطبيق التبديل على الجدول (يبدّل أيام الطرفين) ---- */
+function applySwapToSchedule(id){
+  db.ref("swaps/"+id).once("value").then(function(s){
+    var v=s.val(); if(!v) return;
+    if(v.status!=="approved"){ toastAdm("اعتمد الطلب أولاً"); return; }
+    if(!v.acceptedBy||!v.acceptedBy.hrid){ toastAdm("لا يوجد طرف ثانٍ"); return; }
+    if(!v.weekId){ toastAdm("الطلب لا يحمل رقم أسبوع"); return; }
+    var A=String(v.hrid), B=String(v.acceptedBy.hrid), wk=v.weekId;
+    if(!confirm("تبديل جدول "+(v.name||A)+" مع "+(v.acceptedBy.name||B)+" في "+wk+"؟")) return;
+    var refA=db.ref("weeks/"+wk+"/agents/"+A+"/days"), refB=db.ref("weeks/"+wk+"/agents/"+B+"/days");
+    Promise.all([refA.once("value"),refB.once("value")]).then(function(r){
+      var da=r[0].val(), dbb=r[1].val();
+      if(da==null||dbb==null){ toastAdm("أحد الطرفين غير موجود في هذا الأسبوع"); return Promise.reject({_h:1}); }
+      return Promise.all([refA.set(dbb), refB.set(da), db.ref("swaps/"+id).update({status:"applied",appliedAt:firebase.database.ServerValue.TIMESTAMP})]);
+    }).then(function(){
+      toastAdm("✅ تم تبديل الجدول بين الطرفين");
+      notifyUser(A,"schedule","تم تطبيق تبديل الشفت على جدولك ✓");
+      notifyUser(B,"schedule","تم تطبيق تبديل الشفت على جدولك ✓");
+      loadEmployees();
+    }).catch(function(e){ if(e&&e._h) return; toastAdm("❌ "+((e&&(e.code||e.message))||e)); });
+  });
 }
 /* ---- الإشعارات (متعدد الأقسام) ---- */
 function saveAnn(){
