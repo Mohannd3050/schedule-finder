@@ -34,6 +34,10 @@
     --shadow:0 24px 60px -26px rgba(40,60,100,.4);
     --orb-op:.32; --grain-op:.02;
   }
+  body.light .btn,body.light .avatar,body.light .set-name .av{color:#fff}
+  body.light .tseg .o.on,body.light .set-btn.go{color:#fff}
+  body.light .day.today::after{color:#fff}
+  body.light .badge{background:color-mix(in srgb,var(--mint) 14%,#fff);}
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
   body{font-family:"IBM Plex Sans Arabic",sans-serif;background:var(--bg-0);color:var(--txt);
@@ -45,6 +49,15 @@
   @keyframes float{0%,100%{transform:translate(0,0)}33%{transform:translate(30px,-40px)}66%{transform:translate(-25px,25px)}}
   .grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:var(--grain-op);
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+  /* ===== interactivity ===== */
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .card:not(.today):not(.announce){animation:fadeUp .5s cubic-bezier(.2,.7,.2,1) both}
+  button,.btn,.nav-btn,.set-btn{transition:transform .14s ease,background .22s ease,box-shadow .22s ease,color .2s ease,border-color .2s ease}
+  button:active,.btn:active,.nav-btn:active,.set-btn:active{transform:translateY(1px) scale(.985)}
+  .day{transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+  .day:hover{transform:translateY(-3px)}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01ms!important}}
 
   .wrap{position:relative;z-index:2;max-width:880px;margin:0 auto;padding:42px 20px 80px}
 
