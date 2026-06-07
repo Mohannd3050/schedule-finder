@@ -305,9 +305,9 @@ var XLSXLite=(function(){
     </div>
     <div class="stats">
       <div class="stat on"><div class="k"><span class="dot"></span> <span data-i18n="onlineNow">المتواجدون الآن</span></div><div class="v" id="online">—</div></div>
-      <div class="stat" onclick="breaksSoon()" style="cursor:pointer">
+      <div class="stat" onclick="breaksSoon()" style="cursor:pointer" title="إدارة جدول البريكات">
         <div class="k" data-i18n="breaksLbl">🍵 جدول البريكات</div>
-        <div class="v" style="font-size:clamp(18px,5vw,24px);background:linear-gradient(120deg,var(--mint),var(--violet));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent" data-i18n="soon">قريباً</div>
+        <div class="v" id="breaksCount" style="font-size:clamp(18px,5vw,24px);background:linear-gradient(120deg,var(--mint),var(--violet));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">—</div>
       </div>
     </div>
     <div id="onlineList" style="margin-top:14px"></div>
@@ -1019,6 +1019,7 @@ function loadBreaksList(){
   if(!db||!$("breaksList"))return;
   db.ref("breaks").once("value",function(s){
     var b=s.val()||{}, ids=Object.keys(b);
+    var bc=$("breaksCount"); if(bc) bc.textContent = ids.length ? (ids.length+(ids.length===1?" يوم":" أيام")) : "0";
     if(!ids.length){$("breaksList").innerHTML='<div style="color:var(--faint);font-size:12px">لا يوجد بريكات محفوظة</div>';return;}
     $("breaksList").innerHTML=ids.map(function(id){var m=(b[id].meta)||{};return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--glass2);border-radius:10px;margin-bottom:8px;font-size:13px"><span>🍵 <b>'+esc(m.day||id)+'</b> · '+(m.count||0)+'م</span><button data-brid="'+esc(id)+'" style="background:var(--rose);color:#fff;border:none;border-radius:7px;padding:5px 10px;cursor:pointer;font-size:12px">حذف</button></div>';}).join("");
     $("breaksList").querySelectorAll("button[data-brid]").forEach(function(btn){btn.addEventListener("click",function(){ if(confirm("حذف بريكات هذا اليوم؟")) db.ref("breaks/"+this.getAttribute("data-brid")).remove().then(loadBreaksList); });});

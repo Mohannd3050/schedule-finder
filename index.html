@@ -71,6 +71,15 @@
   .brkrow.nx{border-color:color-mix(in srgb,var(--violet) 50%,transparent)}
   .brkrow.done:not(.on){opacity:.5}
   .brkrow.done:not(.on) .bt{text-decoration:line-through}
+  .brktabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+  .brktab{flex:1;min-width:42px;padding:8px 6px;border-radius:10px;border:1px solid var(--stroke-soft);background:var(--glass);color:var(--txt-dim);font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;transition:.18s}
+  .brktab:hover{background:var(--glass-strong)}
+  .brktab.on{background:linear-gradient(120deg,var(--violet),var(--mint));color:#fff;border-color:transparent}
+  body.light .brktab.on{color:#fff}
+  .brktab.td::after{content:"•";margin-inline-start:3px;color:var(--mint)}
+  .brktab.on.td::after{color:#fff}
+  .brktoggle{width:100%;border:none;border-radius:13px;padding:14px;font-family:"Readex Pro";font-weight:700;font-size:15px;cursor:pointer;transition:.2s}
+  .brktoggle.on{box-shadow:0 0 0 1px var(--amber)}
 
   .wrap{position:relative;z-index:2;max-width:880px;margin:0 auto;padding:42px 20px 80px}
 
@@ -780,7 +789,7 @@ function logout(){
   if(ALERT_REF){ ALERT_REF.off(); ALERT_REF=null; }
   if(WEEKS_REF){ WEEKS_REF.off(); WEEKS_REF=null; }
   if(NOTIF_REF){ NOTIF_REF.off(); NOTIF_REF=null; }
-  if(BREAKS_REF){ BREAKS_REF.off(); BREAKS_REF=null; } MY_BREAKS=null; var mb=document.getElementById("myBreaksBox"); if(mb) mb.innerHTML="";
+  if(BREAKS_REF){ BREAKS_REF.off(); BREAKS_REF=null; } MY_BREAKS=null; BREAKS_CACHE={}; SEL_BREAK_DAY=null; ON_BREAK=false; var mb=document.getElementById("myBreaksBox"); if(mb) mb.innerHTML="";
   if(SID && db){ db.ref("presence/"+SID).remove(); }
   CURRENT_HRID=null; CURRENT_REC=null;
   try{ firebase.auth().signOut(); }catch(e){}
@@ -800,35 +809,50 @@ function dayNameLocal(){ return ["Sunday","Monday","Tuesday","Wednesday","Thursd
 function brkToMs(hm){ if(!hm)return null; var p=String(hm).split(":"); var d=new Date(); d.setHours(parseInt(p[0],10),parseInt(p[1],10)||0,0,0); return d.getTime(); }
 function fmtHMms(ms){ var d=new Date(ms); var h=d.getHours(),m=d.getMinutes(); return (h<10?"0":"")+h+":"+(m<10?"0":"")+m; }
 function fmtDur(ms){ var s=Math.max(0,Math.floor(ms/1000)); var h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60; return (h>0?(h+":"+(m<10?"0":"")):"")+m+":"+(ss<10?"0":"")+ss; }
+var WEEK_DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+var WEEK_DAYS_AR=["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
+var BREAKS_CACHE={}, SEL_BREAK_DAY=null, ON_BREAK=false;
 function subscribeBreaks(hrid){
   if(!db)return;
+  BREAKS_CACHE={}; SEL_BREAK_DAY=null; ON_BREAK=false;
+  var today=dayNameLocal();
   if(BREAKS_REF){ BREAKS_REF.off(); }
-  BREAKS_REF=db.ref("breaks/"+dayNameLocal()+"/agents/"+hrid);
-  BREAKS_REF.on("value",function(s){ MY_BREAKS=s.val(); renderMyBreaks(); });
+  BREAKS_REF=db.ref("breaks/"+today+"/agents/"+hrid);
+  BREAKS_REF.on("value",function(s){ BREAKS_CACHE[today]=s.val()||null; renderBreaksCard(); });
+  WEEK_DAYS.forEach(function(d){ if(d===today)return; db.ref("breaks/"+d+"/agents/"+hrid).once("value").then(function(s){ BREAKS_CACHE[d]=s.val()||null; renderBreaksCard(); }).catch(function(){}); });
   if(!BRK_SCHED_TIMER) BRK_SCHED_TIMER=setInterval(updateBreakCountdown,1000);
 }
-function renderMyBreaks(){
+function availBreakDays(){ return WEEK_DAYS.filter(function(d){ return BREAKS_CACHE[d]&&BREAKS_CACHE[d].b&&BREAKS_CACHE[d].b.length; }); }
+function selectBreakDay(d){ SEL_BREAK_DAY=d; renderBreaksCard(); }
+function toggleMyBreak(){ ON_BREAK=!ON_BREAK; if(typeof setBreakPresence==="function") setBreakPresence(ON_BREAK); renderBreaksCard(); }
+function renderBreaksCard(){
   var box=document.getElementById("myBreaksBox"); if(!box)return;
-  if(!MY_BREAKS||!MY_BREAKS.b||!MY_BREAKS.b.length){ box.innerHTML=""; return; }
-  var rows=MY_BREAKS.b.map(function(b,i){
-    var endMs=brkToMs(b.t)+((b.d||0)*60000);
-    return '<div class="brkrow" data-bi="'+i+'"><span class="bt">'+esc(b.t)+' – '+esc(fmtHMms(endMs))+'</span><span class="bd">'+(b.d||0)+' '+(LANG==="ar"?"دقيقة":"min")+'</span></div>';
-  }).join("");
+  var days=availBreakDays();
+  if(!days.length){ box.innerHTML=""; return; }
+  var today=dayNameLocal();
+  if(!SEL_BREAK_DAY||days.indexOf(SEL_BREAK_DAY)<0) SEL_BREAK_DAY=(days.indexOf(today)>=0?today:days[days.length-1]);
+  var sel=SEL_BREAK_DAY, isToday=(sel===today), data=BREAKS_CACHE[sel]||{b:[]};
+  var tabs=days.map(function(d){ var i=WEEK_DAYS.indexOf(d); var lbl=(LANG==="ar"?WEEK_DAYS_AR[i]:d.slice(0,3)); return '<button class="brktab'+(d===sel?" on":"")+(d===today?" td":"")+'" onclick="selectBreakDay(\''+d+'\')">'+lbl+'</button>'; }).join("");
+  var rows=(data.b||[]).map(function(b,i){ var endMs=brkToMs(b.t)+((b.d||0)*60000); return '<div class="brkrow" data-bi="'+i+'"><span class="bt">'+esc(b.t)+' – '+esc(fmtHMms(endMs))+'</span><span class="bd">'+(b.d||0)+' '+(LANG==="ar"?"دقيقة":"min")+'</span></div>'; }).join("");
+  var toggle = isToday ? '<button class="btn sm brktoggle'+(ON_BREAK?" on":"")+'" onclick="toggleMyBreak()" style="margin-top:12px;'+(ON_BREAK?"background:var(--amber);color:#04211c":"background:linear-gradient(120deg,var(--violet),var(--mint));color:#04211c")+'">'+(ON_BREAK?(LANG==="ar"?"⏹️ إنهاء البريك":"⏹️ End break"):(LANG==="ar"?"☕ أنا في البريك الآن":"☕ I'm on break"))+'</button>' : '';
+  var head = isToday ? '<div id="brkNext" class="brknext">—</div>' : '<div class="brknext" style="color:var(--txt-dim)">'+(LANG==="ar"?"بريكات يوم ":"Breaks · ")+(LANG==="ar"?WEEK_DAYS_AR[WEEK_DAYS.indexOf(sel)]:sel)+'</div>';
   box.innerHTML='<div class="card brkcard"><div class="lbl"><span>🍵 '+t("myBreaks")+'</span></div>'+
-    '<div id="brkNext" class="brknext">—</div><div class="brklist">'+rows+'</div></div>';
-  updateBreakCountdown();
+    '<div class="brktabs">'+tabs+'</div>'+head+'<div class="brklist">'+rows+'</div>'+toggle+'</div>';
+  if(isToday) updateBreakCountdown();
 }
 function updateBreakCountdown(){
-  if(!MY_BREAKS||!MY_BREAKS.b)return;
+  var today=dayNameLocal();
+  if(SEL_BREAK_DAY!==today) return;
+  var data=BREAKS_CACHE[today]; if(!data||!data.b)return;
   var nx=document.getElementById("brkNext"); if(!nx)return;
   var now=Date.now(), cur=null, nextI=-1, nextSt=null, curI=-1;
-  MY_BREAKS.b.forEach(function(b,i){ var st=brkToMs(b.t), en=st+((b.d||0)*60000);
+  data.b.forEach(function(b,i){ var st=brkToMs(b.t), en=st+((b.d||0)*60000);
     if(now>=st&&now<en){ cur={en:en}; curI=i; }
     else if(st>now&&(nextSt===null||st<nextSt)){ nextSt=st; nextI=i; }
   });
-  document.querySelectorAll(".brkrow").forEach(function(r){ var i=+r.getAttribute("data-bi"); r.classList.toggle("on",i===curI); r.classList.toggle("nx",i===nextI&&curI<0); var st=brkToMs(MY_BREAKS.b[i].t)+((MY_BREAKS.b[i].d||0)*60000); r.classList.toggle("done",now>=st); });
+  document.querySelectorAll(".brkrow").forEach(function(r){ var i=+r.getAttribute("data-bi"); r.classList.toggle("on",i===curI); r.classList.toggle("nx",i===nextI&&curI<0); var st=brkToMs(data.b[i].t)+((data.b[i].d||0)*60000); r.classList.toggle("done",now>=st); });
   if(cur){ nx.innerHTML='<b style="color:var(--mint)">'+(LANG==="ar"?"بريكك الآن ☕":"On break ☕")+'</b> · '+(LANG==="ar"?"ينتهي بعد ":"ends in ")+fmtDur(cur.en-now); }
-  else if(nextI>=0){ nx.innerHTML=(LANG==="ar"?"بريكك القادم ":"Next break ")+'<b>'+esc(MY_BREAKS.b[nextI].t)+'</b> '+(LANG==="ar"?"بعد ":"in ")+fmtDur(nextSt-now); }
+  else if(nextI>=0){ nx.innerHTML=(LANG==="ar"?"بريكك القادم ":"Next break ")+'<b>'+esc(data.b[nextI].t)+'</b> '+(LANG==="ar"?"بعد ":"in ")+fmtDur(nextSt-now); }
   else { nx.innerHTML=(LANG==="ar"?"خلّصت بريكاتك اليوم ✓":"All breaks done ✓"); }
 }
 
