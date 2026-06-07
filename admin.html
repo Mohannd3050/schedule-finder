@@ -339,6 +339,15 @@ var XLSXLite=(function(){
       <div style="margin-top:14px"><div id="weeksList"></div></div>
     </div>
 
+    <div class="card" id="breaksCard">
+      <label>🍵 جدول البريكات (ملف إكسل · ورقة باسم اليوم)</label>
+      <div style="font-size:12.5px;color:var(--dim);margin-bottom:10px">الأعمدة المتوقعة: HRID · B1·B2·B3 (أوقات البداية) · D1·D2·D3 (المدد). كل ورقة باسم يومها (Sunday…). الموظف يشوف بريكاته في يومها.</div>
+      <input type="file" id="breaksFile" accept=".xlsx,.xls,.xlsm">
+      <div class="row"><button class="mint" id="breaksUploadBtn" style="flex:1">رفع جدول البريكات</button></div>
+      <div class="err" id="breaksMsg"></div>
+      <div style="margin-top:14px"><div id="breaksList"></div></div>
+    </div>
+
     <div class="card">
       <label for="annText" data-i18n="annLbl">نص الإشعار المتحرك</label>
       <textarea id="annText" placeholder="اكتب رسالة تظهر كشريط متحرك لكل من يفتح الصفحة… مثال: يرجى الاطلاع على التعليمات الجديدة في قناة الفريق."></textarea>
@@ -420,6 +429,7 @@ function start(){
   updateOnlineList();
   setInterval(updateOnlineList,1500);
   loadWeeksList();
+  loadBreaksList();
   // (إجمالي الزيارات أُزيل — استبدل بزر جدول البريكات)
   // online (presence with recent heartbeat)
   db.ref(".info/serverTimeOffset").on("value",s=>{SRV_OFFSET=s.val()||0});
@@ -444,7 +454,7 @@ function start(){
   loadEmployees();
 }
 
-function breaksSoon(){ toastAdm("🍵 جدول البريكات — ميزة سيتم إضافتها قريباً"); }
+function breaksSoon(){ var el=$("breaksCard"); if(el){ el.scrollIntoView({behavior:"smooth",block:"start"}); el.style.transition="box-shadow .4s"; el.style.boxShadow="0 0 0 2px var(--mint)"; setTimeout(function(){el.style.boxShadow="";},1200); } }
 
 /* ---- طلبات الحسابات الجديدة ---- */
 const APP_URL="https://mohannd3050.github.io/schedule-finder/";
@@ -664,8 +674,8 @@ function uploadSchedule(){
   };
   r.readAsArrayBuffer(f);
 }
-document.addEventListener("DOMContentLoaded",()=>{const b=$("uploadBtn");if(b)b.addEventListener("click",uploadSchedule)});
-if(document.readyState!=="loading"){const b=$("uploadBtn");if(b)b.addEventListener("click",uploadSchedule)}
+document.addEventListener("DOMContentLoaded",()=>{const b=$("uploadBtn");if(b)b.addEventListener("click",uploadSchedule); const b2=$("breaksUploadBtn");if(b2)b2.addEventListener("click",uploadBreaks)});
+if(document.readyState!=="loading"){const b=$("uploadBtn");if(b)b.addEventListener("click",uploadSchedule); const b2=$("breaksUploadBtn");if(b2)b2.addEventListener("click",uploadBreaks)}
 
 /* ===== المميزات الإضافية: لغة + مظهر + موظفين + متواجدون + حفظ دخول ===== */
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
@@ -958,6 +968,61 @@ function loadWeeksList(){
 function delWeek(id){
   if(!confirm("حذف الأسبوع: "+id))return;
   db.ref("weeks/"+id).remove().then(()=>{loadWeeksList()}).catch(e=>console.error(e));
+}
+/* ---- جدول البريكات ---- */
+function brHM(v){ if(v==null||v==="")return ""; if(typeof v==="number"){ var f=v-Math.floor(v); var t=Math.round(f*1440); var hh=Math.floor(t/60)%24, mm=t%60; return (hh<10?"0":"")+hh+":"+(mm<10?"0":"")+mm; } var s=String(v); var m=s.match(/(\d{1,2}):(\d{2})/); return m?((m[1].length<2?"0":"")+m[1]+":"+m[2]):""; }
+function brMin(v){ if(v==null||v==="")return 0; if(typeof v==="number"){ return Math.round((v-Math.floor(v))*1440); } var s=String(v); var m=s.match(/(\d{1,2}):(\d{2})/); return m?(parseInt(m[1],10)*60+parseInt(m[2],10)):0; }
+function parseBreaks(wb){
+  var out=[];
+  wb.SheetNames.forEach(function(sn){
+    var rows=wb.Sheets[sn]||[], hr=-1, col={};
+    for(var r=0;r<Math.min(rows.length,10);r++){ var row=rows[r]||[], m={};
+      for(var c=0;c<row.length;c++){ var s=norm(row[c]).toLowerCase().trim();
+        if(s==="hrid")m.hrid=c;
+        else if((s.indexOf("agent")>=0&&s.indexOf("name")>=0)||s==="name")m.name=c;
+        else if(s==="b1")m.b1=c; else if(s==="b2")m.b2=c; else if(s==="b3")m.b3=c;
+        else if(s==="d1")m.d1=c; else if(s==="d2")m.d2=c; else if(s==="d3")m.d3=c;
+        else if(s.indexOf("shift start")>=0)m.ss=c; else if(s.indexOf("end shift")>=0||s.indexOf("shift end")>=0)m.se=c;
+      }
+      if(m.hrid!=null&&(m.b1!=null||m.b2!=null||m.b3!=null)){ hr=r; col=m; break; }
+    }
+    if(hr<0)return;
+    var agents={};
+    for(var rr=hr+1;rr<rows.length;rr++){ var ar=rows[rr]||[]; var hraw=ar[col.hrid]; var hrid=(hraw!=null&&String(hraw).trim()!=="")?String(hraw).trim():""; if(!hrid)continue;
+      var b=[]; [["b1","d1"],["b2","d2"],["b3","d3"]].forEach(function(p){ var t=brHM(ar[col[p[0]]]); if(t)b.push({t:t,d:brMin(ar[col[p[1]]])}); });
+      if(!b.length)continue;
+      agents[hrid]={n:String(col.name!=null?(ar[col.name]||""):"").trim(), ss:brHM(ar[col.ss]), se:brHM(ar[col.se]), b:b};
+    }
+    if(Object.keys(agents).length) out.push({day:sn, agents:agents});
+  });
+  return out;
+}
+function uploadBreaks(){
+  if(!db){$("breaksMsg").textContent="غير متصل";return;}
+  var f=$("breaksFile").files[0];
+  if(!f){$("breaksMsg").className="err";$("breaksMsg").textContent="اختر ملف أولاً";return;}
+  $("breaksMsg").className="err";$("breaksMsg").textContent="جارٍ القراءة…";
+  var r=new FileReader();
+  r.onload=function(e){
+    try{
+      var wb=XLSXLite.read(new Uint8Array(e.target.result));
+      var parsed=parseBreaks(wb);
+      if(!parsed.length){$("breaksMsg").textContent="ما لقيت أعمدة البريكات (HRID/B1/B2/B3).";return;}
+      var ops=parsed.map(function(p){ var dayKey=String(p.day).replace(/[.#$[\]/]/g,"_"); return db.ref("breaks/"+dayKey).set({meta:{day:p.day,updatedAt:firebase.database.ServerValue.TIMESTAMP,count:Object.keys(p.agents).length},agents:p.agents}); });
+      Promise.all(ops).then(function(){ $("breaksMsg").className="err ok"; $("breaksMsg").textContent="تم رفع البريكات ✓ ("+parsed.map(function(p){return p.day+":"+Object.keys(p.agents).length;}).join(" · ")+")"; loadBreaksList(); })
+        .catch(function(err){ $("breaksMsg").className="err"; $("breaksMsg").textContent="فشل النشر: "+((err&&err.code)||"تحقّق من القواعد"); });
+    }catch(err){ console.error(err); $("breaksMsg").className="err"; $("breaksMsg").textContent="خطأ في قراءة الملف."; }
+  };
+  r.readAsArrayBuffer(f);
+}
+function loadBreaksList(){
+  if(!db||!$("breaksList"))return;
+  db.ref("breaks").once("value",function(s){
+    var b=s.val()||{}, ids=Object.keys(b);
+    if(!ids.length){$("breaksList").innerHTML='<div style="color:var(--faint);font-size:12px">لا يوجد بريكات محفوظة</div>';return;}
+    $("breaksList").innerHTML=ids.map(function(id){var m=(b[id].meta)||{};return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--glass2);border-radius:10px;margin-bottom:8px;font-size:13px"><span>🍵 <b>'+esc(m.day||id)+'</b> · '+(m.count||0)+'م</span><button data-brid="'+esc(id)+'" style="background:var(--rose);color:#fff;border:none;border-radius:7px;padding:5px 10px;cursor:pointer;font-size:12px">حذف</button></div>';}).join("");
+    $("breaksList").querySelectorAll("button[data-brid]").forEach(function(btn){btn.addEventListener("click",function(){ if(confirm("حذف بريكات هذا اليوم؟")) db.ref("breaks/"+this.getAttribute("data-brid")).remove().then(loadBreaksList); });});
+  });
 }
 /* ---- تصدير الجدول Excel بنفس صيغة الأصل (يشمل التبديلات المطبّقة) ---- */
 function exportWeekExcel(weekId){
