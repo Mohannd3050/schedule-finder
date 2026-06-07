@@ -371,10 +371,25 @@ let PRESENCE_BY_HRID={}, SRV_OFFSET=0;
 try{ if(!firebase.apps.length)firebase.initializeApp(firebaseConfig); db=firebase.database(); auth=firebase.auth(); }
 catch(e){ $("loginErr").textContent="تعذّر الاتصال بقاعدة البيانات."; }
 
-let started=false;
+let started=false, IS_ADMIN=false;
+const ADMIN_UID="YKDHaOQj3yMHvtI2uRwNCaoN1dk1";
+function isAdminUser(u){
+  if(!u||!db) return Promise.resolve(false);
+  if(u.uid===ADMIN_UID) return Promise.resolve(true);
+  return db.ref("admins/"+u.uid).once("value").then(function(s){return s.val()===true;}).catch(function(){return false;});
+}
 function showDash(){ $("login").classList.add("hidden"); $("dash").classList.remove("hidden"); if(!started){started=true;start();} }
 function showLogin(){ $("dash").classList.add("hidden"); $("login").classList.remove("hidden"); }
-if(auth){ auth.onAuthStateChanged(u=>{ if(u&&!u.isAnonymous){ if(idleExpired()){auth.signOut();return;} touchActivity(); showDash(); } else showLogin(); }); }
+if(auth){ auth.onAuthStateChanged(u=>{
+  if(u&&!u.isAnonymous){
+    if(idleExpired()){auth.signOut();return;}
+    isAdminUser(u).then(function(ok){
+      IS_ADMIN=ok;
+      if(ok){ touchActivity(); showDash(); }
+      else { showLogin(); var le=$("loginErr"); if(le) le.textContent="هذا الحساب ليس أدمن. سجّل دخول الأدمن للمتابعة."; }
+    });
+  } else { IS_ADMIN=false; showLogin(); }
+}); }
 
 function login(){
   if(!auth)return;
@@ -642,6 +657,7 @@ if(document.readyState!=="loading"){const b=$("uploadBtn");if(b)b.addEventListen
 
 /* ===== المميزات الإضافية: لغة + مظهر + موظفين + متواجدون + حفظ دخول ===== */
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function normTL(s){return String(s==null?"":s).replace(/[\u200e\u200f\u202a-\u202e\u00a0]/g," ").replace(/\s+/g," ").trim();}
 
 /* ---- اللغة والمظهر ---- */
 function applyAdminLang(){
@@ -758,7 +774,7 @@ function refreshPage(){location.reload();}
 function openSettings(){buildAdminSettings();$("setOv").classList.add("show");}
 function closeSettings(){$("setOv").classList.remove("show");}
 function buildAdminSettings(){
-  var u=auth&&auth.currentUser, logged=u&&!u.isAnonymous, h='';
+  var u=auth&&auth.currentUser, logged=IS_ADMIN, h='';
   h+='<div class="set-row"><div class="k">'+(ADMIN_LANG==="ar"?"اللغة":"Language")+'</div><div class="tseg" id="lseg">'+
      '<div class="o" data-l="ar" onclick="setAdminLang(\'ar\')">العربية</div>'+
      '<div class="o" data-l="en" onclick="setAdminLang(\'en\')">English</div></div></div>';
@@ -844,7 +860,7 @@ function loadEmployees(){
     ids.forEach(function(id){var w=weeks[id]; if(!w||!w.agents)return; var cols=(w.meta&&w.meta.dayCols)||[];
       var tIdx=-1; for(var i=0;i<cols.length;i++){var d=serialToDateAdm(cols[i].serial); if(d&&sameDayAdm(d,today)){tIdx=i;break;}}
       Object.keys(w.agents).forEach(function(hrid){var rec=w.agents[hrid];
-        if(!map[hrid]){ map[hrid]={hrid:hrid,name:rec.name||hrid,tl:rec.tl||"",lob:rec.lob||"",weeks:[id],todayLabel:"—",todayHour:null,set:false}; }
+        if(!map[hrid]){ map[hrid]={hrid:hrid,name:rec.name||hrid,tl:normTL(rec.tl),lob:rec.lob||"",weeks:[id],todayLabel:"—",todayHour:null,set:false}; }
         else { map[hrid].weeks.push(id); }
         if(!map[hrid].set && tIdx>=0){ var info=shiftLabelAdm((rec.days||[])[tIdx]); map[hrid].todayLabel=info.label; map[hrid].todayHour=info.hour; map[hrid].set=true; }
       });
@@ -857,8 +873,8 @@ function fillEmpFilters(){
   var teams={}, shifts={};
   ADMIN_AGENTS.forEach(function(a){ if(a.tl)teams[a.tl]=1; if(a.todayLabel&&a.todayLabel!=="—")shifts[a.todayLabel]=1; });
   var tf=$("empTeamFilter"), sf=$("empShiftFilter");
-  if(tf){ var c1=tf.value; tf.innerHTML='<option value="">'+t_adm("allTeams")+'</option>'+Object.keys(teams).sort().map(function(x){return '<option>'+esc(x)+'</option>';}).join(""); tf.value=c1; }
-  if(sf){ var c2=sf.value; sf.innerHTML='<option value="">'+t_adm("allShifts")+'</option>'+Object.keys(shifts).sort().map(function(x){return '<option>'+esc(x)+'</option>';}).join(""); sf.value=c2; }
+  if(tf){ var c1=tf.value; tf.innerHTML='<option value="">'+t_adm("allTeams")+'</option>'+Object.keys(teams).sort().map(function(x){return '<option value="'+esc(x)+'">'+esc(x)+'</option>';}).join(""); tf.value=c1; }
+  if(sf){ var c2=sf.value; sf.innerHTML='<option value="">'+t_adm("allShifts")+'</option>'+Object.keys(shifts).sort().map(function(x){return '<option value="'+esc(x)+'">'+esc(x)+'</option>';}).join(""); sf.value=c2; }
 }
 function renderEmp(){
   var box=$("empResult"); if(!box) return;
