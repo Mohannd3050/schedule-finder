@@ -374,7 +374,7 @@
       </div>
       <!-- REQUEST mode -->
       <div id="modeRegister" class="hidden">
-        <p class="hint" data-i18n="regHint">طلب حساب جديد — أدخل رقمك الوظيفي وجوالك، وبعد اعتماد الأدمن تصلك كلمة المرور على واتسابك</p>
+        <p class="hint" data-i18n="regHint">طلب حساب جديد — يُرجى إدخال رقمك الوظيفي وهاتفك، وبعد اعتماد الأدمن تصلك كلمة المرور على واتسابك</p>
         <input id="reHrid" inputmode="numeric" data-i18n-ph="loginPh" placeholder="رقمك الوظيفي" autocomplete="off">
         <input id="rePhone" type="tel" inputmode="numeric" data-i18n-ph="phonePh" placeholder="05XXXXXXXX" autocomplete="tel" style="margin-top:10px" onkeydown="if(event.key==='Enter')doRequest()">
         <button class="btn" onclick="doRequest()" data-i18n="regBtn" style="margin-top:14px">إرسال الطلب</button>
@@ -382,7 +382,7 @@
         <div style="text-align:center;margin-top:13px;font-size:13px"><a onclick="showLogin()" style="color:var(--mint);cursor:pointer" data-i18n="toLogin">لدي حساب — تسجيل الدخول</a></div>
       </div>
       <div class="loginErr" id="loginErr"></div>
-      <div class="loginnote" data-i18n="loginNote">طلب الحساب يتطلب تطابق الرقم الوظيفي والجوال مع الجدول</div>
+      <div class="loginnote" data-i18n="loginNote">طلب الحساب يتطلب تطابق الرقم الوظيفي والهاتف مع الجدول</div>
     </div>
   </div>
 
@@ -392,7 +392,7 @@
     <div class="card userbar">
       <div class="uinfo"><span class="dot"></span><span id="uName">—</span> · <b id="uHrid">—</b></div>
       <div style="display:flex;gap:8px;align-items:center">
-        <button class="btn sm" onclick="goSwap()" data-i18n="swap" style="background:linear-gradient(120deg,var(--violet),var(--mint));color:#04211c">🔁 تبديل الشفت</button>
+        <button class="btn sm" onclick="goSwap()" data-i18n="swap" style="background:linear-gradient(120deg,var(--violet),var(--mint));color:#04211c">🔁 تبديل الوردية</button>
       </div>
     </div>
 
@@ -410,7 +410,7 @@
 
     <!-- legend -->
     <div class="card legend">
-      <div class="it"><span class="sw" style="background:var(--mint)"></span> <span data-i18n="legShift">شفت (وقت البداية)</span></div>
+      <div class="it"><span class="sw" style="background:var(--mint)"></span> <span data-i18n="legShift">وردية (وقت البداية)</span></div>
       <div class="it"><span class="sw" style="background:var(--txt-faint)"></span> <span data-i18n="legOff">إجازة / OFF</span></div>
       <div class="it"><span class="sw" style="background:var(--violet)"></span> <span data-i18n="legAnnual">سنوية</span></div>
       <div class="it"><span class="sw" style="background:var(--amber)"></span> <span data-i18n="legPH">رسمية / عيد</span></div>
@@ -534,21 +534,21 @@ function buildSettings(){
   document.querySelectorAll("#lseg .o").forEach(function(o){o.classList.toggle("on",o.getAttribute("data-l")===LANG);});
 }
 function setLangSel(l){ LANG=l; localStorage.setItem("lang",l); applyLang(); buildSettings(); }
-/* ---- تصدير الشفتات لملف تقويم .ics (مع تذكير قبل الشفت) ---- */
+/* ---- تصدير الورديّات لملف تقويم .ics (مع تذكير قبل الوردية) ---- */
 function exportShiftsICS(){
   var recs=(typeof LAST_RECORDS!=="undefined"&&LAST_RECORDS)?LAST_RECORDS:[];
   var arr=(typeof buildShiftStarts==="function")?buildShiftStarts(recs):[];
   var now=Date.now();
   var future=arr.filter(function(ms){return ms>now-12*3600*1000;}).sort(function(a,b){return a-b;}).slice(0,40);
-  if(!future.length){ alert(LANG==="ar"?"لا توجد شفتات قادمة لإضافتها":"No upcoming shifts to add"); return; }
+  if(!future.length){ alert(LANG==="ar"?"لا توجد ورديّات قادمة لإضافتها":"No upcoming shifts to add"); return; }
   function p(n){return (n<10?"0":"")+n;}
   function loc(ms){ var d=new Date(ms); return ""+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+"T"+p(d.getHours())+p(d.getMinutes())+"00"; }
   function utc(ms){ var d=new Date(ms); return ""+d.getUTCFullYear()+p(d.getUTCMonth()+1)+p(d.getUTCDate())+"T"+p(d.getUTCHours())+p(d.getUTCMinutes())+p(d.getUTCSeconds())+"Z"; }
   var L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//d360//schedule-finder//AR","CALSCALE:GREGORIAN","METHOD:PUBLISH"];
   future.forEach(function(ms,i){
     L.push("BEGIN:VEVENT","UID:d360-"+ms+"-"+i+"@schedule-finder","DTSTAMP:"+utc(now),"DTSTART:"+loc(ms),"DTEND:"+loc(ms+SHIFT_LEN),
-      "SUMMARY:"+(LANG==="ar"?"شفت العمل · d360":"Work shift · d360"),
-      "BEGIN:VALARM","TRIGGER:-PT30M","ACTION:DISPLAY","DESCRIPTION:"+(LANG==="ar"?"تذكير: شفتك بعد ٣٠ دقيقة":"Reminder: shift in 30 min"),"END:VALARM","END:VEVENT");
+      "SUMMARY:"+(LANG==="ar"?"وردية العمل · d360":"Work shift · d360"),
+      "BEGIN:VALARM","TRIGGER:-PT30M","ACTION:DISPLAY","DESCRIPTION:"+(LANG==="ar"?"تذكير: ورديتك بعد ٣٠ دقيقة":"Reminder: shift in 30 min"),"END:VALARM","END:VEVENT");
   });
   L.push("END:VCALENDAR");
   try{
@@ -576,21 +576,21 @@ var I18N={
   ar:{
     dir:"rtl",
     badge:"جدول الفريق · OPS Schedule", t1:"باحث", t2:"الجدول",
-    loginHint:"أدخل رقمك الوظيفي ورقم جوالك المسجّل في الجدول", loginPh:"رقمك الوظيفي", phonePh:"05XXXXXXXX",
-    loginBtn:"دخول", loginNote:"طلب الحساب يتطلب تطابق الرقم الوظيفي والجوال مع الجدول", rememberMe:"تذكّرني",
+    loginHint:"يُرجى إدخال رقمك الوظيفي ورقم هاتفك المسجّل في الجدول", loginPh:"رقمك الوظيفي", phonePh:"05XXXXXXXX",
+    loginBtn:"دخول", loginNote:"طلب الحساب يتطلب تطابق الرقم الوظيفي والهاتف مع الجدول", rememberMe:"تذكّرني",
     logHint:"سجّل دخولك برقمك الوظيفي وكلمة المرور", emailPh:"الإيميل", passPh:"كلمة المرور", newPassPh:"كلمة مرور (6 أحرف+)", pass2Ph:"تأكيد كلمة المرور",
-    toRegister:"طلب حساب جديد", forgot:"نسيت كلمة المرور؟", regHint:"طلب حساب جديد — أدخل رقمك الوظيفي وجوالك، وبعد اعتماد الأدمن تصلك كلمة المرور على واتسابك", regBtn:"إرسال الطلب", toLogin:"لدي حساب — تسجيل الدخول",
-    notifTitle:"الإشعارات", notifClear:"مسح الكل", notifEmpty:"لا توجد إشعارات", myBreaks:"بريكاتك اليوم", addCal:"📅 أضف شفتاتي للتقويم",
+    toRegister:"طلب حساب جديد", forgot:"نسيت كلمة المرور؟", regHint:"طلب حساب جديد — يُرجى إدخال رقمك الوظيفي وهاتفك، وبعد اعتماد الأدمن تصلك كلمة المرور على واتسابك", regBtn:"إرسال الطلب", toLogin:"لدي حساب — تسجيل الدخول",
+    notifTitle:"الإشعارات", notifClear:"مسح الكل", notifEmpty:"لا توجد إشعارات", myBreaks:"استراحاتك اليوم", addCal:"📅 أضف ورديّاتي للتقويم",
     pwTitle:"تغيير كلمة المرور", pwHint:"كلمة المرور أرقام فقط — 4 أو 6 أرقام", pwCurPh:"كلمة المرور الحالية", pwNewPh:"الجديدة (4 أو 6 أرقام)", pwNew2Ph:"تأكيد الجديدة", pwSave:"حفظ",
-    change:"تغيير", swap:"🔁 تبديل الشفت",
-    brkReady:"بريك ساعة كاملة · جاهز", brkStart:"بدء البريك", brkReset:"إعادة ضبط",
-    brkRunning:"بريك جارٍ ☕", brkPause:"إيقاف مؤقت", brkPaused:"متوقّف مؤقتاً", brkResume:"متابعة",
-    brkDone:"انتهى وقت البريك (ساعة كاملة) ☕\nرجاءً عُد إلى حالة Available.",
-    legShift:"شفت (وقت البداية)", legOff:"إجازة / OFF", legAnnual:"سنوية", legPH:"رسمية / عيد", legSup:"Support / Senior",
+    change:"تغيير", swap:"🔁 تبديل الوردية",
+    brkReady:"استراحة ساعة كاملة · جاهز", brkStart:"بدء الاستراحة", brkReset:"إعادة ضبط",
+    brkRunning:"استراحة جارٍ ☕", brkPause:"إيقاف مؤقت", brkPaused:"متوقّف مؤقتاً", brkResume:"متابعة",
+    brkDone:"انتهى وقت الاستراحة (ساعة كاملة) ☕\nرجاءً عُد إلى حالة Available.",
+    legShift:"وردية (وقت البداية)", legOff:"إجازة / OFF", legAnnual:"سنوية", legPH:"رسمية / عيد", legSup:"Support / Senior",
     footBy:"تمت بواسطة مهنّد الغامدي", footHrid:"الرقم الوظيفي: 94467", footLive:"الجدول من خادم الفريق · يُحدّث مباشرة",
     alertTitle:"تنبيه من الأدمن", alertOk:"موافق",
-    today:"اليوم", startsIn:"شفت اليوم يبدأ بعد", running:"شفتك جارٍ · ينتهي بعد", ended:"انتهى شفت اليوم ✓",
-    startsAt:"يبدأ", noMatch:"لا يوجد يوم مطابق في الجدول الحالي", enjoy:"استمتع بيومك", noShift:"لا يوجد شفت اليوم", leaveEndsIn:"تنتهي إجازتك خلال", nextShiftIn:"شفتك القادم بعد",
+    today:"اليوم", startsIn:"وردية اليوم يبدأ بعد", running:"ورديتك جارٍ · ينتهي بعد", ended:"انتهى وردية اليوم ✓",
+    startsAt:"يبدأ", noMatch:"لا يوجد يوم مطابق في الجدول الحالي", enjoy:"استمتع بيومك", noShift:"لا يوجد وردية اليوم", leaveEndsIn:"تنتهي إجازتك خلال", nextShiftIn:"ورديتك القادم بعد",
     vLeave:"إجازة", vAnnual:"سنوية",
     days:["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"],
     mons:["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"],
@@ -723,7 +723,7 @@ function doLogin(){
   var pass=document.getElementById("liPass").value||"";
   REMEMBER=document.getElementById("rememberMe").checked;
   showErr("");
-  if(!hrid||!pass){ showErr(LANG==="ar"?"أدخل الرقم الوظيفي وكلمة المرور":"Enter HRID and password"); return; }
+  if(!hrid||!pass){ showErr(LANG==="ar"?"يُرجى إدخال الرقم الوظيفي وكلمة المرور":"Enter HRID and password"); return; }
   if(!db){ showErr(LANG==="ar"?"جارٍ الاتصال…":"Connecting…"); return; }
   setPersist(REMEMBER)
     .then(function(){ return firebase.auth().signInWithEmailAndPassword(staffEmail(hrid), pass+PIN_SALT); })
@@ -731,7 +731,7 @@ function doLogin(){
     .catch(function(e){ showErr(authErr(e)); });
 }
 
-/* ---- التحقق من الهوية (HRID + جوال) ---- */
+/* ---- التحقق من الهوية (HRID + هاتف) ---- */
 function verifyIdentity(hrid, phone){
   if(typeof FALLBACK_DATA!=="undefined" && FALLBACK_DATA.agents && FALLBACK_DATA.agents[hrid]){
     var a=FALLBACK_DATA.agents[hrid];
@@ -746,18 +746,18 @@ function verifyIdentity(hrid, phone){
   });
 }
 
-/* ---- طلب حساب جديد (رقم وظيفي + جوال فقط → يروح للأدمن) ---- */
+/* ---- طلب حساب جديد (رقم وظيفي + هاتف فقط → يروح للأدمن) ---- */
 function doRequest(){
   var hrid=(document.getElementById("reHrid").value||"").trim().replace(/[^0-9]/g,"");
   var phone=(document.getElementById("rePhone").value||"").trim();
   showErr(""); var ok=document.getElementById("reqOk"); if(ok){ok.classList.add("hidden");ok.textContent="";}
-  if(!hrid){ showErr(LANG==="ar"?"أدخل رقمك الوظيفي":"Enter HRID"); return; }
-  if(!validPhone(phone)){ showErr(LANG==="ar"?"أدخل رقم جوال صحيح":"Enter a valid phone"); return; }
+  if(!hrid){ showErr(LANG==="ar"?"يُرجى إدخال رقمك الوظيفي":"Enter HRID"); return; }
+  if(!validPhone(phone)){ showErr(LANG==="ar"?"يُرجى إدخال رقم هاتف صحيح":"Enter a valid phone"); return; }
   if(!db){ showErr(LANG==="ar"?"لا يوجد اتصال":"No connection"); return; }
   dbg("📝 طلب حساب "+hrid);
   var nm="";
   verifyIdentity(hrid, phone).then(function(good){
-    if(!good){ showErr(LANG==="ar"?"الرقم الوظيفي أو الجوال لا يطابق الجدول":"HRID/phone don't match the schedule"); return Promise.reject("x"); }
+    if(!good){ showErr(LANG==="ar"?"الرقم الوظيفي أو الهاتف لا يطابق الجدول":"HRID/phone don't match the schedule"); return Promise.reject("x"); }
     // اسم الموظف من البيانات الاحتياطية إن وُجد
     try{ if(typeof FALLBACK_DATA!=="undefined"&&FALLBACK_DATA.agents&&FALLBACK_DATA.agents[hrid]) nm=FALLBACK_DATA.agents[hrid].n||""; }catch(e){}
     return db.ref("users/"+hrid).once("value");
@@ -835,7 +835,7 @@ function logout(){
 }
 
 /* ================= NOTIFICATIONS ================= */
-/* ---- البريكات المجدولة (من رفع الأدمن) ---- */
+/* ---- الاستراحات المجدولة (من رفع الأدمن) ---- */
 function dayNameLocal(){ return ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][new Date().getDay()]; }
 function brkToMs(hm){ if(!hm)return null; var p=String(hm).split(":"); var d=new Date(); d.setHours(parseInt(p[0],10),parseInt(p[1],10)||0,0,0); return d.getTime(); }
 function fmtHMms(ms){ var d=new Date(ms); var h=d.getHours(),m=d.getMinutes(); return (h<10?"0":"")+h+":"+(m<10?"0":"")+m; }
@@ -893,14 +893,14 @@ function renderBreaksCard(){
   var totUsed=0, totPlan=0;
   var rows=(data.b||[]).map(function(b,i){
     var endMs=brkToMs(b.t)+((b.d||0)*60000); totPlan+=(b.d||0);
-    var meta='<span class="bt">'+(ar?"بريك ":"Break ")+(i+1)+' · '+esc(b.t)+'–'+esc(fmtHMms(endMs))+'</span><span class="bd">'+(b.d||0)+(ar?" د":" min")+'</span>';
+    var meta='<span class="bt">'+(ar?"استراحة ":"Break ")+(i+1)+' · '+esc(b.t)+'–'+esc(fmtHMms(endMs))+'</span><span class="bd">'+(b.d||0)+(ar?" د":" min")+'</span>';
     if(!isToday){ return '<div class="brkrow" data-bi="'+i+'">'+meta+'</div>'; }
     var used=brkUsedSec(i,true); totUsed+=used; var active=brkIsActive(i); var over=used>(b.d||0)*60;
     var btn='<button class="brkbtn'+(active?" act":"")+'" onclick="toggleBreakUsage('+i+')">'+(active?(ar?"⏹️ إيقاف":"⏹️ Stop"):(ar?"▶️ بدء":"▶️ Start"))+'</button>';
     return '<div class="brkrow row2'+(active?" on":"")+(over?" over":"")+'" data-bi="'+i+'"><div class="brkr-top">'+meta+'</div>'+
       '<div class="brkr-bot"><span class="bu'+(over?" over":"")+'" id="bu'+i+'">'+(ar?"المستخدم: ":"Used: ")+fmtMS(used)+'</span>'+btn+'</div></div>';
   }).join("");
-  var head = isToday ? '<div id="brkNext" class="brknext">—</div>' : '<div class="brknext" style="color:var(--txt-dim)">'+(ar?"بريكات يوم ":"Breaks · ")+(ar?WEEK_DAYS_AR[WEEK_DAYS.indexOf(sel)]:sel)+'</div>';
+  var head = isToday ? '<div id="brkNext" class="brknext">—</div>' : '<div class="brknext" style="color:var(--txt-dim)">'+(ar?"استراحات يوم ":"Breaks · ")+(ar?WEEK_DAYS_AR[WEEK_DAYS.indexOf(sel)]:sel)+'</div>';
   var totalRow = isToday ? '<div class="brktotal"><span>'+(ar?"الإجمالي المستخدم":"Total used")+'</span><b id="buTot">'+fmtMS(totUsed)+' / '+totPlan+(ar?" د":" min")+'</b></div>' : '';
   box.innerHTML='<div class="card brkcard"><div class="lbl"><span>🍵 '+t("myBreaks")+'</span></div>'+
     '<div class="brktabs">'+tabs+'</div>'+head+'<div class="brklist">'+rows+'</div>'+totalRow+'</div>';
@@ -919,9 +919,9 @@ function updateBreakCountdown(){
   var nx=document.getElementById("brkNext"); if(!nx)return;
   var now=Date.now(), cur=null, nextI=-1, nextSt=null, curI=-1;
   data.b.forEach(function(b,i){ var st=brkToMs(b.t), en=st+((b.d||0)*60000); if(now>=st&&now<en){ cur={en:en}; curI=i; } else if(st>now&&(nextSt===null||st<nextSt)){ nextSt=st; nextI=i; } });
-  if(cur){ nx.innerHTML='<b style="color:var(--mint)">'+(ar?"وقت بريكك الآن ☕":"Break time ☕")+'</b> · '+(ar?"ينتهي بعد ":"ends in ")+fmtDur(cur.en-now); }
-  else if(nextI>=0){ nx.innerHTML=(ar?"بريكك القادم ":"Next break ")+'<b>'+esc(data.b[nextI].t)+'</b> '+(ar?"بعد ":"in ")+fmtDur(nextSt-now); }
-  else { nx.innerHTML=(ar?"انتهت أوقات بريكاتك اليوم":"Scheduled breaks ended"); }
+  if(cur){ nx.innerHTML='<b style="color:var(--mint)">'+(ar?"وقت استراحتك الآن ☕":"Break time ☕")+'</b> · '+(ar?"ينتهي بعد ":"ends in ")+fmtDur(cur.en-now); }
+  else if(nextI>=0){ nx.innerHTML=(ar?"استراحتك القادم ":"Next break ")+'<b>'+esc(data.b[nextI].t)+'</b> '+(ar?"بعد ":"in ")+fmtDur(nextSt-now); }
+  else { nx.innerHTML=(ar?"انتهت أوقات استراحاتك اليوم":"Scheduled breaks ended"); }
 }
 
 function closeDayStats(){ var ov=document.getElementById("dayOv"); if(ov)ov.classList.remove("show"); }
@@ -961,8 +961,8 @@ function renderDayStats(body,dayName,perf,label){
   var ar=(LANG==="ar"), html="";
   var bdata=dayName?BREAKS_CACHE[dayName]:null;
   if(bdata&&bdata.b&&bdata.b.length){
-    html+='<div class="ds-sec"><div class="ds-h">🍵 '+(ar?"بريكاتك هذا اليوم":"Your breaks")+'</div>';
-    html+=bdata.b.map(function(b,i){ var endMs=brkToMs(b.t)+((b.d||0)*60000); return '<div class="ds-row"><span>'+(ar?"بريك ":"Break ")+(i+1)+'</span><b>'+esc(b.t)+'–'+esc(fmtHMms(endMs))+' · '+(b.d||0)+(ar?"د":"m")+'</b></div>'; }).join("");
+    html+='<div class="ds-sec"><div class="ds-h">🍵 '+(ar?"استراحاتك هذا اليوم":"Your breaks")+'</div>';
+    html+=bdata.b.map(function(b,i){ var endMs=brkToMs(b.t)+((b.d||0)*60000); return '<div class="ds-row"><span>'+(ar?"استراحة ":"Break ")+(i+1)+'</span><b>'+esc(b.t)+'–'+esc(fmtHMms(endMs))+' · '+(b.d||0)+(ar?"د":"m")+'</b></div>'; }).join("");
     html+='</div>';
   }
   if(perf&&perf.agents&&perf.agents.length){
@@ -981,7 +981,7 @@ function renderDayStats(body,dayName,perf,label){
           '<div class="ds-row"><span>'+(ar?"ترتيبك":"Rank")+'</span><b>#'+(mi+1)+' / '+ags.length+'</b></div>'+
           '<div class="ds-row"><span>'+(ar?"المكالمات":"Calls")+'</span><b>'+(me.calls||0)+'</b></div>'+
           '<div class="ds-row"><span>AHT</span><b>'+fmtAHT(me.ahtSec)+'</b></div>'+
-          (me.breakSec?'<div class="ds-row"><span>'+(ar?"وقت البريك":"Break time")+'</span><b>'+fmtAHT(me.breakSec)+'</b></div>':'')+'</div>';
+          (me.breakSec?'<div class="ds-row"><span>'+(ar?"وقت الاستراحة":"Break time")+'</span><b>'+fmtAHT(me.breakSec)+'</b></div>':'')+'</div>';
       }
     }
   } else {
@@ -1018,8 +1018,8 @@ function doChangePw(){
   var cur=(document.getElementById("pwCur").value||""), np=(document.getElementById("pwNew").value||""), np2=(document.getElementById("pwNew2").value||"");
   var m=document.getElementById("pwMsg");
   var setMsg=function(t,ok){ if(m){ m.style.color=ok?"var(--mint)":"var(--rose)"; m.textContent=t; } };
-  if(!cur){ setMsg(LANG==="ar"?"أدخل كلمة المرور الحالية":"Enter current password"); return; }
-  if(!validPin(np)){ setMsg(LANG==="ar"?"الجديدة لازم 4 أو 6 أرقام":"New must be 4 or 6 digits"); return; }
+  if(!cur){ setMsg(LANG==="ar"?"يُرجى إدخال كلمة المرور الحالية":"Enter current password"); return; }
+  if(!validPin(np)){ setMsg(LANG==="ar"?"الجديدة يجب 4 أو 6 أرقام":"New must be 4 or 6 digits"); return; }
   if(np!==np2){ setMsg(LANG==="ar"?"التأكيد غير متطابق":"Confirmation doesn't match"); return; }
   var user=firebase.auth().currentUser;
   if(!user||!user.email){ setMsg(LANG==="ar"?"جلسة غير صالحة — أعد الدخول":"Invalid session"); return; }
@@ -1090,7 +1090,7 @@ function classifyVal(raw){
     }
   }
 
-  // وقت شفت نصّي — يدعم 12 ساعة (AM/PM إنجليزي أو عربي) و 24 ساعة
+  // وقت وردية نصّي — يدعم 12 ساعة (AM/PM إنجليزي أو عربي) و 24 ساعة
   var m=v.match(/^(\d{1,2})\s*[:：]\s*(\d{2})(?:\s*[:：]\s*\d{2})?\s*([apصم]m?|صباح\w*|مساء\w*)?/i);
   if(m){
     var h=parseInt(m[1],10), mm=parseInt(m[2],10);
@@ -1158,7 +1158,7 @@ function renderWeeks(records){
 /* ---- today shift + countdown ---- */
 var TODAY_MODE=null;      // work | next | leave | none
 var TODAY_SHIFT=null;     // {start,end,txt,mer}
-var NEXT_SHIFT=null;      // {start, info} للإجازة/الشفت القادم
+var NEXT_SHIFT=null;      // {start, info} للإجازة/الوردية القادم
 var SHIFT_LEN=9*3600*1000;
 
 /* ---- ترميم التواريخ المفقودة + بيانات احتياطية ---- */
@@ -1219,7 +1219,7 @@ function renderToday(records){
   var n=new Date();
   TODAY_MODE=null; TODAY_SHIFT=null; NEXT_SHIFT=null;
 
-  // شفت اليوم لم ينتهِ بعد → وضع العمل
+  // وردية اليوم لم ينتهِ بعد → وضع العمل
   if(todayCell && todayCell.isWork && todayCell.time){
     var start=new Date(n.getFullYear(),n.getMonth(),n.getDate(),todayCell.time.h,todayCell.time.m,0,0);
     var end=new Date(start.getTime()+SHIFT_LEN);
@@ -1233,7 +1233,7 @@ function renderToday(records){
     }
   }
 
-  // غير ذلك: إجازة/OFF أو انتهى شفت اليوم → عدّ تنازلي للشفت القادم
+  // غير ذلك: إجازة/OFF أو انتهى وردية اليوم → عدّ تنازلي للوردية القادم
   NEXT_SHIFT=nextStartAfter(arr, n.getTime());
   if(NEXT_SHIFT){
     var onLeave = todayCell && !todayCell.isWork;   // اليوم إجازة فعلاً
@@ -1246,7 +1246,7 @@ function renderToday(records){
     tickToday(); return;
   }
 
-  // لا شفت اليوم ولا قادم
+  // لا وردية اليوم ولا قادم
   if(todayCell && !todayCell.isWork){
     box.innerHTML='<div class="card today rest"><div class="lbl"><span class="pulse" style="background:var(--violet);box-shadow:none"></span><span>'+t("today")+'</span></div>'+
       '<div class="clock">🌿</div><div class="state">'+esc(todayCell.txt==="—"?t("noShift"):todayCell.txt)+' · '+t("enjoy")+'</div></div>';
@@ -1275,7 +1275,7 @@ function tickToday(){
       if(st) st.textContent=t("running"); clk.textContent=hms(dEnd);
       var el=(SHIFT_LEN/1000)-dEnd; if(bar) bar.style.width=Math.max(0,Math.min(100,(el/(SHIFT_LEN/1000))*100))+"%";
     } else {
-      // انتهى شفت اليوم → أعد الرسم للانتقال للشفت القادم إن وُجد
+      // انتهى وردية اليوم → أعد الرسم للانتقال للوردية القادم إن وُجد
       if(st) st.textContent=t("ended"); clk.textContent="00:00:00"; if(bar) bar.style.width="100%";
       if(LAST_RECORDS && buildShiftStarts(LAST_RECORDS).some(function(s){return s.start.getTime()>now.getTime();})){
         renderToday(LAST_RECORDS); startTodayTick();
