@@ -922,6 +922,22 @@ function delWeek(id){
 /* ---- جدول الاستراحات ---- */
 function brHM(v){ if(v==null||v==="")return ""; if(typeof v==="number"){ var f=v-Math.floor(v); var t=Math.round(f*1440); var hh=Math.floor(t/60)%24, mm=t%60; return (hh<10?"0":"")+hh+":"+(mm<10?"0":"")+mm; } var s=String(v); var m=s.match(/(\d{1,2}):(\d{2})/); return m?((m[1].length<2?"0":"")+m[1]+":"+m[2]):""; }
 function brMin(v){ if(v==null||v==="")return 0; if(typeof v==="number"){ return Math.round((v-Math.floor(v))*1440); } var s=String(v); var m=s.match(/(\d{1,2}):(\d{2})/); return m?(parseInt(m[1],10)*60+parseInt(m[2],10)):0; }
+function sheetToWeekday(name){
+  var s=String(name||"").trim(), low=s.toLowerCase();
+  var wd=["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
+  var WD=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  for(var i=0;i<wd.length;i++){ if(low.indexOf(wd[i])>=0) return WD[i]; }
+  var ar=[["الأحد","Sunday"],["الاثنين","Monday"],["الإثنين","Monday"],["الثلاثاء","Tuesday"],["الأربعاء","Wednesday"],["الخميس","Thursday"],["الجمعة","Friday"],["السبت","Saturday"]];
+  for(var j=0;j<ar.length;j++){ if(s.indexOf(ar[j][0])>=0) return ar[j][1]; }
+  var months={jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+  var now=new Date(), yr=now.getFullYear(), d=null, m;
+  m=low.match(/(\d{1,2})\s*[-\/ ]?\s*([a-z]{3,})/); if(m && months[m[2].slice(0,3)]!=null) d=new Date(yr,months[m[2].slice(0,3)],parseInt(m[1],10));
+  if(!d){ m=low.match(/([a-z]{3,})\s*[-\/ ]?\s*(\d{1,2})/); if(m && months[m[1].slice(0,3)]!=null) d=new Date(yr,months[m[1].slice(0,3)],parseInt(m[2],10)); }
+  if(!d){ m=s.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/); if(m) d=new Date(parseInt(m[1]),parseInt(m[2])-1,parseInt(m[3])); }
+  if(!d){ m=s.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/); if(m) d=new Date(parseInt(m[3]),parseInt(m[2])-1,parseInt(m[1])); }
+  if(d && !isNaN(d.getTime())) return WD[d.getDay()];
+  return s;
+}
 function parseBreaks(wb){
   var out=[];
   wb.SheetNames.forEach(function(sn){
@@ -943,7 +959,7 @@ function parseBreaks(wb){
       if(!b.length)continue;
       agents[hrid]={n:String(col.name!=null?(ar[col.name]||""):"").trim(), ss:brHM(ar[col.ss]), se:brHM(ar[col.se]), b:b};
     }
-    if(Object.keys(agents).length) out.push({day:sn, agents:agents});
+    if(Object.keys(agents).length) out.push({day:sheetToWeekday(sn), agents:agents});
   });
   return out;
 }

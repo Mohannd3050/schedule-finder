@@ -537,7 +537,7 @@ function setLangSel(l){ LANG=l; localStorage.setItem("lang",l); applyLang(); bui
 /* ---- تصدير الشفتات لملف تقويم .ics (مع تذكير قبل الشفت) ---- */
 function exportShiftsICS(){
   var recs=(typeof LAST_RECORDS!=="undefined"&&LAST_RECORDS)?LAST_RECORDS:[];
-  var arr=(typeof buildShiftStarts==="function")?buildShiftStarts(recs):[];
+  var arr=(typeof buildShiftStarts==="function")?buildShiftStarts(recs).map(function(x){return (x&&x.start)?x.start.getTime():null;}).filter(function(v){return v!=null;}):[];
   var now=Date.now();
   var future=arr.filter(function(ms){return ms>now-12*3600*1000;}).sort(function(a,b){return a-b;}).slice(0,40);
   if(!future.length){ alert(LANG==="ar"?"لا توجد شفتات قادمة لإضافتها":"No upcoming shifts to add"); return; }
@@ -838,7 +838,8 @@ function logout(){
 /* ---- الاستراحات المجدولة (من رفع الأدمن) ---- */
 function dayNameLocal(){ return ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][new Date().getDay()]; }
 function brkToMs(hm){ if(!hm)return null; var p=String(hm).split(":"); var d=new Date(); d.setHours(parseInt(p[0],10),parseInt(p[1],10)||0,0,0); return d.getTime(); }
-function fmtHMms(ms){ var d=new Date(ms); var h=d.getHours(),m=d.getMinutes(); return (h<10?"0":"")+h+":"+(m<10?"0":"")+m; }
+function fmtHMms(ms){ var d=new Date(ms); var h=d.getHours(),m=d.getMinutes(); var mer=merOf(h); return fmtHM(h,m)+(mer?(" "+mer):""); }
+function fmtBrk(hm){ if(!hm)return ""; var p=String(hm).split(":"); var h=parseInt(p[0],10)||0, m=parseInt(p[1],10)||0; var mer=merOf(h); return fmtHM(h,m)+(mer?(" "+mer):""); }
 function fmtDur(ms){ var s=Math.max(0,Math.floor(ms/1000)); var h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60; return (h>0?(h+":"+(m<10?"0":"")):"")+m+":"+(ss<10?"0":"")+ss; }
 var WEEK_DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 var WEEK_DAYS_AR=["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
@@ -893,7 +894,7 @@ function renderBreaksCard(){
   var totUsed=0, totPlan=0;
   var rows=(data.b||[]).map(function(b,i){
     var endMs=brkToMs(b.t)+((b.d||0)*60000); totPlan+=(b.d||0);
-    var meta='<span class="bt">'+(ar?"استراحة ":"Break ")+(i+1)+' · '+esc(b.t)+'–'+esc(fmtHMms(endMs))+'</span><span class="bd">'+(b.d||0)+(ar?" د":" min")+'</span>';
+    var meta='<span class="bt">'+(ar?"استراحة ":"Break ")+(i+1)+' · '+esc(fmtBrk(b.t))+'–'+esc(fmtHMms(endMs))+'</span><span class="bd">'+(b.d||0)+(ar?" د":" min")+'</span>';
     if(!isToday){ return '<div class="brkrow" data-bi="'+i+'">'+meta+'</div>'; }
     var used=brkUsedSec(i,true); totUsed+=used; var active=brkIsActive(i); var over=used>(b.d||0)*60;
     var btn='<button class="brkbtn'+(active?" act":"")+'" onclick="toggleBreakUsage('+i+')">'+(active?(ar?"⏹️ إيقاف":"⏹️ Stop"):(ar?"▶️ بدء":"▶️ Start"))+'</button>';
@@ -920,7 +921,7 @@ function updateBreakCountdown(){
   var now=Date.now(), cur=null, nextI=-1, nextSt=null, curI=-1;
   data.b.forEach(function(b,i){ var st=brkToMs(b.t), en=st+((b.d||0)*60000); if(now>=st&&now<en){ cur={en:en}; curI=i; } else if(st>now&&(nextSt===null||st<nextSt)){ nextSt=st; nextI=i; } });
   if(cur){ nx.innerHTML='<b style="color:var(--mint)">'+(ar?"وقت استراحتك الآن ☕":"Break time ☕")+'</b> · '+(ar?"ينتهي بعد ":"ends in ")+fmtDur(cur.en-now); }
-  else if(nextI>=0){ nx.innerHTML=(ar?"استراحتك القادم ":"Next break ")+'<b>'+esc(data.b[nextI].t)+'</b> '+(ar?"بعد ":"in ")+fmtDur(nextSt-now); }
+  else if(nextI>=0){ nx.innerHTML=(ar?"استراحتك القادم ":"Next break ")+'<b>'+esc(fmtBrk(data.b[nextI].t))+'</b> '+(ar?"بعد ":"in ")+fmtDur(nextSt-now); }
   else { nx.innerHTML=(ar?"انتهت أوقات استراحاتك اليوم":"Scheduled breaks ended"); }
 }
 
@@ -962,7 +963,7 @@ function renderDayStats(body,dayName,perf,label){
   var bdata=dayName?BREAKS_CACHE[dayName]:null;
   if(bdata&&bdata.b&&bdata.b.length){
     html+='<div class="ds-sec"><div class="ds-h">🍵 '+(ar?"استراحاتك هذا اليوم":"Your breaks")+'</div>';
-    html+=bdata.b.map(function(b,i){ var endMs=brkToMs(b.t)+((b.d||0)*60000); return '<div class="ds-row"><span>'+(ar?"استراحة ":"Break ")+(i+1)+'</span><b>'+esc(b.t)+'–'+esc(fmtHMms(endMs))+' · '+(b.d||0)+(ar?"د":"m")+'</b></div>'; }).join("");
+    html+=bdata.b.map(function(b,i){ var endMs=brkToMs(b.t)+((b.d||0)*60000); return '<div class="ds-row"><span>'+(ar?"استراحة ":"Break ")+(i+1)+'</span><b>'+esc(fmtBrk(b.t))+'–'+esc(fmtHMms(endMs))+' · '+(b.d||0)+(ar?"د":"m")+'</b></div>'; }).join("");
     html+='</div>';
   }
   if(perf&&perf.agents&&perf.agents.length){
