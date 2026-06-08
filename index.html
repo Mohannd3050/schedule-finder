@@ -65,7 +65,8 @@
   .brknext{font-size:14px;color:var(--txt-dim);background:var(--glass);border:1px solid var(--stroke-soft);border-radius:12px;padding:11px 14px;margin-bottom:12px}
   .brklist{display:flex;flex-direction:column;gap:8px}
   .brkrow{display:flex;justify-content:space-between;align-items:center;padding:11px 14px;border-radius:12px;background:var(--glass);border:1px solid var(--stroke-soft);transition:.2s}
-  .brkrow .bt{font-weight:600;font-size:14.5px}
+  .brkrow .bt{font-weight:700;font-size:14.5px}
+  .brkr-time{font-size:13.5px;color:var(--txt-dim);font-variant-numeric:tabular-nums;margin-top:6px;letter-spacing:.2px}
   .brkrow .bd{font-size:12px;color:var(--txt-dim);background:color-mix(in srgb,var(--mint) 12%,transparent);padding:3px 9px;border-radius:100px}
   .brkrow.on{border-color:var(--mint);box-shadow:0 0 0 1px var(--mint)}
   .brkrow.nx{border-color:color-mix(in srgb,var(--violet) 50%,transparent)}
@@ -82,7 +83,14 @@
   .brktoggle.on{box-shadow:0 0 0 1px var(--amber)}
   .brkrow.row2{flex-direction:column;align-items:stretch;gap:9px}
   .brkr-top{display:flex;justify-content:space-between;align-items:center}
-  .brkr-bot{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .brkr-bot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px;padding-top:10px;border-top:1px solid var(--stroke-soft)}
+  .ds-brk{background:var(--glass);border:1px solid var(--stroke-soft);border-radius:11px;padding:10px 13px;margin-bottom:7px}
+  .ds-brk.over{border-color:var(--rose)}
+  .ds-brk-h{display:flex;justify-content:space-between;align-items:center;font-size:13.5px;margin-bottom:5px;gap:8px}
+  .ds-brk-h .lbl{color:var(--txt-dim);font-weight:600}
+  .ds-brk-h .rng{font-weight:700;font-variant-numeric:tabular-nums}
+  .ds-brk-u{font-size:12.5px;color:var(--txt-dim);font-variant-numeric:tabular-nums}
+  .ds-brk-u.over{color:var(--rose);font-weight:700}
   .bu{font-size:13px;color:var(--txt-dim);font-variant-numeric:tabular-nums}
   .bu.over{color:var(--rose);font-weight:700}
   .brkbtn{border:none;border-radius:10px;padding:8px 16px;font-family:inherit;font-weight:700;font-size:13px;cursor:pointer;color:#fff;background:linear-gradient(120deg,var(--violet),var(--mint));transition:.16s}
@@ -840,6 +848,16 @@ function dayNameLocal(){ return ["Sunday","Monday","Tuesday","Wednesday","Thursd
 function brkToMs(hm){ if(!hm)return null; var p=String(hm).split(":"); var d=new Date(); d.setHours(parseInt(p[0],10),parseInt(p[1],10)||0,0,0); return d.getTime(); }
 function fmtHMms(ms){ var d=new Date(ms); var h=d.getHours(),m=d.getMinutes(); var mer=merOf(h); return fmtHM(h,m)+(mer?(" "+mer):""); }
 function fmtBrk(hm){ if(!hm)return ""; var p=String(hm).split(":"); var h=parseInt(p[0],10)||0, m=parseInt(p[1],10)||0; var mer=merOf(h); return fmtHM(h,m)+(mer?(" "+mer):""); }
+function fmtBrkRange(hm,durMin){
+  if(!hm)return "";
+  var p=String(hm).split(":"); var h=parseInt(p[0],10)||0, m=parseInt(p[1],10)||0;
+  var endMin=h*60+m+(durMin||0); var eh=Math.floor(endMin/60)%24, em=endMin%60;
+  var s1=fmtHM(h,m), s2=fmtHM(eh,em), mer1=merOf(h), mer2=merOf(eh);
+  function n(x){ return '<bdi style="direction:ltr;unicode-bidi:isolate">'+x+'</bdi>'; }
+  if(TIMEFMT==="24"||!mer2) return n(s1+" – "+s2);
+  if(mer1===mer2) return n(s1+" – "+s2)+" "+mer2;
+  return n(s1)+" "+mer1+" – "+n(s2)+" "+mer2;
+}
 function fmtDur(ms){ var s=Math.max(0,Math.floor(ms/1000)); var h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60; return (h>0?(h+":"+(m<10?"0":"")):"")+m+":"+(ss<10?"0":"")+ss; }
 var WEEK_DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 var WEEK_DAYS_AR=["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
@@ -893,13 +911,14 @@ function renderBreaksCard(){
   var tabs=days.map(function(d){ var i=WEEK_DAYS.indexOf(d); var lbl=(ar?WEEK_DAYS_AR[i]:d.slice(0,3)); return '<button class="brktab'+(d===sel?" on":"")+(d===today?" td":"")+'" onclick="selectBreakDay(\''+d+'\')">'+lbl+'</button>'; }).join("");
   var totUsed=0, totPlan=0;
   var rows=(data.b||[]).map(function(b,i){
-    var endMs=brkToMs(b.t)+((b.d||0)*60000); totPlan+=(b.d||0);
-    var meta='<span class="bt">'+(ar?"استراحة ":"Break ")+(i+1)+' · '+esc(fmtBrk(b.t))+'–'+esc(fmtHMms(endMs))+'</span><span class="bd">'+(b.d||0)+(ar?" د":" min")+'</span>';
-    if(!isToday){ return '<div class="brkrow" data-bi="'+i+'">'+meta+'</div>'; }
+    totPlan+=(b.d||0);
+    var top='<div class="brkr-top"><span class="bt">'+(ar?"استراحة ":"Break ")+(i+1)+'</span><span class="bd">'+(b.d||0)+(ar?" دقيقة":" min")+'</span></div>';
+    var timeLine='<div class="brkr-time">'+fmtBrkRange(b.t,b.d)+'</div>';
+    if(!isToday){ return '<div class="brkrow row2" data-bi="'+i+'">'+top+timeLine+'</div>'; }
     var used=brkUsedSec(i,true); totUsed+=used; var active=brkIsActive(i); var over=used>(b.d||0)*60;
     var btn='<button class="brkbtn'+(active?" act":"")+'" onclick="toggleBreakUsage('+i+')">'+(active?(ar?"⏹️ إيقاف":"⏹️ Stop"):(ar?"▶️ بدء":"▶️ Start"))+'</button>';
-    return '<div class="brkrow row2'+(active?" on":"")+(over?" over":"")+'" data-bi="'+i+'"><div class="brkr-top">'+meta+'</div>'+
-      '<div class="brkr-bot"><span class="bu'+(over?" over":"")+'" id="bu'+i+'">'+(ar?"المستخدم: ":"Used: ")+fmtMS(used)+'</span>'+btn+'</div></div>';
+    return '<div class="brkrow row2'+(active?" on":"")+(over?" over":"")+'" data-bi="'+i+'">'+top+timeLine+
+      '<div class="brkr-bot"><span class="bu'+(over?" over":"")+'" id="bu'+i+'">'+(ar?"المُستخدَم ":"Used ")+fmtMS(used)+'</span>'+btn+'</div></div>';
   }).join("");
   var head = isToday ? '<div id="brkNext" class="brknext">—</div>' : '<div class="brknext" style="color:var(--txt-dim)">'+(ar?"استراحات يوم ":"Breaks · ")+(ar?WEEK_DAYS_AR[WEEK_DAYS.indexOf(sel)]:sel)+'</div>';
   var totalRow = isToday ? '<div class="brktotal"><span>'+(ar?"الإجمالي المستخدم":"Total used")+'</span><b id="buTot">'+fmtMS(totUsed)+' / '+totPlan+(ar?" د":" min")+'</b></div>' : '';
@@ -913,7 +932,7 @@ function updateBreakCountdown(){
   var data=BREAKS_CACHE[today]; if(!data||!data.b)return;
   var ar=(LANG==="ar"), totUsed=0, totPlan=0;
   data.b.forEach(function(b,i){ totPlan+=(b.d||0); var used=brkUsedSec(i,true); totUsed+=used; var over=used>(b.d||0)*60;
-    var el=document.getElementById("bu"+i); if(el){ el.textContent=(ar?"المستخدم: ":"Used: ")+fmtMS(used); el.classList.toggle("over",over); }
+    var el=document.getElementById("bu"+i); if(el){ el.textContent=(ar?"المُستخدَم ":"Used ")+fmtMS(used); el.classList.toggle("over",over); }
     var row=document.querySelector('.brkrow[data-bi="'+i+'"]'); if(row){ row.classList.toggle("over",over); row.classList.toggle("on",brkIsActive(i)); }
   });
   var tot=document.getElementById("buTot"); if(tot){ tot.textContent=fmtMS(totUsed)+" / "+totPlan+(ar?" د":" min"); }
@@ -950,7 +969,11 @@ function openDayStats(serial){
   var body=document.getElementById("dayOvBody");
   body.innerHTML='<div style="text-align:center;color:var(--txt-dim);padding:24px">…</div>';
   ov.classList.add("show");
-  loadDayPerf(ymd,function(perf,label){ renderDayStats(body,dayName,perf,label); });
+  var logBreaks=null;
+  function go(){ loadDayPerf(ymd,function(perf,label){ renderDayStats(body,dayName,perf,label,logBreaks); }); }
+  if(db&&CURRENT_HRID&&dayName){
+    db.ref("breakLog/"+dayName+"/"+CURRENT_HRID).once("value").then(function(s){ var v=s.val()||{}; logBreaks=v.breaks||null; }).catch(function(){}).then(go);
+  } else { go(); }
 }
 function loadDayPerf(ymd,cb){
   if(!db){ cb(null); return; }
@@ -958,12 +981,17 @@ function loadDayPerf(ymd,cb){
   if(ymd){ var key=String(ymd).replace(/[.#$[\]/]/g,"_"); db.ref("performance/"+key).once("value").then(function(s){ var v=s.val(); if(v)cb(v,v.date||ymd); else latest(); }).catch(latest); }
   else latest();
 }
-function renderDayStats(body,dayName,perf,label){
+function renderDayStats(body,dayName,perf,label,logBreaks){
   var ar=(LANG==="ar"), html="";
   var bdata=dayName?BREAKS_CACHE[dayName]:null;
   if(bdata&&bdata.b&&bdata.b.length){
     html+='<div class="ds-sec"><div class="ds-h">🍵 '+(ar?"استراحاتك هذا اليوم":"Your breaks")+'</div>';
-    html+=bdata.b.map(function(b,i){ var endMs=brkToMs(b.t)+((b.d||0)*60000); return '<div class="ds-row"><span>'+(ar?"استراحة ":"Break ")+(i+1)+'</span><b>'+esc(fmtBrk(b.t))+'–'+esc(fmtHMms(endMs))+' · '+(b.d||0)+(ar?"د":"m")+'</b></div>'; }).join("");
+    html+=bdata.b.map(function(b,i){
+      var bk=logBreaks?logBreaks[i]:null; var usedSec=bk?(bk.usedSec||0):0; var over=usedSec>(b.d||0)*60;
+      var usedTxt=usedSec?fmtMS(usedSec):(ar?"لم تُؤخذ":"—");
+      return '<div class="ds-brk'+(over?" over":"")+'"><div class="ds-brk-h"><span class="lbl">'+(ar?"استراحة ":"Break ")+(i+1)+' · '+(b.d||0)+(ar?" دقيقة":" min")+'</span><span class="rng">'+fmtBrkRange(b.t,b.d)+'</span></div>'+
+        '<div class="ds-brk-u'+(over?" over":"")+'">'+(ar?"المُستخدَم: ":"Used: ")+usedTxt+'</div></div>';
+    }).join("");
     html+='</div>';
   }
   if(perf&&perf.agents&&perf.agents.length){
