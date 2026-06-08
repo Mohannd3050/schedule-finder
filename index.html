@@ -80,6 +80,17 @@
   .brktab.on.td::after{color:#fff}
   .brktoggle{width:100%;border:none;border-radius:13px;padding:14px;font-family:"Readex Pro";font-weight:700;font-size:15px;cursor:pointer;transition:.2s}
   .brktoggle.on{box-shadow:0 0 0 1px var(--amber)}
+  .brkrow.row2{flex-direction:column;align-items:stretch;gap:9px}
+  .brkr-top{display:flex;justify-content:space-between;align-items:center}
+  .brkr-bot{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .bu{font-size:13px;color:var(--txt-dim);font-variant-numeric:tabular-nums}
+  .bu.over{color:var(--rose);font-weight:700}
+  .brkbtn{border:none;border-radius:10px;padding:8px 16px;font-family:inherit;font-weight:700;font-size:13px;cursor:pointer;color:#fff;background:linear-gradient(120deg,var(--violet),var(--mint));transition:.16s}
+  .brkbtn:hover{transform:translateY(-1px)}
+  .brkbtn.act{background:var(--amber)}
+  .brkrow.over{border-color:var(--rose);box-shadow:0 0 0 1px var(--rose)}
+  .brktotal{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding:12px 14px;border-radius:12px;background:color-mix(in srgb,var(--mint) 10%,transparent);border:1px solid var(--stroke-soft);font-size:14px}
+  .brktotal b{font-variant-numeric:tabular-nums;color:var(--mint)}
 
   .wrap{position:relative;z-index:2;max-width:880px;margin:0 auto;padding:42px 20px 80px}
 
@@ -367,17 +378,6 @@
       </div>
     </div>
 
-    <!-- break card -->
-    <div class="card today" id="breakCard">
-      <div class="lbl"><span>☕ <span id="brkLabel" data-i18n="brkReady">بريك ساعة كاملة · جاهز</span></span></div>
-      <div class="clock" id="brkClock">60:00</div>
-      <div class="bar"><i id="brkBar"></i></div>
-      <div class="ctrl">
-        <button class="btn sm" id="brkBtn" onclick="brkToggle()" style="background:linear-gradient(120deg,var(--violet),var(--mint))" data-i18n="brkStart">بدء البريك</button>
-        <button class="btn sm" onclick="brkReset()" style="background:var(--glass-strong);color:var(--txt)" data-i18n="brkReset">إعادة ضبط</button>
-      </div>
-    </div>
-
     <!-- today shift -->
     <div id="todayBox"></div>
 
@@ -456,6 +456,7 @@ var firebaseConfig = {
 var db=null, AUTH_OK=false, CURRENT_HRID=null, CURRENT_REC=null, LAST_RECORDS=null;
 var SID=null, ALERT_REF=null, WEEKS_REF=null, NOTIF_REF=null, ALL_NOTIFS={}, REMEMBER=true, PENDING=null, REGISTERING=false;
 var BREAKS_REF=null, MY_BREAKS=null, BRK_SCHED_TIMER=null;
+var LOG_REF=null, MY_LOG=null;
 /* ===== بيانات احتياطية مدمجة (Week 24) للدخول بدون رفع ===== */
 var FALLBACK_DATA={"weekId":"Sch-Week 24","meta":{"sheetName":"Sch-Week 24","dayCols":[{"day":"sun","serial":46173},{"day":"mon","serial":46174},{"day":"tue","serial":46175},{"day":"wed","serial":46176},{"day":"thu","serial":46177},{"day":"fri","serial":46178},{"day":"sat","serial":46179},{"day":"sun","serial":46180},{"day":"mon","serial":46181},{"day":"tue","serial":46182},{"day":"wed","serial":46183},{"day":"thu","serial":46184},{"day":"fri","serial":46185},{"day":"sat","serial":46186}]},"agents":{"94083":{"n":"Ahad mohammed dhafer alshehri","p":"500552571","t":"AlHanouf AlQahtani","l":"IB","d":[0.33333,0.33333,0.33333,0.33333,0.33333,"OFF","OFF","Annual","Annual","Annual","Annual","Annual","Annual","Annual"]},"94757":{"n":"Alaa Abdullah ali alfaifi","p":"559170052","t":"AlHanouf AlQahtani","l":"IB","d":[0.29167,0.29167,0.29167,0.29167,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF",0.29167]},"93715":{"n":"AlJohra Mansoor Abdullah AlMutaywia","p":"504577476","t":"AlHanouf AlQahtani","l":"IB","d":["Annual","Annual","Annual","Annual","Annual","Annual","Annual",0.29167,0.29167,0.29167,0.29167,"OFF","OFF",0.29167]},"95037":{"n":"Amjad Mohammed Abdullah Althunayyan","p":"556210772","t":"Manal Alrashed","l":"IB","d":[0.33333,0.33333,0.33333,0.33333,0.33333,"OFF","OFF",0.33333,0.33333,0.33333,0.33333,0.33333,"OFF","OFF"]},"94902":{"n":"ANOUD ABDULLAH MOHAMMED ALANAZI","p":"532352621","t":"Manal Alrashed","l":"IB","d":["OFF","OFF","Annual","Annual",0.29167,0.29167,0.29167,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167]},"94395":{"n":"Areej Mohammad sager alanzi","p":"507704686","t":"Manal Alrashed","l":"IB","d":["OFF",0.29167,0.29167,0.29167,0.29167,"OFF",0.29167,"OFF",0.29167,0.29167,0.29167,0.29167,"OFF",0.29167]},"94756":{"n":"Asma Saleh Falah Alamri","p":"558162892","t":"AlHanouf AlQahtani","l":"IB","d":[0.375,"OFF",0.375,0.375,0.375,"OFF",0.375,0.375,0.375,0.375,0.375,"OFF","OFF",0.375]},"93428":{"n":"Dalal Abdulaziz Abdullah Alyahya","p":"558782228","t":"Manal Alrashed","l":"IB","d":[0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF"]},"94085":{"n":"Dalia ali Alhumidan","p":"555172465","t":"AlHanouf AlQahtani","l":"IB","d":[0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF"]},"94377":{"n":"Fatima mohammed hussien alhasani","p":"550979507","t":"Manal Alrashed","l":"IB","d":["Annual",0.29167,0.29167,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF",0.29167,0.29167]},"94915":{"n":"Hadeel Khalid abdurahaman alhazmi","p":"556967078","t":"Manal Alrashed","l":"IB","d":[0.33333,0.33333,0.33333,"OFF","OFF",0.33333,0.33333,0.33333,0.33333,0.33333,"OFF","OFF",0.33333,0.33333]},"93757":{"n":"Ihsan Ismail Abdullah AlMowais","p":"555197170","t":"Manal Alrashed","l":"IB","d":[0.41667,0.41667,"OFF","OFF",0.41667,0.41667,0.41667,0.41667,0.41667,"OFF","OFF",0.41667,0.41667,0.41667]},"94936":{"n":"Iman Mohammed Saad Alghamdi","p":"534745696","t":"Manal Alrashed","l":"IB","d":[0.29167,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF",0.29167,0.29167,0.29167,0.29167]},"94907":{"n":"Manal Mubarak saad alqahtani","p":"505435865","t":"Manal Alrashed","l":"IB","d":["OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167]},"94895":{"n":"Manar Mamdouh Mohammed Alorifej","p":"568372575","t":"AlHanouf AlQahtani","l":"IB","d":[0.29167,0.29167,0.29167,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF",0.29167]},"93665":{"n":"Maram Bander Bader AlOtaibi","p":"559171895","t":"AlHanouf AlQahtani","l":"IB","d":[0.33333,0.33333,0.33333,0.33333,0.33333,"OFF","OFF","Eid Vacation",0.33333,0.33333,0.33333,0.33333,"OFF","OFF"]},"93631":{"n":"Maryam Abdulaziz Ibrahim AlDokhi","p":"504510231","t":"AlHanouf AlQahtani","l":"IB","d":[0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF"]},"93776":{"n":"Njoud Ibrahim Mohammed BinHamin","p":"501016204","t":"AlHanouf AlQahtani","l":"IB","d":[0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF",0.29167,"Annual",0.29167,0.29167,0.29167,"OFF","OFF"]},"93758":{"n":"Noor Saud Saad AlSalih","p":"599636658","t":"AlHanouf AlQahtani","l":"IB","d":[0.29167,0.29167,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF",0.29167,0.29167,0.29167]},"93784":{"n":"Nouf Ibrahim Ali AlNadeef","p":"535893672","t":"AlHanouf AlQahtani","l":"IB","d":["Annual","Annual","Annual","Annual","Annual","OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF"]},"93712":{"n":"Razan Haza Abdulrehman AlGalawe","p":"502206649","t":"AlHanouf AlQahtani","l":"IB","d":[0.33333,0.33333,0.33333,"OFF","OFF",0.29167,0.29167,0.33333,0.33333,0.33333,"OFF","OFF",0.29167,0.29167]},"93711":{"n":"Reem Mohammed Hadi AlDossary","p":"559192262","t":"AlHanouf AlQahtani","l":"IB","d":[0.33333,0.33333,0.33333,0.33333,0.33333,"OFF","OFF",0.33333,0.33333,0.33333,0.33333,0.33333,"OFF","OFF"]},"93756":{"n":"Renad Ali Dibashi AlWadai","p":"553551721","t":"AlHanouf AlQahtani","l":"IB","d":[0.375,0.375,"OFF","OFF",0.45833,0.375,0.375,0.375,0.375,"OFF","OFF",0.45833,0.375,0.375]},"94075":{"n":"Reouf khalid abdulrahman almugaiteb","p":"554838834","t":"AlHanouf AlQahtani","l":"IB","d":[0.375,0.375,0.375,0.375,0.375,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF"]},"94270":{"n":"Sara Fahad jeda alroqi","p":"533621009","t":"AlHanouf AlQahtani","l":"IB","d":[0.375,0.375,0.375,0.375,0.375,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF"]},"93764":{"n":"Shahad Yahya Ibrahim Tharawi","p":"580376857","t":"AlHanouf AlQahtani","l":"IB","d":[0.33333,0.33333,0.33333,0.33333,0.33333,"OFF","OFF",0.33333,0.33333,0.33333,0.33333,"Eid vacation","OFF","OFF"]},"93718":{"n":"Shaima Mohammed Shujaa AlAmmaj","p":"501096026","t":"Manal Alrashed","l":"IB","d":[0.29167,0.29167,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF",0.29167,0.29167,0.29167]},"93794":{"n":"Shmooa Saad Abdul Rahim AlFawzan","p":"558108381","t":"AlHanouf AlQahtani","l":"IB","d":["OFF","OFF",0.45833,0.375,0.375,0.375,0.375,"OFF","OFF",0.45833,0.375,0.375,0.375,0.375]},"94901":{"n":"Wosaif Fraih Saleem Alenzi","p":"560760250","t":"Manal Alrashed","l":"IB","d":[0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF"]},"95058":{"n":"Alhanouf Ali Saeed Abu Daqn","p":"549510512","t":"AlHanouf AlQahtani","l":"IB","d":["OFF",0.375,0.375,0.375,0.375,"OFF",0.375,0.375,0.375,0.375,0.375,0.375,"OFF","OFF"]},"93914":{"n":"Abdul majed ali alhazmi","p":"558853536","t":"Mohammed Aldoshan","l":"IB","d":["OFF","OFF",0.91667,0.91667,0.91667,0.91667,0.91667,"OFF","OFF",0.91667,0.91667,0.91667,0.91667,0.91667]},"94938":{"n":"Abdulaziz Ahmed Omar Sharahili","p":"511934210","t":"Mohammed Aldoshan","l":"IB","d":[0.79167,"OFF","OFF",0.91667,0.91667,0.91667,0.91667,0.79167,"OFF","OFF",0.91667,0.91667,0.91667,0.91667]},"94122":{"n":"Abdulaziz Ali Amer Albariqi","p":"530895870","t":"Mohammed Aldoshan","l":"IB","d":[0.79167,0.79167,0.79167,0.79167,0.79167,"OFF","OFF",0.79167,0.79167,0.79167,0.79167,0.79167,"OFF","OFF"]},"94769":{"n":"Abdulaziz dakhilallah naif alharbi","p":"503510113","t":"Muhanad alharthi","l":"IB","d":[0.79167,0.79167,0.79167,0.79167,"OFF","OFF",0.79167,0.83333,0.83333,0.83333,0.83333,"OFF","OFF",0.83333]},"94389":{"n":"Abdulaziz fahad abdulaziz aldarmu","p":"558263243","t":"Muhanad alharthi","l":"IB","d":[0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF"]},"94053":{"n":"Abdulaziz Fahad Hamoud Alkharji","p":"534017823","t":"Muhanad alharthi","l":"IB","d":[0.83333,0.83333,0.83333,0.83333,0.83333,"OFF","OFF",0.83333,0.83333,0.83333,0.83333,0.83333,"OFF","OFF"]},"94766":{"n":"Abdulellah Zaid Saleh Al-Tamimi","p":"501052215","t":"Muhanad alharthi","l":"IB","d":[0.41667,0.41667,0.41667,0.41667,0.41667,"OFF","OFF",0.41667,0.41667,0.41667,0.41667,0.41667,"OFF","OFF"]},"94460":{"n":"Abdullah Abdulrahman Alabdulali","p":"503880899","t":"Muhanad alharthi","l":"IB","d":[0.375,0.375,0.375,0.375,0.375,"OFF","OFF",0.375,0.375,0.375,0.375,0.375,"OFF","OFF"]},"94114":{"n":"Abdullah adnan abdullah Almansour","p":"590922155","t":"Yahya mohammed","l":"IB","d":[0.91667,0.91667,0.91667,0.91667,0.91667,"OFF","OFF",0.91667,0.91667,0.91667,0.91667,0.91667,"OFF","OFF"]},"94509":{"n":"Abdullah Ali Mohammed Aldhafian","p":"555645966","t":"Manal Alrashed","l":"IB","d":["OFF","OFF",0.79167,0.79167,0.79167,0.79167,0.79167,"OFF","OFF",0.79167,0.79167,0.79167,0.79167,0.79167]},"94039":{"n":"Abdullah Ayoob Suliman Almuharib","p":"552264974","t":"Yahya mohammed","l":"IB","d":[0.79167,0.79167,0.79167,0.79167,0.79167,"OFF","OFF",0.79167,0.79167,0.79167,0.79167,0.79167,"OFF","OFF"]},"95044":{"n":"Abdullah brrak abdulaziz almubarak","p":"559493100","t":"Muhanad alharthi","l":"IB","d":[0.66667,0.66667,"OFF","OFF",0.66667,0.66667,0.66667,0.91667,0.91667,"OFF","OFF",0.91667,0.91667,0.91667]},"94506":{"n":"Abdullah ghanem Hussin alqaysi","p":"507881998","t":"Muhanad alharthi","l":"IB","d":[0.91667,0.91667,0.91667,0.91667,0.91667,"OFF","OFF",0.91667,0.91667,0.91667,0.91667,0.91667,"OFF","OFF"]},"94009":{"n":"Abdullah Mohammed Abdullkarim Alrasheed","p":"555222443","t":"Mohammed Aldoshan","l":"IB","d":[0.29167,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,"Exam Leave","OFF","Exam Leave","OFF","Exam Leave",0.41667,0.41667]},"94699":{"n":"Abdullah Youssef Mohammed Al-Harbi","p":"550729166","t":"Yahya mohammed","l":"IB","d":["OFF","OFF",0.66667,0.66667,0.66667,0.66667,0.66667,"OFF","OFF",0.66667,0.66667,0.66667,0.66667,0.66667]},"94108":{"n":"Abdulmajed Abdulhadi obid Bakhedar","p":"565677717","t":"Muhanad alharthi","l":"IB","d":["MA","MA","OFF","OFF",0.58333,0.58333,0.58333,0.58333,0.58333,"OFF","OFF",0.58333,0.58333,0.58333]},"94896":{"n":"Ahmad sultan suliman aljaser","p":"533216650","t":"Mohammed Aldoshan","l":"IB","d":[0.41667,0.41667,0.41667,0.41667,"OFF","OFF",0.41667,0.41667,0.41667,0.41667,0.41667,"OFF","OFF",0.41667]},"94704":{"n":"Ahmed Saleh Mohammed Alazzam","p":"591199213","t":"Muhanad alharthi","l":"IB","d":[0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF","Annual","Annual","Annual","Annual","Annual","Annual","Annual"]},"94939":{"n":"Ali Mohammed Ali Alali","p":"553824841","t":"Mohammed Aldoshan","l":"IB","d":[0.41667,0.41667,0.41667,"OFF","OFF",0.41667,0.41667,0.41667,0.41667,0.41667,"OFF","OFF",0.41667,0.41667]},"93633":{"n":"Ali Mohammed Awad AlShaban","p":"565562804","t":"Yahya mohammed","l":"IB","d":[0.54167,0.54167,0.54167,"OFF","OFF",0.54167,0.54167,0.54167,0.54167,0.54167,"OFF","OFF",0.54167,0.54167]},"94887":{"n":"Ali nasser Abdullah al-masradi","p":"505309269","t":"Mohammed Aldoshan","l":"IB","d":[0.75,0.75,0.75,0.75,0.75,"OFF","OFF",0.75,0.75,0.75,0.75,0.75,"OFF","OFF"]},"94946":{"n":"Amer Mater Abudllah Alghmadi","p":"536758723","t":"Yahya mohammed","l":"IB","d":[0.91667,0.91667,0.91667,0.91667,"OFF","OFF",0.91667,0.91667,0.91667,0.91667,0.91667,"OFF","OFF",0.91667]},"94698":{"n":"Awad Ahmed Alrashid","p":"555923422","t":"Yahya mohammed","l":"IB","d":[0.91667,0.91667,0.91667,0.91667,"OFF","OFF",0.75,0.91667,0.91667,0.91667,0.91667,"OFF","OFF",0.75]},"94702":{"n":"FAISAL DHAFER ALI ALSHEHRY","p":"532345269","t":"Yahya mohammed","l":"IB","d":[0.54167,0.54167,0.54167,0.54167,0.54167,"OFF","OFF",0.54167,0.54167,0.54167,0.54167,0.54167,"OFF","OFF"]},"93668":{"n":"Faisal Naif Meshal AlOtaibi","p":"531397582","t":"Yahya mohammed","l":"IB","d":[0.83333,"AE","AE","OFF","OFF",0.91667,0.83333,0.83333,0.83333,0.83333,"OFF","OFF",0.91667,0.83333]},"94382":{"n":"Fawaz Abdullah Abdulrahman Alasim","p":"569080460","t":"Mohammed Aldoshan","l":"IB","d":[0.83333,0.83333,0.83333,0.83333,0.83333,"OFF","OFF",0.54167,0.54167,0.54167,0.54167,0.54167,"OFF","OFF"]},"94904":{"n":"Fihied Ghunaiman Fahad Al-Rashidi","p":"501100386","t":"Muhanad alharthi","l":"IB","d":[0.83333,0.83333,"OFF","OFF",0.91667,0.91667,0.91667,0.83333,0.83333,"OFF","OFF",0.91667,0.91667,0.91667]},"94593":{"n":"Khaled Abdulkarim Abdullah Alqahtani","p":"549421107","t":"Mohammed Aldoshan","l":"IB","d":["OFF","OFF",0.41667,0.41667,0.41667,0.41667,0.41667,"OFF","OFF",0.41667,0.41667,0.41667,0.41667,0.41667]},"93825":{"n":"Khaled Atiyah AlAnezi","p":"582425878","t":"Mohammed AlDoshan","l":"IB","d":[0.625,0.625,0.625,0.625,0.625,"OFF","OFF",0.625,0.625,0.625,0.625,0.625,"OFF","OFF"]},"94385":{"n":"majed faiz n alotaibi","p":"503476513","t":"Manal Alrashed","l":"IB","d":[0.41667,"AE","AE","OFF","OFF",0.33333,0.33333,0.29167,0.29167,0.29167,"OFF","OFF",0.29167,0.29167]},"94941":{"n":"Mamdouh Ali saad Alqasem","p":"562481488","t":"Muhanad alharthi","l":"IB","d":[0.33333,0.33333,0.33333,0.33333,0.33333,"OFF","OFF",0.33333,0.33333,0.33333,0.33333,0.33333,"OFF","OFF"]},"94755":{"n":"MANHAL ATIAH ZAID ALZAHRANI","p":"503850947","t":"Mohammed Aldoshan","l":"IB","d":[0.41667,0.41667,0.41667,0.41667,0.41667,"OFF","OFF",0.41667,0.41667,0.41667,0.41667,0.41667,"OFF","OFF"]},"95039":{"n":"Mansour Alhajj","p":"594059998","t":"Yahya mohammed","l":"IB","d":[0.54167,0.54167,0.54167,0.54167,"OFF","OFF",0.54167,0.54167,0.54167,0.54167,0.54167,"OFF","OFF",0.54167]},"94013":{"n":"Mazen saad ateeq Almawash","p":"506236087","t":"Mohammed Aldoshan","l":"OB-IB","d":[0.33333,0.33333,0.33333,0.33333,0.33333,"OFF","OFF",0.33333,0.33333,0.33333,0.33333,0.33333,"OFF","OFF"]},"93830":{"n":"Mohammed Abdullah Ibrahim AlHumud","p":"500718557","t":"Mohammed Aldoshan","l":"IB","d":["OFF","OFF",0.70833,0.70833,0.70833,0.70833,0.70833,"OFF","OFF",0.70833,0.70833,0.70833,0.70833,0.70833]},"94935":{"n":"Mohammed saleh surur Alrashidi","p":"500977343","t":"Yahya mohammed","l":"IB","d":[0.375,0.375,0.375,0.375,0.375,"OFF","OFF",0.375,0.375,0.375,0.375,0.375,"OFF","OFF"]},"94014":{"n":"MOHMMED WALEED MOHMMED ALSHABILI","p":"538082555","t":"Yahya mohammed","l":"OB-IB","d":[0.41667,0.41667,0.41667,0.41667,0.41667,"OFF","OFF",0.41667,0.41667,0.41667,0.41667,0.41667,"OFF","OFF"]},"94589":{"n":"Mohommed Ahmad Qasm Alanzi","p":"544406070","t":"Muhanad alharthi","l":"IB","d":[0.54167,0.54167,"OFF","OFF",0.54167,0.54167,0.54167,0.54167,0.54167,"OFF","OFF",0.54167,0.54167,0.54167]},"94933":{"n":"Mosab saud Samel alajaji","p":"555923692","t":"Yahya mohammed","l":"IB","d":[0.45833,0.45833,"OFF","OFF",0.45833,0.45833,0.45833,0.45833,0.45833,"OFF","OFF",0.45833,0.45833,0.45833]},"94467":{"n":"Muhannad Ahmed Alghamdi","p":"550570675","t":"Yahya mohammed","l":"IB","d":[0.66667,0.66667,0.66667,0.66667,0.66667,"OFF","OFF",0.66667,0.66667,0.66667,0.66667,0.66667,"OFF","OFF"]},"94924":{"n":"Muhannad ali salman alahmadi","p":"553867565","t":"Muhanad alharthi","l":"IB","d":[0.58333,0.58333,0.58333,0.58333,0.58333,"OFF","OFF",0.58333,0.58333,0.58333,0.58333,0.58333,"OFF","OFF"]},"93895":{"n":"NAIF sultan Abdul latif Al Suhail","p":"545089542","t":"Muhanad alharthi","l":"IB","d":["OFF","OFF",0.79167,0.79167,0.79167,0.79167,0.79167,"OFF","OFF",0.79167,0.79167,0.79167,0.79167,0.79167]},"94378":{"n":"Raed Mosaed Al-Budairi","p":"554731002","t":"Mohammed Aldoshan","l":"IB","d":[0.91667,0.91667,0.91667,"OFF","OFF",0.91667,0.91667,0.91667,0.91667,0.91667,"OFF","OFF",0.91667,0.91667]},"94502":{"n":"Rakan Muteb Hassan Alharbi","p":"583130806","t":"Manal Alrashed","l":"IB","d":[0.33333,0.33333,0.33333,0.33333,0.33333,"OFF","OFF",0.33333,0.33333,0.33333,0.33333,0.33333,"OFF","OFF"]},"94029":{"n":"Rayan ali aiez al-mutairi","p":"509015272","t":"Yahya mohammed","l":"IB","d":[0.375,0.375,0.375,0.375,0.375,"OFF","OFF",0.375,0.375,0.375,0.375,0.375,"OFF","OFF"]},"94501":{"n":"Reda Hamed Hassan Barniyah","p":"555014214","t":"Muhanad alharthi","l":"IB","d":["OFF","OFF",0.625,0.625,0.625,0.625,0.625,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167]},"94884":{"n":"Saleh Mohammed saleh alshalwah","p":"545666441","t":"Mohammed Aldoshan","l":"IB","d":[0.41667,0.41667,0.41667,0.41667,0.41667,"OFF","OFF",0.41667,0.41667,0.41667,0.41667,0.41667,"OFF","OFF"]},"94215":{"n":"Saleh Saeed Saleh Alahmari","p":"556960973","t":"Yahya mohammed","l":"IB","d":[0.54167,0.54167,0.54167,0.54167,0.54167,"OFF","OFF",0.54167,0.54167,0.54167,0.54167,0.54167,"OFF","OFF"]},"94037":{"n":"Sami Mislat Qutaim Almotairi","p":"556937965","t":"Mohammed Aldoshan","l":"IB","d":[0.66667,0.66667,0.66667,0.66667,"OFF","OFF",0.66667,0.66667,0.66667,0.66667,0.66667,"OFF","OFF",0.66667]},"94926":{"n":"suhail abdullah saleh althyab","p":"533595585","t":"Muhanad alharthi","l":"IB","d":[0.625,0.625,0.625,0.625,0.625,"OFF","OFF",0.625,0.625,0.625,0.625,0.625,"OFF","OFF"]},"95040":{"n":"Sultan Abdulrahman Abdullah Hashbal","p":"544930380","t":"Yahya mohammed","l":"IB","d":["OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167,"OFF","OFF",0.29167,0.29167,0.29167,0.29167,0.29167]},"93834":{"n":"Sultan Badr Sultan AlOtaibi","p":"505876912","t":"Mohammed Aldoshan","l":"IB","d":[0.66667,0.66667,0.66667,0.66667,"OFF","OFF",0.66667,0.66667,0.66667,0.66667,0.66667,"OFF","OFF",0.66667]},"94694":{"n":"sultan muzeil H alontar","p":"537738324","t":"Yahya mohammed","l":"IB","d":["OFF","OFF",0.54167,0.54167,0.54167,0.54167,0.54167,"OFF","OFF",0.54167,0.54167,0.54167,0.54167,0.54167]},"94927":{"n":"TARIQ TALAB DUBAYAN","p":"501472956","t":"Muhanad alharthi","l":"IB","d":[0.625,0.625,0.625,0.625,0.625,"OFF","OFF",0.625,0.625,0.625,0.625,0.625,"OFF","OFF"]},"94464":{"n":"Turki Mohammed Jamman Alzahrani","p":"500710910","t":"Yahya mohammed","l":"IB","d":["Annual","Annual","Annual","Annual",0.625,0.625,0.625,0.625,0.625,0.625,"OFF","OFF",0.625,0.625]},"94272":{"n":"Turki Shaddad H Alosaimi","p":"508086539","t":"Mohammed Aldoshan","l":"IB","d":[0.5,0.5,0.5,0.5,0.5,"OFF","OFF",0.5,0.5,0.5,0.5,0.5,"OFF","OFF"]},"94116":{"n":"Wael alnabhi alhailm aljafry","p":"534612925","t":"Yahya mohammed","l":"IB","d":[0.75,"OFF","OFF",0.75,0.75,0.75,0.75,0.75,"OFF","OFF",0.75,0.75,0.75,0.75]},"94888":{"n":"Waleed badr al Saif","p":"536413155","t":"Mohammed Aldoshan","l":"IB","d":[0.79167,"OFF","OFF",0.83333,0.83333,0.83333,0.83333,0.79167,0.79167,"OFF","OFF",0.79167,0.79167,0.79167]},"94103":{"n":"Waleed Naif alharbi","p":"559581815","t":"Muhanad alharthi","l":"IB","d":[0.375,0.375,0.375,0.375,0.375,"OFF","OFF",0.375,0.375,0.375,0.375,0.375,"OFF","OFF"]},"93915":{"n":"Yahya ibrahim mohammed oteif","p":"537542973","t":"Yahya mohammed","l":"IB","d":[0.45833,0.45833,0.45833,0.45833,"OFF","OFF",0.45833,0.375,"Annual","OFF","OFF",0.375,0.375,0.375]},"93908":{"n":"Ziyad Khaled Ali Alriqiei","p":"559083005","t":"Muhanad alharthi","l":"IB","d":[0.91667,"OFF","OFF",0.91667,0.91667,0.91667,0.91667,0.91667,0.91667,"OFF","OFF",0.91667,0.91667,0.91667]},"94708":{"n":"yahya moraya abdu sharahili","p":"532147110","t":"Yahya mohammed","l":"IB","d":["OFF","OFF",0.58333,0.58333,0.58333,0.58333,0.58333,"OFF","OFF",0.58333,0.58333,0.58333,0.58333,0.58333]},"94595":{"n":"YASER Ahmed Mohammed ALZAHRANI","p":"532637007","t":"Mohammed Aldoshan","l":"IB","d":[0.66667,0.66667,0.66667,0.66667,0.66667,"OFF","OFF","Annual","Annual","Annual","Annual","Annual","Annual","Annual"]},"94700":{"n":"Yazeed hamad abdulrahman alghasham","p":"566269615","t":"Yahya mohammed","l":"IB","d":[0.58333,"OFF","OFF",0.33333,0.33333,0.33333,0.33333,0.58333,"OFF","OFF",0.33333,0.33333,0.33333,0.33333]},"95035":{"n":"ZIYAD ALI ISSA ALHARBI","p":"531168931","t":"Yahya mohammed","l":"IB","d":[0.41667,0.41667,0.41667,0.41667,"OFF","OFF",0.41667,0.41667,0.41667,0.41667,0.41667,"OFF","OFF",0.41667]},"95053":{"n":"Abdulrahman Bader Faleh Alotaibi","p":"595300798","t":"Muhanad alharthi","l":"IB","d":[0.625,0.625,0.625,0.625,0.625,"OFF","OFF",0.625,0.625,0.625,0.625,0.625,"OFF","OFF"]},"95055":{"n":"Majed abdulhadi Shthan alzahrani","p":"502235385","t":"Mohammed Aldoshan","l":"IB","d":[0.625,0.625,0.625,0.625,0.625,"OFF","OFF",0.625,0.625,0.625,0.625,0.625,"OFF","OFF"]},"95043":{"n":"Faris Mohammed Ahmad Almuwallad","p":"554634290","t":"Muhanad alharthi","l":"IB","d":[0.66667,0.66667,0.66667,"OFF","OFF",0.66667,0.66667,0.66667,0.66667,0.66667,"OFF","OFF",0.66667,0.66667]},"95048":{"n":"mosaed talal mansor alahmdi","p":"550408254","t":"Mohammed Aldoshan","l":"IB","d":[0.66667,0.66667,0.66667,0.66667,0.66667,"OFF","OFF",0.66667,0.66667,0.66667,0.66667,0.66667,"OFF","OFF"]},"95073":{"n":"Bader Thamer Thani Alanazi","p":"558257674","t":"Muhanad alharthi","l":"IB","d":[0.625,0.625,0.625,"OFF","OFF",0.625,0.625,0.625,0.625,0.625,"OFF","OFF",0.625,0.625]},"95074":{"n":"Ibrahim Mohammed Ibrahim Alrashdi","p":"537118017","t":"Mohammed Aldoshan","l":"IB","d":[0.625,0.625,0.625,"OFF","OFF",0.625,0.625,0.625,0.625,0.625,"OFF","OFF",0.625,0.625]},"95068":{"n":"Abdulhkeem Mohammed nafj Alotaipi","p":"533668825","t":"Yahya mohammed","l":"IB","d":[0.45833,0.45833,"OFF","OFF",0.45833,0.45833,0.45833,0.45833,0.45833,"OFF","OFF",0.45833,0.45833,0.45833]},"95069":{"n":"Rayan qaid marji alshammriy","p":"553212897","t":"Muhanad alharthi","l":"IB","d":["OFF","OFF",0.66667,0.66667,0.66667,0.66667,0.66667,"OFF","OFF",0.66667,0.66667,0.66667,0.66667,0.66667]},"95077":{"n":"Khaled Waleed Al-Sulateen","p":"565957344","t":"Mohammed Aldoshan","l":"IB","d":["OFF","OFF",0.70833,0.70833,0.70833,0.70833,0.70833,"OFF","OFF",0.70833,0.70833,0.70833,0.70833,0.70833]},"95066":{"n":"Mohammad shebnan Saad Alshahrani","p":"562343452","t":"Yahya mohammed","l":"IB","d":["OFF","OFF",0.54167,0.54167,0.54167,0.54167,0.54167,"OFF","OFF",0.54167,0.54167,0.54167,0.54167,0.54167]}}};
 var LANG = localStorage.getItem("lang")||"ar";
@@ -608,7 +609,7 @@ function applyLang(){
     el.setAttribute("placeholder", t(el.getAttribute("data-i18n-ph")));
   });
   // أعد رسم المحتوى الديناميكي
-  brkRender();
+  renderBreaksCard();
   if(LAST_RECORDS){ renderWeeks(LAST_RECORDS); renderToday(LAST_RECORDS); startTodayTick(); }
 }
 
@@ -789,7 +790,7 @@ function logout(){
   if(ALERT_REF){ ALERT_REF.off(); ALERT_REF=null; }
   if(WEEKS_REF){ WEEKS_REF.off(); WEEKS_REF=null; }
   if(NOTIF_REF){ NOTIF_REF.off(); NOTIF_REF=null; }
-  if(BREAKS_REF){ BREAKS_REF.off(); BREAKS_REF=null; } MY_BREAKS=null; BREAKS_CACHE={}; SEL_BREAK_DAY=null; ON_BREAK=false; var mb=document.getElementById("myBreaksBox"); if(mb) mb.innerHTML="";
+  if(BREAKS_REF){ BREAKS_REF.off(); BREAKS_REF=null; } if(LOG_REF){ LOG_REF.off(); LOG_REF=null; } MY_BREAKS=null; MY_LOG=null; BREAKS_CACHE={}; SEL_BREAK_DAY=null; var mb=document.getElementById("myBreaksBox"); if(mb) mb.innerHTML="";
   if(SID && db){ db.ref("presence/"+SID).remove(); }
   CURRENT_HRID=null; CURRENT_REC=null;
   try{ firebase.auth().signOut(); }catch(e){}
@@ -811,49 +812,86 @@ function fmtHMms(ms){ var d=new Date(ms); var h=d.getHours(),m=d.getMinutes(); r
 function fmtDur(ms){ var s=Math.max(0,Math.floor(ms/1000)); var h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60; return (h>0?(h+":"+(m<10?"0":"")):"")+m+":"+(ss<10?"0":"")+ss; }
 var WEEK_DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 var WEEK_DAYS_AR=["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
-var BREAKS_CACHE={}, SEL_BREAK_DAY=null, ON_BREAK=false;
+var BREAKS_CACHE={}, SEL_BREAK_DAY=null;
 function subscribeBreaks(hrid){
   if(!db)return;
-  BREAKS_CACHE={}; SEL_BREAK_DAY=null; ON_BREAK=false;
+  BREAKS_CACHE={}; SEL_BREAK_DAY=null; MY_LOG=null;
   var today=dayNameLocal();
   if(BREAKS_REF){ BREAKS_REF.off(); }
   BREAKS_REF=db.ref("breaks/"+today+"/agents/"+hrid);
   BREAKS_REF.on("value",function(s){ BREAKS_CACHE[today]=s.val()||null; renderBreaksCard(); });
   WEEK_DAYS.forEach(function(d){ if(d===today)return; db.ref("breaks/"+d+"/agents/"+hrid).once("value").then(function(s){ BREAKS_CACHE[d]=s.val()||null; renderBreaksCard(); }).catch(function(){}); });
+  if(LOG_REF){ LOG_REF.off(); }
+  LOG_REF=db.ref("breakLog/"+today+"/"+hrid);
+  LOG_REF.on("value",function(s){ MY_LOG=s.val()||null; renderBreaksCard(); });
   if(!BRK_SCHED_TIMER) BRK_SCHED_TIMER=setInterval(updateBreakCountdown,1000);
 }
 function availBreakDays(){ return WEEK_DAYS.filter(function(d){ return BREAKS_CACHE[d]&&BREAKS_CACHE[d].b&&BREAKS_CACHE[d].b.length; }); }
 function selectBreakDay(d){ SEL_BREAK_DAY=d; renderBreaksCard(); }
-function toggleMyBreak(){ ON_BREAK=!ON_BREAK; if(typeof setBreakPresence==="function") setBreakPresence(ON_BREAK); renderBreaksCard(); }
+function fmtMS(sec){ sec=Math.max(0,Math.floor(sec)); var m=Math.floor(sec/60), s=sec%60; return (m<10?"0":"")+m+":"+(s<10?"0":"")+s; }
+function brkUsedSec(i, live){ var bk=(MY_LOG&&MY_LOG.breaks)?MY_LOG.breaks[i]:null; if(!bk)return 0; var u=bk.usedSec||0; if(live&&bk.active&&bk.startTs){ u+=Math.max(0,Math.floor((Date.now()-bk.startTs)/1000)); } return u; }
+function brkIsActive(i){ var bk=(MY_LOG&&MY_LOG.breaks)?MY_LOG.breaks[i]:null; return !!(bk&&bk.active); }
+function toggleBreakUsage(i){
+  if(!db||!CURRENT_HRID)return;
+  var today=dayNameLocal();
+  var b=((BREAKS_CACHE[today]||{}).b||[])[i]; if(!b)return;
+  var log=MY_LOG||{}; if(!log.breaks)log.breaks={};
+  var bk=log.breaks[i]||{usedSec:0,active:false,startTs:0,planned:(b.d||0)};
+  if(bk.active){
+    bk.usedSec=(bk.usedSec||0)+Math.max(0,Math.floor((Date.now()-(bk.startTs||Date.now()))/1000));
+    bk.active=false; bk.startTs=0; bk.endTs=Date.now();
+  } else {
+    Object.keys(log.breaks).forEach(function(k){ var o=log.breaks[k]; if(o&&o.active){ o.usedSec=(o.usedSec||0)+Math.max(0,Math.floor((Date.now()-(o.startTs||Date.now()))/1000)); o.active=false; o.startTs=0; o.endTs=Date.now(); } });
+    bk.active=true; bk.startTs=Date.now(); bk.planned=(b.d||0);
+  }
+  log.breaks[i]=bk;
+  var anyActive=Object.keys(log.breaks).some(function(k){return log.breaks[k]&&log.breaks[k].active;});
+  log.onBreak=anyActive; log.name=(CURRENT_REC&&CURRENT_REC.name)||CURRENT_HRID; log.lob=(CURRENT_REC&&CURRENT_REC.lob)||""; log.tl=(CURRENT_REC&&CURRENT_REC.tl)||""; log.updatedAt=Date.now();
+  MY_LOG=log;
+  if(typeof setBreakPresence==="function") setBreakPresence(anyActive);
+  db.ref("breakLog/"+today+"/"+CURRENT_HRID).set(log).catch(function(e){ console.error(e); });
+  renderBreaksCard();
+}
 function renderBreaksCard(){
   var box=document.getElementById("myBreaksBox"); if(!box)return;
   var days=availBreakDays();
   if(!days.length){ box.innerHTML=""; return; }
-  var today=dayNameLocal();
+  var today=dayNameLocal(), ar=(LANG==="ar");
   if(!SEL_BREAK_DAY||days.indexOf(SEL_BREAK_DAY)<0) SEL_BREAK_DAY=(days.indexOf(today)>=0?today:days[days.length-1]);
   var sel=SEL_BREAK_DAY, isToday=(sel===today), data=BREAKS_CACHE[sel]||{b:[]};
-  var tabs=days.map(function(d){ var i=WEEK_DAYS.indexOf(d); var lbl=(LANG==="ar"?WEEK_DAYS_AR[i]:d.slice(0,3)); return '<button class="brktab'+(d===sel?" on":"")+(d===today?" td":"")+'" onclick="selectBreakDay(\''+d+'\')">'+lbl+'</button>'; }).join("");
-  var rows=(data.b||[]).map(function(b,i){ var endMs=brkToMs(b.t)+((b.d||0)*60000); return '<div class="brkrow" data-bi="'+i+'"><span class="bt">'+esc(b.t)+' – '+esc(fmtHMms(endMs))+'</span><span class="bd">'+(b.d||0)+' '+(LANG==="ar"?"دقيقة":"min")+'</span></div>'; }).join("");
-  var toggle = isToday ? '<button class="btn sm brktoggle'+(ON_BREAK?" on":"")+'" onclick="toggleMyBreak()" style="margin-top:12px;'+(ON_BREAK?"background:var(--amber);color:#04211c":"background:linear-gradient(120deg,var(--violet),var(--mint));color:#04211c")+'">'+(ON_BREAK?(LANG==="ar"?"⏹️ إنهاء البريك":"⏹️ End break"):(LANG==="ar"?"☕ أنا في البريك الآن":"☕ I'm on break"))+'</button>' : '';
-  var head = isToday ? '<div id="brkNext" class="brknext">—</div>' : '<div class="brknext" style="color:var(--txt-dim)">'+(LANG==="ar"?"بريكات يوم ":"Breaks · ")+(LANG==="ar"?WEEK_DAYS_AR[WEEK_DAYS.indexOf(sel)]:sel)+'</div>';
+  var tabs=days.map(function(d){ var i=WEEK_DAYS.indexOf(d); var lbl=(ar?WEEK_DAYS_AR[i]:d.slice(0,3)); return '<button class="brktab'+(d===sel?" on":"")+(d===today?" td":"")+'" onclick="selectBreakDay(\''+d+'\')">'+lbl+'</button>'; }).join("");
+  var totUsed=0, totPlan=0;
+  var rows=(data.b||[]).map(function(b,i){
+    var endMs=brkToMs(b.t)+((b.d||0)*60000); totPlan+=(b.d||0);
+    var meta='<span class="bt">'+(ar?"بريك ":"Break ")+(i+1)+' · '+esc(b.t)+'–'+esc(fmtHMms(endMs))+'</span><span class="bd">'+(b.d||0)+(ar?" د":" min")+'</span>';
+    if(!isToday){ return '<div class="brkrow" data-bi="'+i+'">'+meta+'</div>'; }
+    var used=brkUsedSec(i,true); totUsed+=used; var active=brkIsActive(i); var over=used>(b.d||0)*60;
+    var btn='<button class="brkbtn'+(active?" act":"")+'" onclick="toggleBreakUsage('+i+')">'+(active?(ar?"⏹️ إيقاف":"⏹️ Stop"):(ar?"▶️ بدء":"▶️ Start"))+'</button>';
+    return '<div class="brkrow row2'+(active?" on":"")+(over?" over":"")+'" data-bi="'+i+'"><div class="brkr-top">'+meta+'</div>'+
+      '<div class="brkr-bot"><span class="bu'+(over?" over":"")+'" id="bu'+i+'">'+(ar?"المستخدم: ":"Used: ")+fmtMS(used)+'</span>'+btn+'</div></div>';
+  }).join("");
+  var head = isToday ? '<div id="brkNext" class="brknext">—</div>' : '<div class="brknext" style="color:var(--txt-dim)">'+(ar?"بريكات يوم ":"Breaks · ")+(ar?WEEK_DAYS_AR[WEEK_DAYS.indexOf(sel)]:sel)+'</div>';
+  var totalRow = isToday ? '<div class="brktotal"><span>'+(ar?"الإجمالي المستخدم":"Total used")+'</span><b id="buTot">'+fmtMS(totUsed)+' / '+totPlan+(ar?" د":" min")+'</b></div>' : '';
   box.innerHTML='<div class="card brkcard"><div class="lbl"><span>🍵 '+t("myBreaks")+'</span></div>'+
-    '<div class="brktabs">'+tabs+'</div>'+head+'<div class="brklist">'+rows+'</div>'+toggle+'</div>';
+    '<div class="brktabs">'+tabs+'</div>'+head+'<div class="brklist">'+rows+'</div>'+totalRow+'</div>';
   if(isToday) updateBreakCountdown();
 }
 function updateBreakCountdown(){
   var today=dayNameLocal();
   if(SEL_BREAK_DAY!==today) return;
   var data=BREAKS_CACHE[today]; if(!data||!data.b)return;
+  var ar=(LANG==="ar"), totUsed=0, totPlan=0;
+  data.b.forEach(function(b,i){ totPlan+=(b.d||0); var used=brkUsedSec(i,true); totUsed+=used; var over=used>(b.d||0)*60;
+    var el=document.getElementById("bu"+i); if(el){ el.textContent=(ar?"المستخدم: ":"Used: ")+fmtMS(used); el.classList.toggle("over",over); }
+    var row=document.querySelector('.brkrow[data-bi="'+i+'"]'); if(row){ row.classList.toggle("over",over); row.classList.toggle("on",brkIsActive(i)); }
+  });
+  var tot=document.getElementById("buTot"); if(tot){ tot.textContent=fmtMS(totUsed)+" / "+totPlan+(ar?" د":" min"); }
   var nx=document.getElementById("brkNext"); if(!nx)return;
   var now=Date.now(), cur=null, nextI=-1, nextSt=null, curI=-1;
-  data.b.forEach(function(b,i){ var st=brkToMs(b.t), en=st+((b.d||0)*60000);
-    if(now>=st&&now<en){ cur={en:en}; curI=i; }
-    else if(st>now&&(nextSt===null||st<nextSt)){ nextSt=st; nextI=i; }
-  });
-  document.querySelectorAll(".brkrow").forEach(function(r){ var i=+r.getAttribute("data-bi"); r.classList.toggle("on",i===curI); r.classList.toggle("nx",i===nextI&&curI<0); var st=brkToMs(data.b[i].t)+((data.b[i].d||0)*60000); r.classList.toggle("done",now>=st); });
-  if(cur){ nx.innerHTML='<b style="color:var(--mint)">'+(LANG==="ar"?"بريكك الآن ☕":"On break ☕")+'</b> · '+(LANG==="ar"?"ينتهي بعد ":"ends in ")+fmtDur(cur.en-now); }
-  else if(nextI>=0){ nx.innerHTML=(LANG==="ar"?"بريكك القادم ":"Next break ")+'<b>'+esc(data.b[nextI].t)+'</b> '+(LANG==="ar"?"بعد ":"in ")+fmtDur(nextSt-now); }
-  else { nx.innerHTML=(LANG==="ar"?"خلّصت بريكاتك اليوم ✓":"All breaks done ✓"); }
+  data.b.forEach(function(b,i){ var st=brkToMs(b.t), en=st+((b.d||0)*60000); if(now>=st&&now<en){ cur={en:en}; curI=i; } else if(st>now&&(nextSt===null||st<nextSt)){ nextSt=st; nextI=i; } });
+  if(cur){ nx.innerHTML='<b style="color:var(--mint)">'+(ar?"وقت بريكك الآن ☕":"Break time ☕")+'</b> · '+(ar?"ينتهي بعد ":"ends in ")+fmtDur(cur.en-now); }
+  else if(nextI>=0){ nx.innerHTML=(ar?"بريكك القادم ":"Next break ")+'<b>'+esc(data.b[nextI].t)+'</b> '+(ar?"بعد ":"in ")+fmtDur(nextSt-now); }
+  else { nx.innerHTML=(ar?"انتهت أوقات بريكاتك اليوم":"Scheduled breaks ended"); }
 }
 
 function subscribeNotifs(hrid){
@@ -1160,47 +1198,6 @@ function hms(s){
 function p2(n){return (n<10?"0":"")+n;}
 function esc(t){return String(t==null?"":t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 
-/* ================= BREAK TIMER ================= */
-var BRK={state:"idle", endAt:0, remain:3600, t:null};
-function brkFmt(s){ s=Math.max(0,Math.floor(s)); return p2(Math.floor(s/60))+":"+p2(s%60); }
-function brkRender(){
-  document.getElementById("brkClock").textContent=brkFmt(BRK.remain);
-  var pct=(1-(BRK.remain/3600))*100;
-  document.getElementById("brkBar").style.width=Math.max(0,Math.min(100,pct))+"%";
-  var lbl=document.getElementById("brkLabel"), btn=document.getElementById("brkBtn");
-  if(BRK.state==="running"){ lbl.textContent=t("brkRunning"); btn.textContent=t("brkPause"); }
-  else if(BRK.state==="paused"){ lbl.textContent=t("brkPaused"); btn.textContent=t("brkResume"); }
-  else{ lbl.textContent=t("brkReady"); btn.textContent=t("brkStart"); }
-}
-function brkToggle(){
-  if(BRK.state==="running"){
-    BRK.remain=Math.max(0,(BRK.endAt-Date.now())/1000);
-    BRK.state="paused"; clearInterval(BRK.t);
-    setBreakPresence(false);
-  }else{
-    BRK.state="running";
-    BRK.endAt=Date.now()+BRK.remain*1000;
-    clearInterval(BRK.t); BRK.t=setInterval(brkTick,250);
-    setBreakPresence(true);
-  }
-  brkRender();
-}
-function brkTick(){
-  BRK.remain=(BRK.endAt-Date.now())/1000;
-  if(BRK.remain<=0){
-    BRK.remain=0; BRK.state="idle"; clearInterval(BRK.t);
-    setBreakPresence(false); brkRender();
-    try{ navigator.vibrate&&navigator.vibrate([200,100,200]); }catch(e){}
-    showAlertPopup(t("brkDone"));
-    return;
-  }
-  brkRender();
-}
-function brkReset(){
-  BRK.state="idle"; BRK.remain=3600; clearInterval(BRK.t);
-  setBreakPresence(false); brkRender();
-}
-
 /* ================= PRESENCE ================= */
 function startPresence(){
   if(!db || !CURRENT_HRID) return;
@@ -1299,8 +1296,6 @@ function liveWeeks(hrid){
   });
 }
 
-/* init break render */
-brkRender();
 
 </script>
 </body>

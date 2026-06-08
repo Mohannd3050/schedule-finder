@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>مراقبة البريكات · d360</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Readex+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#070b14;--bg-1:#0c1424;--glass:rgba(255,255,255,.055);--glass2:rgba(255,255,255,.09);
+    --stroke:rgba(255,255,255,.12);--stroke-soft:rgba(255,255,255,.07);
+    --txt:#eaf1ff;--dim:#9fb0cc;--faint:#65748f;--mint:#5eead4;--mintd:#14b8a6;--violet:#a78bfa;--amber:#fbbf24;--rose:#fb7185;
+    --shadow:0 24px 60px -20px rgba(0,0,0,.65);
+  }
+  body.light{--bg-0:#eef3fb;--bg-1:#f3f7fc;--glass:rgba(15,23,42,.045);--glass2:rgba(15,23,42,.07);--stroke:rgba(15,23,42,.13);--stroke-soft:rgba(15,23,42,.08);--txt:#0f172a;--dim:#475569;--faint:#8a99b0;--mint:#0d9488;--mintd:#0f766e;--violet:#7c3aed;--amber:#b45309;--rose:#e11d48;--shadow:0 22px 55px -24px rgba(30,50,90,.32)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"IBM Plex Sans Arabic",sans-serif;background:var(--bg-0);color:var(--txt);min-height:100vh;line-height:1.6;padding:0 0 60px}
+  .orb{position:fixed;border-radius:50%;filter:blur(90px);opacity:.4;z-index:0;pointer-events:none}
+  .orb.a{width:480px;height:480px;background:radial-gradient(circle,#0f766e,transparent 70%);top:-160px;right:-120px}
+  .orb.b{width:420px;height:420px;background:radial-gradient(circle,#6d28d9,transparent 70%);bottom:-140px;left:-120px}
+  .wrap{position:relative;z-index:2;max-width:760px;margin:0 auto;padding:30px 18px}
+  .head{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;flex-wrap:wrap;gap:12px}
+  h1{font-family:"Readex Pro";font-size:clamp(22px,5vw,30px);font-weight:700}
+  h1 .a{background:linear-gradient(120deg,var(--mint),var(--violet));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .sub{color:var(--dim);font-size:13.5px;margin-top:4px}
+  .card{background:var(--glass);backdrop-filter:blur(20px);border:1px solid var(--stroke);border-radius:18px;box-shadow:var(--shadow);padding:22px;margin-top:18px}
+  label{display:block;font-size:13px;color:var(--dim);margin-bottom:7px;font-weight:600}
+  input{width:100%;background:var(--glass2);border:1px solid var(--stroke);color:var(--txt);font-family:inherit;font-size:15px;border-radius:12px;padding:13px 15px;outline:none;margin-bottom:14px}
+  input:focus{border-color:var(--mint)}
+  button{cursor:pointer;font-family:inherit;border:none;transition:.16s}
+  button:active{transform:translateY(1px) scale(.98)}
+  .mint{background:linear-gradient(135deg,var(--mint),var(--mintd));color:#04211c;font-weight:700;font-size:15px;border-radius:12px;padding:14px;width:100%}
+  body.light .mint{color:#fff}
+  .err{color:var(--rose);font-size:13px;margin-top:8px;min-height:18px}
+  .themebtn{width:42px;height:42px;border-radius:12px;background:var(--glass);border:1px solid var(--stroke);font-size:18px}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:6px}
+  .stat{background:var(--glass);border:1px solid var(--stroke);border-radius:14px;padding:13px;text-align:center}
+  .stat .k{font-size:11.5px;color:var(--dim)}
+  .stat .v{font-family:"Readex Pro";font-weight:700;font-size:22px;margin-top:3px}
+  .stat.danger{border-color:var(--rose);background:color-mix(in srgb,var(--rose) 12%,transparent)}
+  .stat.danger .v{color:var(--rose)}
+  .alertbar{background:color-mix(in srgb,var(--rose) 16%,transparent);border:1px solid var(--rose);color:var(--rose);border-radius:13px;padding:12px 15px;margin-top:14px;font-weight:700;font-size:14px;display:none;align-items:center;gap:8px}
+  .alertbar.show{display:flex;animation:pulse 1.6s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 4px}
+  .filters input{flex:1;min-width:140px;margin:0}
+  .seg{display:flex;gap:6px;flex-wrap:wrap}
+  .seg button{flex:1;min-width:70px;background:var(--glass);border:1px solid var(--stroke-soft);color:var(--dim);border-radius:10px;padding:9px;font-size:12.5px;font-weight:600}
+  .seg button.on{background:linear-gradient(120deg,var(--violet),var(--mint));color:#fff;border-color:transparent}
+  .row{background:var(--glass);border:1px solid var(--stroke-soft);border-radius:14px;padding:13px 15px;margin-top:10px}
+  .row.over{border-color:var(--rose);box-shadow:0 0 0 1px var(--rose)}
+  .row.onb{border-color:var(--mint)}
+  .rtop{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .rname{font-weight:700;font-size:15px}
+  .rmeta{font-size:12px;color:var(--faint);margin-top:2px}
+  .badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:100px;white-space:nowrap}
+  .b-none{background:var(--glass2);color:var(--dim)}
+  .b-took{background:color-mix(in srgb,var(--mint) 18%,transparent);color:var(--mint)}
+  .b-onb{background:var(--mint);color:#04211c}
+  body.light .b-onb{color:#fff}
+  .b-over{background:var(--rose);color:#fff}
+  .brks{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+  .chip{font-size:11.5px;padding:5px 10px;border-radius:9px;background:var(--glass2);border:1px solid var(--stroke-soft);font-variant-numeric:tabular-nums}
+  .chip.over{border-color:var(--rose);color:var(--rose);font-weight:700}
+  .chip.act{border-color:var(--mint);color:var(--mint);font-weight:700}
+  .rtotal{font-size:12.5px;color:var(--dim);margin-top:9px;font-variant-numeric:tabular-nums}
+  .rtotal b{color:var(--txt)}
+  .empty{color:var(--faint);text-align:center;padding:24px;font-size:13px}
+  .lk{display:inline-block;margin-top:14px;color:var(--mint);font-size:13px;text-decoration:none}
+  .hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="orb a"></div><div class="orb b"></div>
+<div class="wrap">
+  <div class="head">
+    <div>
+      <h1>🍵 مراقبة <span class="a">البريكات</span></h1>
+      <div class="sub" id="dayLabel">—</div>
+    </div>
+    <button class="themebtn" id="themeBtn" title="الوضع">🌙</button>
+  </div>
+
+  <!-- login -->
+  <div class="card" id="loginCard">
+    <label>الرقم الوظيفي (HRID) أو إيميل الأدمن</label>
+    <input id="lid" placeholder="مثال: 94467 أو admin@...">
+    <label>كلمة المرور / PIN</label>
+    <input id="lpass" type="password" placeholder="••••••">
+    <button class="mint" id="loginBtn">دخول</button>
+    <div class="err" id="loginMsg"></div>
+  </div>
+
+  <!-- dashboard -->
+  <div id="dash" class="hidden">
+    <div class="card">
+      <div class="stats">
+        <div class="stat"><div class="k">الموظفون اليوم</div><div class="v" id="sTotal">0</div></div>
+        <div class="stat"><div class="k">أخذوا بريك</div><div class="v" id="sTook">0</div></div>
+        <div class="stat"><div class="k">لم يطلعوا</div><div class="v" id="sNone">0</div></div>
+        <div class="stat"><div class="k">على بريك الآن</div><div class="v" id="sOnb">0</div></div>
+        <div class="stat danger"><div class="k">تجاوزوا الوقت</div><div class="v" id="sOver">0</div></div>
+      </div>
+      <div class="alertbar" id="alertBar">⚠️ <span id="alertTxt"></span></div>
+      <div class="filters">
+        <input id="search" placeholder="ابحث بالاسم أو HRID…">
+      </div>
+      <div class="seg" id="seg">
+        <button data-f="all" class="on">الكل</button>
+        <button data-f="onb">على بريك</button>
+        <button data-f="over">تجاوزوا</button>
+        <button data-f="took">أخذوا</button>
+        <button data-f="none">لم يطلعوا</button>
+      </div>
+    </div>
+    <div id="list"></div>
+    <a class="lk" href="./index.html">← العودة للتطبيق</a>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+var firebaseConfig={apiKey:"AIzaSyCCRyoWDVCvL4y_pW2U8CcUUUb13ynKfdo",authDomain:"d360-schedule.firebaseapp.com",databaseURL:"https://d360-schedule-default-rtdb.europe-west1.firebasedatabase.app",projectId:"d360-schedule",storageBucket:"d360-schedule.firebasestorage.app",messagingSenderId:"616387729679",appId:"1:616387729679:web:9c2b01dd325ae1530f867a"};
+var ADMIN_UID="YKDHaOQj3yMHvtI2uRwNCaoN1dk1", PIN_SALT="#d360sf";
+var WEEK_DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+var WEEK_DAYS_AR=["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
+var db,ROSTER={},LOG={},TODAY=WEEK_DAYS[new Date().getDay()],FILTER="all",lastOver=0,TICK=null;
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(m){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]);});}
+function fmtMS(sec){sec=Math.max(0,Math.floor(sec));var m=Math.floor(sec/60),s=sec%60;return (m<10?"0":"")+m+":"+(s<10?"0":"")+s;}
+
+try{ firebase.initializeApp(firebaseConfig); db=firebase.database(); }catch(e){ console.error(e); }
+$("dayLabel").textContent=WEEK_DAYS_AR[new Date().getDay()]+" · "+new Date().toLocaleDateString("ar-SA");
+
+/* theme */
+$("themeBtn").addEventListener("click",function(){var l=document.body.classList.toggle("light");localStorage.setItem("bmTheme",l?"light":"dark");this.textContent=l?"☀️":"🌙";});
+if(localStorage.getItem("bmTheme")==="light"){document.body.classList.add("light");$("themeBtn").textContent="☀️";}
+
+/* login */
+$("loginBtn").addEventListener("click",doLogin);
+$("lpass").addEventListener("keydown",function(e){if(e.key==="Enter")doLogin();});
+function doLogin(){
+  var id=$("lid").value.trim(), pass=$("lpass").value.trim();
+  if(!id||!pass){ $("loginMsg").textContent="أدخل البيانات"; return; }
+  var email=id.indexOf("@")>=0 ? id : (id+"@d360-staff.com");
+  var pw=id.indexOf("@")>=0 ? pass : (pass+PIN_SALT);
+  $("loginMsg").textContent="جارٍ الدخول…";
+  firebase.auth().signInWithEmailAndPassword(email,pw)
+    .then(function(){ $("loginMsg").textContent=""; })
+    .catch(function(e){ $("loginMsg").textContent="بيانات غير صحيحة"; });
+}
+firebase.auth().onAuthStateChanged(function(u){
+  if(!u){ $("loginCard").classList.remove("hidden"); $("dash").classList.add("hidden"); return; }
+  // check authorization: admin OR /admins OR /monitors
+  if(u.uid===ADMIN_UID){ authorized(); return; }
+  Promise.all([db.ref("admins/"+u.uid).once("value"),db.ref("monitors/"+u.uid).once("value")])
+    .then(function(r){ if(r[0].val()===true||r[1].exists()){ authorized(); } else { denied(); } })
+    .catch(function(){ denied(); });
+});
+function denied(){
+  $("loginCard").classList.remove("hidden"); $("dash").classList.add("hidden");
+  $("loginMsg").textContent="ليس لديك صلاحية مراقبة البريكات. اطلب من الأدمن منحك الصلاحية.";
+  firebase.auth().signOut();
+}
+function authorized(){
+  $("loginCard").classList.add("hidden"); $("dash").classList.remove("hidden");
+  db.ref("breaks/"+TODAY+"/agents").once("value").then(function(s){ ROSTER=s.val()||{}; render(); });
+  db.ref("breakLog/"+TODAY).on("value",function(s){ LOG=s.val()||{}; render(); });
+  if(!TICK) TICK=setInterval(render,1000);
+}
+
+/* filters */
+$("search").addEventListener("input",render);
+$("seg").querySelectorAll("button").forEach(function(b){ b.addEventListener("click",function(){ $("seg").querySelectorAll("button").forEach(function(x){x.classList.remove("on");}); this.classList.add("on"); FILTER=this.getAttribute("data-f"); render(); }); });
+
+function agentState(hrid){
+  var ros=ROSTER[hrid]||{}, planned=(ros.b||[]); var log=LOG[hrid]||{};
+  var logB=log.breaks||{}; var now=Date.now();
+  var breaks=[], totUsed=0, totPlan=0, anyActive=false, anyOver=false, anyUsed=false;
+  planned.forEach(function(b,i){
+    var plan=(b.d||0)*60; totPlan+=plan;
+    var lb=logB[i]||{}; var used=(lb.usedSec||0); if(lb.active&&lb.startTs){ used+=Math.max(0,Math.floor((now-lb.startTs)/1000)); anyActive=true; }
+    if(used>0)anyUsed=true; totUsed+=used;
+    var over=used>plan&&plan>0;
+    if(over)anyOver=true;
+    breaks.push({t:b.t,plan:plan,used:used,active:!!lb.active,over:over});
+  });
+  var status = anyActive ? "onb" : (anyUsed ? "took" : "none");
+  return {hrid:hrid,name:(log.name||ros.n||hrid),lob:(log.lob||""),tl:(log.tl||ros.tl||""),breaks:breaks,totUsed:totUsed,totPlan:totPlan,status:status,over:anyOver,active:anyActive};
+}
+function render(){
+  var hrids=Object.keys(ROSTER); if(!hrids.length){ $("list").innerHTML='<div class="empty">لا يوجد جدول بريكات لليوم ('+WEEK_DAYS_AR[new Date().getDay()]+'). ارفعه من لوحة الأدمن.</div>'; return; }
+  var states=hrids.map(agentState);
+  var nTook=0,nNone=0,nOnb=0,nOver=0;
+  states.forEach(function(s){ if(s.status==="took")nTook++; if(s.status==="none")nNone++; if(s.active)nOnb++; if(s.over)nOver++; });
+  $("sTotal").textContent=states.length; $("sTook").textContent=nTook+nOnb; $("sNone").textContent=nNone; $("sOnb").textContent=nOnb; $("sOver").textContent=nOver;
+  // alert on over-limit
+  var ab=$("alertBar");
+  if(nOver>0){ ab.classList.add("show"); $("alertTxt").textContent=nOver+" موظف تجاوز وقت البريك المخصّص — راجعهم"; if(nOver>lastOver) beep(); }
+  else { ab.classList.remove("show"); }
+  lastOver=nOver;
+  // filter + search
+  var q=$("search").value.trim().toLowerCase();
+  var list=states.filter(function(s){
+    if(q && !(String(s.name).toLowerCase().indexOf(q)>-1 || String(s.hrid).indexOf(q)>-1)) return false;
+    if(FILTER==="onb"&&!s.active) return false;
+    if(FILTER==="over"&&!s.over) return false;
+    if(FILTER==="took"&&!(s.status==="took")) return false;
+    if(FILTER==="none"&&s.status!=="none") return false;
+    return true;
+  });
+  // sort: over first, then on break, then took, then none; by name
+  var ord={over:0,onb:1,took:2,none:3};
+  list.sort(function(a,b){ var ka=a.over?0:ord[a.status], kb=b.over?0:ord[b.status]; if(ka!==kb)return ka-kb; return String(a.name).localeCompare(String(b.name),"ar"); });
+  if(!list.length){ $("list").innerHTML='<div class="empty">لا نتائج</div>'; return; }
+  $("list").innerHTML=list.map(function(s){
+    var badge = s.over?'<span class="badge b-over">⚠️ تجاوز</span>' : (s.active?'<span class="badge b-onb">☕ على بريك</span>' : (s.status==="took"?'<span class="badge b-took">أخذ بريك</span>':'<span class="badge b-none">لم يطلع</span>'));
+    var chips=s.breaks.map(function(b,i){ return '<span class="chip'+(b.over?" over":"")+(b.active?" act":"")+'">بريك '+(i+1)+': '+fmtMS(b.used)+'/'+(b.plan/60)+'د'+(b.active?" ▶":"")+'</span>'; }).join("");
+    return '<div class="row'+(s.over?" over":(s.active?" onb":""))+'"><div class="rtop"><div><div class="rname">'+esc(s.name)+'</div><div class="rmeta">'+esc(s.hrid)+(s.tl?(' · '+esc(s.tl)):'')+'</div></div>'+badge+'</div>'+
+      '<div class="brks">'+chips+'</div>'+
+      '<div class="rtotal">الإجمالي المستخدم: <b>'+fmtMS(s.totUsed)+'</b> / '+(s.totPlan/60)+' د</div></div>';
+  }).join("");
+}
+function beep(){ try{ var c=new (window.AudioContext||window.webkitAudioContext)(); var o=c.createOscillator(),g=c.createGain(); o.connect(g); g.connect(c.destination); o.frequency.value=880; g.gain.value=.08; o.start(); setTimeout(function(){o.stop();c.close();},250); }catch(e){} }
+</script>
+</body>
+</html>
