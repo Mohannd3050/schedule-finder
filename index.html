@@ -91,6 +91,24 @@
   .brkrow.over{border-color:var(--rose);box-shadow:0 0 0 1px var(--rose)}
   .brktotal{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding:12px 14px;border-radius:12px;background:color-mix(in srgb,var(--mint) 10%,transparent);border:1px solid var(--stroke-soft);font-size:14px}
   .brktotal b{font-variant-numeric:tabular-nums;color:var(--mint)}
+  /* day stats + leaderboard */
+  .ds-sec{margin-bottom:18px}
+  .ds-h{font-weight:700;font-size:14.5px;margin-bottom:10px}
+  .ds-row{display:flex;justify-content:space-between;align-items:center;padding:9px 13px;border-radius:10px;background:var(--glass);border:1px solid var(--stroke-soft);margin-bottom:7px;font-size:13.5px}
+  .ds-row b{font-variant-numeric:tabular-nums}
+  .lb{display:flex;flex-direction:column;gap:7px}
+  .lbhead{display:grid;grid-template-columns:34px 1fr auto auto;gap:8px;font-size:10.5px;color:var(--txt-faint);padding:4px 12px 0;text-align:start}
+  .lbhead span:nth-child(3),.lbhead span:nth-child(4){text-align:end}
+  .lbrow{display:grid;grid-template-columns:34px 1fr auto auto;gap:8px;align-items:center;padding:11px 12px;border-radius:12px;background:var(--glass);border:1px solid var(--stroke-soft);font-size:13.5px}
+  .lbrow .rk{font-weight:700;text-align:center;font-size:15px}
+  .lbrow .nm{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lbrow .cl{font-variant-numeric:tabular-nums;font-weight:700;color:var(--mint);text-align:end}
+  .lbrow .ah{font-variant-numeric:tabular-nums;color:var(--txt-dim);text-align:end}
+  .lbrow.top1{background:linear-gradient(120deg,color-mix(in srgb,#f5c518 26%,transparent),transparent);border-color:#f5c518}
+  .lbrow.top2{background:linear-gradient(120deg,color-mix(in srgb,#c0c7d4 26%,transparent),transparent);border-color:color-mix(in srgb,#c0c7d4 60%,transparent)}
+  .lbrow.top3{background:linear-gradient(120deg,color-mix(in srgb,#cd7f32 26%,transparent),transparent);border-color:color-mix(in srgb,#cd7f32 60%,transparent)}
+  .lbrow.top1 .rk{font-size:19px}
+  .lbrow.me{box-shadow:0 0 0 1.5px var(--mint)}
 
   .wrap{position:relative;z-index:2;max-width:880px;margin:0 auto;padding:42px 20px 80px}
 
@@ -428,6 +446,14 @@
     <input id="pwNew2" type="password" inputmode="numeric" maxlength="6" data-i18n-ph="pwNew2Ph" placeholder="تأكيد الجديدة" autocomplete="new-password" style="margin-top:10px" onkeydown="if(event.key==='Enter')doChangePw()">
     <div id="pwMsg" style="margin-top:10px;font-size:13.5px;min-height:18px"></div>
     <button class="set-btn" onclick="doChangePw()" style="background:linear-gradient(120deg,var(--violet),var(--mint));color:#04211c;margin-top:6px" data-i18n="pwSave">حفظ</button>
+  </div>
+</div>
+
+<!-- day stats overlay -->
+<div class="set-ov" id="dayOv" onclick="if(event.target===this)closeDayStats()">
+  <div class="set-panel">
+    <h3><span id="dayOvTitle">إحصائيات اليوم</span><span class="set-x" onclick="closeDayStats()">×</span></h3>
+    <div id="dayOvBody" style="max-height:66vh;overflow:auto"></div>
   </div>
 </div>
 
@@ -894,6 +920,60 @@ function updateBreakCountdown(){
   else { nx.innerHTML=(ar?"انتهت أوقات بريكاتك اليوم":"Scheduled breaks ended"); }
 }
 
+function closeDayStats(){ var ov=document.getElementById("dayOv"); if(ov)ov.classList.remove("show"); }
+function norm2(s){ return String(s==null?"":s).toLowerCase().replace(/\s+/g," ").trim(); }
+function fmtAHT(sec){ sec=Math.max(0,Math.floor(sec||0)); var h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60; return (h>0?(h+":"+("0"+m).slice(-2)):(""+m))+":"+("0"+s).slice(-2); }
+function serialToYMD(serial){ var d=serialToDate(serial); if(!d)return null; return d.getUTCFullYear()+"-"+("0"+(d.getUTCMonth()+1)).slice(-2)+"-"+("0"+d.getUTCDate()).slice(-2); }
+function openDayStats(serial){
+  var ov=document.getElementById("dayOv"); if(!ov)return;
+  var d=(serial!=null)?serialToDate(serial):null, ymd=(serial!=null)?serialToYMD(serial):null;
+  var dayName=d?WEEK_DAYS[d.getUTCDay()]:null;
+  document.getElementById("dayOvTitle").textContent = d ? (t("days")[d.getUTCDay()]+" "+d.getUTCDate()+" "+t("mons")[d.getUTCMonth()]) : (LANG==="ar"?"إحصائيات اليوم":"Day stats");
+  var body=document.getElementById("dayOvBody");
+  body.innerHTML='<div style="text-align:center;color:var(--txt-dim);padding:24px">…</div>';
+  ov.classList.add("show");
+  loadDayPerf(ymd,function(perf,label){ renderDayStats(body,dayName,perf,label); });
+}
+function loadDayPerf(ymd,cb){
+  if(!db){ cb(null); return; }
+  function latest(){ db.ref("performance").once("value").then(function(s){ var p=s.val()||{}, ks=Object.keys(p).sort(); if(!ks.length){cb(null);return;} var last=p[ks[ks.length-1]]; cb(last,(last&&last.date)||ks[ks.length-1]); }).catch(function(){cb(null);}); }
+  if(ymd){ var key=String(ymd).replace(/[.#$[\]/]/g,"_"); db.ref("performance/"+key).once("value").then(function(s){ var v=s.val(); if(v)cb(v,v.date||ymd); else latest(); }).catch(latest); }
+  else latest();
+}
+function renderDayStats(body,dayName,perf,label){
+  var ar=(LANG==="ar"), html="";
+  var bdata=dayName?BREAKS_CACHE[dayName]:null;
+  if(bdata&&bdata.b&&bdata.b.length){
+    html+='<div class="ds-sec"><div class="ds-h">🍵 '+(ar?"بريكاتك هذا اليوم":"Your breaks")+'</div>';
+    html+=bdata.b.map(function(b,i){ var endMs=brkToMs(b.t)+((b.d||0)*60000); return '<div class="ds-row"><span>'+(ar?"بريك ":"Break ")+(i+1)+'</span><b>'+esc(b.t)+'–'+esc(fmtHMms(endMs))+' · '+(b.d||0)+(ar?"د":"m")+'</b></div>'; }).join("");
+    html+='</div>';
+  }
+  if(perf&&perf.agents&&perf.agents.length){
+    var ags=perf.agents.slice().sort(function(a,b){ return (b.calls||0)-(a.calls||0); });
+    html+='<div class="ds-sec"><div class="ds-h">🏆 '+(ar?"أفضل الموظفين":"Top performers")+(label?(' · '+esc(label)):'')+'</div><div class="lb">';
+    ags.slice(0,15).forEach(function(a,i){
+      var medal=i===0?"🥇":i===1?"🥈":i===2?"🥉":("#"+(i+1));
+      var mine=CURRENT_REC&&norm2(a.name)===norm2(CURRENT_REC.name);
+      html+='<div class="lbrow'+(i<3?(" top top"+(i+1)):"")+(mine?" me":"")+'"><span class="rk">'+medal+'</span><span class="nm">'+esc(a.name)+(mine?' ('+(ar?"أنت":"you")+')':'')+'</span><span class="cl">'+(a.calls||0)+'</span><span class="ah">'+fmtAHT(a.ahtSec)+'</span></div>';
+    });
+    html+='</div><div class="lbhead"><span></span><span>'+(ar?"الاسم":"Name")+'</span><span>'+(ar?"مكالمات":"Calls")+'</span><span>AHT</span></div></div>';
+    if(CURRENT_REC){
+      var mi=-1; for(var k=0;k<ags.length;k++){ if(norm2(ags[k].name)===norm2(CURRENT_REC.name)){mi=k;break;} }
+      if(mi>=0){ var me=ags[mi];
+        html+='<div class="ds-sec"><div class="ds-h">📈 '+(ar?"إحصائياتك":"Your stats")+'</div>'+
+          '<div class="ds-row"><span>'+(ar?"ترتيبك":"Rank")+'</span><b>#'+(mi+1)+' / '+ags.length+'</b></div>'+
+          '<div class="ds-row"><span>'+(ar?"المكالمات":"Calls")+'</span><b>'+(me.calls||0)+'</b></div>'+
+          '<div class="ds-row"><span>AHT</span><b>'+fmtAHT(me.ahtSec)+'</b></div>'+
+          (me.breakSec?'<div class="ds-row"><span>'+(ar?"وقت البريك":"Break time")+'</span><b>'+fmtAHT(me.breakSec)+'</b></div>':'')+'</div>';
+      }
+    }
+  } else {
+    html+='<div style="color:var(--txt-faint);text-align:center;padding:16px;font-size:13px">'+(ar?"لا توجد بيانات أداء لهذا اليوم بعد":"No performance data yet")+'</div>';
+  }
+  body.innerHTML=html;
+}
+function closeDayStatsKey(){}
+
 function subscribeNotifs(hrid){
   if(!db) return;
   if(NOTIF_REF) NOTIF_REF.off();
@@ -1051,7 +1131,7 @@ function renderWeeks(records){
       var isPast = d && !isToday && d.getTime() < today.getTime();
       var cls="day "+info.cls+(info.isWork?" work":"")+(isToday?" today":"")+(isPast?" past":"");
       var valHtml = '<div class="val">'+esc(info.txt)+ (info.mer?'<span class="meridiem">'+info.mer+'</span>':'') +'</div>';
-      html+='<div class="'+cls+'"><div class="dn">'+esc(dn)+'</div><div class="dd">'+esc(dd)+'</div>'+valHtml+'</div>';
+      html+='<div class="'+cls+'" onclick="openDayStats('+(col.serial!=null?col.serial:'null')+')" style="cursor:pointer"><div class="dn">'+esc(dn)+'</div><div class="dd">'+esc(dd)+'</div>'+valHtml+'</div>';
     }
     html+='</div>';
   });

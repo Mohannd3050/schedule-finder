@@ -348,6 +348,15 @@ var XLSXLite=(function(){
       <div style="margin-top:14px"><div id="breaksList"></div></div>
     </div>
 
+    <div class="card" id="perfCard">
+      <label>📊 أداء الموظفين — أفضل الموظفين (ملف إكسل)</label>
+      <div style="font-size:12.5px;color:var(--dim);margin-bottom:10px">الأعمدة: Date · Agent · Answered Calls · AHT. (اختياري ورقة/أعمدة: Time spent in Break status). يظهر للموظف كأفضل الموظفين عند ضغطه على اليوم.</div>
+      <input type="file" id="perfFile" accept=".xlsx,.xls,.xlsm">
+      <div class="row"><button class="mint" id="perfUploadBtn" style="flex:1">رفع بيانات الأداء</button></div>
+      <div class="err" id="perfMsg"></div>
+      <div style="margin-top:14px"><div id="perfList"></div></div>
+    </div>
+
     <div class="card" id="monitorCard">
       <label>👁️ مراقبة البريكات — الصلاحيات</label>
       <div style="font-size:12.5px;color:var(--dim);margin-bottom:10px">صفحة منفصلة تعرض من طلع بريك ومن تأخّر وتنبّهك عند التجاوز. امنح أي موظف صلاحية الدخول لها برقمه الوظيفي.</div>
@@ -440,6 +449,7 @@ function start(){
   loadWeeksList();
   loadBreaksList();
   loadMonitors();
+  loadPerfList();
   // (إجمالي الزيارات أُزيل — استبدل بزر جدول البريكات)
   // online (presence with recent heartbeat)
   db.ref(".info/serverTimeOffset").on("value",s=>{SRV_OFFSET=s.val()||0});
@@ -684,8 +694,8 @@ function uploadSchedule(){
   };
   r.readAsArrayBuffer(f);
 }
-document.addEventListener("DOMContentLoaded",()=>{const b=$("uploadBtn");if(b)b.addEventListener("click",uploadSchedule); const b2=$("breaksUploadBtn");if(b2)b2.addEventListener("click",uploadBreaks); const b3=$("grantMonBtn");if(b3)b3.addEventListener("click",grantMonitor)});
-if(document.readyState!=="loading"){const b=$("uploadBtn");if(b)b.addEventListener("click",uploadSchedule); const b2=$("breaksUploadBtn");if(b2)b2.addEventListener("click",uploadBreaks); const b3=$("grantMonBtn");if(b3)b3.addEventListener("click",grantMonitor)}
+document.addEventListener("DOMContentLoaded",()=>{const b=$("uploadBtn");if(b)b.addEventListener("click",uploadSchedule); const b2=$("breaksUploadBtn");if(b2)b2.addEventListener("click",uploadBreaks); const b3=$("grantMonBtn");if(b3)b3.addEventListener("click",grantMonitor); const b4=$("perfUploadBtn");if(b4)b4.addEventListener("click",uploadPerf)});
+if(document.readyState!=="loading"){const b=$("uploadBtn");if(b)b.addEventListener("click",uploadSchedule); const b2=$("breaksUploadBtn");if(b2)b2.addEventListener("click",uploadBreaks); const b3=$("grantMonBtn");if(b3)b3.addEventListener("click",grantMonitor); const b4=$("perfUploadBtn");if(b4)b4.addEventListener("click",uploadPerf)}
 
 /* ===== المميزات الإضافية: لغة + مظهر + موظفين + متواجدون + حفظ دخول ===== */
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
@@ -1033,6 +1043,69 @@ function loadBreaksList(){
     if(!ids.length){$("breaksList").innerHTML='<div style="color:var(--faint);font-size:12px">لا يوجد بريكات محفوظة</div>';return;}
     $("breaksList").innerHTML=ids.map(function(id){var m=(b[id].meta)||{};return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--glass2);border-radius:10px;margin-bottom:8px;font-size:13px"><span>🍵 <b>'+esc(m.day||id)+'</b> · '+(m.count||0)+'م</span><button data-brid="'+esc(id)+'" style="background:var(--rose);color:#fff;border:none;border-radius:7px;padding:5px 10px;cursor:pointer;font-size:12px">حذف</button></div>';}).join("");
     $("breaksList").querySelectorAll("button[data-brid]").forEach(function(btn){btn.addEventListener("click",function(){ if(confirm("حذف بريكات هذا اليوم؟")) db.ref("breaks/"+this.getAttribute("data-brid")).remove().then(loadBreaksList); });});
+  });
+}
+/* ---- أداء الموظفين / أفضل الموظفين ---- */
+function perfSec(v){ if(v==null||v==="")return 0; if(typeof v==="number"){ return Math.round((v-Math.floor(v))*86400); } var m=String(v).match(/(\d+):(\d{2})(?::(\d{2}))?/); if(!m)return 0; var a=parseInt(m[1],10),b=parseInt(m[2],10),c=m[3]?parseInt(m[3],10):0; return (m[3]?(a*3600+b*60+c):(a*60+b)); }
+function perfDate(v){ // -> YYYY-MM-DD
+  if(v==null||v==="")return "";
+  if(typeof v==="number"){ var d=new Date(Date.UTC(1899,11,30)+v*86400000); return d.getUTCFullYear()+"-"+("0"+(d.getUTCMonth()+1)).slice(-2)+"-"+("0"+d.getUTCDate()).slice(-2); }
+  var s=String(v).trim(); var m=s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/); if(m) return m[1]+"-"+("0"+m[2]).slice(-2)+"-"+("0"+m[3]).slice(-2);
+  m=s.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})/); if(m){ var p1=parseInt(m[1],10),p2=parseInt(m[2],10); var dd,mm; if(p1>12){dd=p1;mm=p2;} else if(p2>12){mm=p1;dd=p2;} else {dd=p1;mm=p2;} return m[3]+"-"+("0"+mm).slice(-2)+"-"+("0"+dd).slice(-2); }
+  return s;
+}
+function parsePerf(wb){
+  var byDate={}; // date -> {name->{name,calls,ahtSec,breakSec}}
+  wb.SheetNames.forEach(function(sn){
+    var rows=wb.Sheets[sn]||[], hr=-1, col={};
+    for(var r=0;r<Math.min(rows.length,12);r++){ var row=rows[r]||[], m={};
+      for(var c=0;c<row.length;c++){ var s=norm(row[c]).toLowerCase().trim();
+        if(s==="date")m.date=c;
+        else if(s==="agent"||s==="agent name"||s==="name")m.agent=c;
+        else if(s.indexOf("answered")>=0||s==="calls"||s.indexOf("answered calls")>=0)m.calls=c;
+        else if(s==="aht"||s.indexOf("aht")>=0||s.indexOf("handle")>=0)m.aht=c;
+        else if(s.indexOf("break")>=0&&(s.indexOf("time")>=0||s.indexOf("status")>=0||s.indexOf("sum")>=0))m.brk=c;
+      }
+      if(m.agent!=null&&(m.calls!=null||m.aht!=null||m.brk!=null)){ hr=r; col=m; break; }
+    }
+    if(hr<0)return;
+    for(var rr=hr+1;rr<rows.length;rr++){ var ar=rows[rr]||[]; var nm=norm(ar[col.agent]); if(!nm)continue;
+      var dk = (col.date!=null)?perfDate(ar[col.date]):"latest"; if(!dk)dk="latest";
+      if(!byDate[dk])byDate[dk]={};
+      var key=nm.toLowerCase();
+      var e=byDate[dk][key]||{name:nm,calls:0,ahtSec:0,breakSec:0};
+      if(col.calls!=null){ var cv=ar[col.calls]; e.calls=parseInt(cv,10)||e.calls||0; }
+      if(col.aht!=null){ var av=perfSec(ar[col.aht]); if(av)e.ahtSec=av; }
+      if(col.brk!=null){ var bv=perfSec(ar[col.brk]); if(bv)e.breakSec=bv; }
+      byDate[dk][key]=e;
+    }
+  });
+  return byDate;
+}
+function uploadPerf(){
+  if(!db){$("perfMsg").textContent="غير متصل";return;}
+  var f=$("perfFile").files[0]; if(!f){$("perfMsg").className="err";$("perfMsg").textContent="اختر ملف أولاً";return;}
+  $("perfMsg").className="err";$("perfMsg").textContent="جارٍ القراءة…";
+  var r=new FileReader();
+  r.onload=function(e){
+    try{
+      var wb=XLSXLite.read(new Uint8Array(e.target.result));
+      var byDate=parsePerf(wb), dates=Object.keys(byDate);
+      if(!dates.length){$("perfMsg").textContent="ما لقيت أعمدة الأداء (Agent / Answered Calls / AHT).";return;}
+      var ops=dates.map(function(dk){ var agents=Object.keys(byDate[dk]).map(function(k){return byDate[dk][k];}); var key=String(dk).replace(/[.#$[\]/]/g,"_"); return db.ref("performance/"+key).set({date:dk,updatedAt:firebase.database.ServerValue.TIMESTAMP,count:agents.length,agents:agents}); });
+      Promise.all(ops).then(function(){ $("perfMsg").className="err ok"; $("perfMsg").textContent="تم رفع الأداء ✓ ("+dates.map(function(d){return d+":"+Object.keys(byDate[d]).length;}).join(" · ")+")"; loadPerfList(); })
+        .catch(function(err){ $("perfMsg").className="err"; $("perfMsg").textContent="فشل النشر: "+((err&&err.code)||"تحقّق من القواعد"); });
+    }catch(err){ console.error(err); $("perfMsg").className="err"; $("perfMsg").textContent="خطأ في قراءة الملف."; }
+  };
+  r.readAsArrayBuffer(f);
+}
+function loadPerfList(){
+  if(!db||!$("perfList"))return;
+  db.ref("performance").once("value",function(s){
+    var p=s.val()||{}, ids=Object.keys(p);
+    if(!ids.length){$("perfList").innerHTML='<div style="color:var(--faint);font-size:12px">لا توجد بيانات أداء</div>';return;}
+    $("perfList").innerHTML=ids.sort().map(function(id){var m=p[id]||{};return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--glass2);border-radius:10px;margin-bottom:8px;font-size:13px"><span>📊 <b>'+esc(m.date||id)+'</b> · '+(m.count||0)+'م</span><button data-pid="'+esc(id)+'" style="background:var(--rose);color:#fff;border:none;border-radius:7px;padding:5px 10px;cursor:pointer;font-size:12px">حذف</button></div>';}).join("");
+    $("perfList").querySelectorAll("button[data-pid]").forEach(function(btn){btn.addEventListener("click",function(){ if(confirm("حذف بيانات هذا التاريخ؟")) db.ref("performance/"+this.getAttribute("data-pid")).remove().then(loadPerfList); });});
   });
 }
 /* ---- صلاحية مراقبة البريكات ---- */
