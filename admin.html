@@ -108,7 +108,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
-const I18N_ADMIN={ar:{badge:"لوحة الأدمن · d360 · v6",loginTitle:"دخول الأدمن",email:"الإيميل",password:"كلمة المرور",signIn:"دخول",remember:"تذكرني",logout:"خروج",stats:"الإحصائيات",visits:"إجمالي الزيارات",online:"المتواجدون الآن",sched:"إدارة الجدول",upload:"رفع جدول الأسبوع",schedStatus:"حالة الجدول",chooseFile:"اختيار ملف",uploadBtn:"رفع ونشر الجدول",ann:"الإشعار المتحرك",selectDept:"اختر القسم",annText:"نص الإشعار",show:"عرّض",hide:"إخفاء",clear:"حذف",empMgmt:"إدارة الموظفين",searchHrid:"ابحث برقم HRID",empName:"الاسم",empLob:"القسم",delete:"حذف",edit:"تعديل",admin:"الأدمن v5",allTeams:"كل الفرق",allShifts:"كل الأوقات",noEmp:"لا يوجد موظفون — ارفع جدولاً",noMatch:"لا نتائج مطابقة",searchNameHrid:"ابحث بالاسم أو HRID",createUser:"إنشاء مستخدم أدمن جديد",createBtn:"إنشاء المستخدم",passMin:"كلمة مرور (6 أحرف على الأقل)",userCreated:"أُنشئ المستخدم:",badUser:"إيميل غير صحيح أو كلمة مرور قصيرة",loginFirst:"يُرجى تسجيل الدخول أولاً",adminAcct:"حساب أدمن",settings:"الإعدادات",onlineNow:"المتواجدون الآن",breaksLbl:"🍵 على استراحة الآن",soon:"قريباً",newAccts:"🔑 طلبات الحسابات الجديدة",newAcctsHint:"اعتمد الطلب فتُولّد كلمة مرور، أرسلها للموظف على واتساب الخاص به بضغطة. يدخل برقمه الوظيفي وكلمة المرور.",uploadWeek:"رفع جدول الأسبوع (ملف إكسل)",uploadAll:"رفع ونشر الجدول للجميع",annLbl:"نص الإشعار المتحرك",annShow:"عرض الإشعار للجميع الآن",saveShow:"حفظ وعرض",swapReqs:"🔁 طلبات تبديل الشفت",swapReqsHint:"الطلبات التي قبلها طرف آخر فيها زر اعتماد ثم تطبيق على الجدول. يمكنك تجدّد الطلب أو تغلقه."},en:{badge:"Admin Panel · d360 · v6",loginTitle:"Admin Login",email:"Email",password:"Password",signIn:"Sign in",remember:"Remember me",logout:"Sign out",stats:"Statistics",visits:"Total visits",online:"Online now",sched:"Manage schedule",upload:"Upload weekly schedule",schedStatus:"Schedule status",chooseFile:"Choose file",uploadBtn:"Upload & publish",ann:"Announcements",selectDept:"Select department",annText:"Announcement text",show:"Show",hide:"Hide",clear:"Delete",empMgmt:"Employee management",searchHrid:"Search by HRID",empName:"Name",empLob:"Department",delete:"Delete",edit:"Edit",admin:"Admin v5",allTeams:"All teams",allShifts:"All shifts",noEmp:"No employees — upload a schedule",noMatch:"No matching results",searchNameHrid:"Search by name or HRID",createUser:"Create new admin user",createBtn:"Create user",passMin:"Password (6+ chars)",userCreated:"User created:",badUser:"Invalid email or short password",loginFirst:"Sign in first",adminAcct:"Admin account",settings:"Settings",onlineNow:"Online now",breaksLbl:"🍵 On break now",soon:"Soon",newAccts:"🔑 New account requests",newAcctsHint:"Approve a request to generate a password, then send it to the employee on WhatsApp in one tap. They sign in with HRID + password.",uploadWeek:"Upload weekly schedule (Excel)",uploadAll:"Upload & publish to everyone",annLbl:"Announcement ticker text",annShow:"Show announcement to everyone now",saveShow:"Save & show",swapReqs:"🔁 Shift swap requests",swapReqsHint:"Requests accepted by another party show Approve, then Apply-to-schedule. You can renew or close."}};
+const I18N_ADMIN={ar:{badge:"لوحة الأدمن · d360 · v6",loginTitle:"دخول الأدمن",email:"الإيميل",password:"كلمة المرور",signIn:"دخول",remember:"تذكرني",logout:"خروج",stats:"الإحصائيات",visits:"إجمالي الزيارات",online:"المتواجدون الآن",sched:"إدارة الجدول",upload:"رفع جدول الأسبوع",schedStatus:"حالة الجدول",chooseFile:"اختيار ملف",uploadBtn:"رفع ونشر الجدول",ann:"الإشعار المتحرك",selectDept:"اختر القسم",annText:"نص الإشعار",show:"عرّض",hide:"إخفاء",clear:"حذف",empMgmt:"إدارة الموظفين",searchHrid:"ابحث برقم HRID",empName:"الاسم",empLob:"القسم",delete:"حذف",edit:"تعديل",admin:"الأدمن v5",allTeams:"كل الفرق",allShifts:"كل الأوقات",noEmp:"لا يوجد موظفون — ارفع جدولاً",noMatch:"لا نتائج مطابقة",searchNameHrid:"ابحث بالاسم أو HRID",createUser:"إنشاء مستخدم أدمن جديد",createBtn:"إنشاء المستخدم",passMin:"كلمة مرور (6 أحرف على الأقل)",userCreated:"أُنشئ المستخدم:",badUser:"إيميل غير صحيح أو كلمة مرور قصيرة",loginFirst:"يُرجى تسجيل الدخول أولاً",adminAcct:"حساب أدمن",settings:"الإعدادات",onlineNow:"المتواجدون الآن",breaksLbl:"🍵 على بريك الآن",soon:"قريباً",newAccts:"🔑 طلبات الحسابات الجديدة",newAcctsHint:"اعتمد الطلب فتُولّد كلمة مرور، أرسلها للموظف على واتساب الخاص به بضغطة. يدخل برقمه الوظيفي وكلمة المرور.",uploadWeek:"رفع جدول الأسبوع (ملف إكسل)",uploadAll:"رفع ونشر الجدول للجميع",annLbl:"نص الإشعار المتحرك",annShow:"عرض الإشعار للجميع الآن",saveShow:"حفظ وعرض",swapReqs:"🔁 طلبات تبديل الشفت",swapReqsHint:"الطلبات التي قبلها طرف آخر فيها زر اعتماد ثم تطبيق على الجدول. يمكنك تجدّد الطلب أو تغلقه."},en:{badge:"Admin Panel · d360 · v6",loginTitle:"Admin Login",email:"Email",password:"Password",signIn:"Sign in",remember:"Remember me",logout:"Sign out",stats:"Statistics",visits:"Total visits",online:"Online now",sched:"Manage schedule",upload:"Upload weekly schedule",schedStatus:"Schedule status",chooseFile:"Choose file",uploadBtn:"Upload & publish",ann:"Announcements",selectDept:"Select department",annText:"Announcement text",show:"Show",hide:"Hide",clear:"Delete",empMgmt:"Employee management",searchHrid:"Search by HRID",empName:"Name",empLob:"Department",delete:"Delete",edit:"Edit",admin:"Admin v5",allTeams:"All teams",allShifts:"All shifts",noEmp:"No employees — upload a schedule",noMatch:"No matching results",searchNameHrid:"Search by name or HRID",createUser:"Create new admin user",createBtn:"Create user",passMin:"Password (6+ chars)",userCreated:"User created:",badUser:"Invalid email or short password",loginFirst:"Sign in first",adminAcct:"Admin account",settings:"Settings",onlineNow:"Online now",breaksLbl:"🍵 On break now",soon:"Soon",newAccts:"🔑 New account requests",newAcctsHint:"Approve a request to generate a password, then send it to the employee on WhatsApp in one tap. They sign in with HRID + password.",uploadWeek:"Upload weekly schedule (Excel)",uploadAll:"Upload & publish to everyone",annLbl:"Announcement ticker text",annShow:"Show announcement to everyone now",saveShow:"Save & show",swapReqs:"🔁 Shift swap requests",swapReqsHint:"Requests accepted by another party show Approve, then Apply-to-schedule. You can renew or close."}};
 let ADMIN_LANG="ar";
 function t_adm(k){return I18N_ADMIN[ADMIN_LANG][k]||k}
 /* XLSXLite — tiny self-contained .xlsx reader (no deps). Reads cell values into row arrays. */
@@ -305,8 +305,8 @@ var XLSXLite=(function(){
     </div>
     <div class="stats">
       <div class="stat on"><div class="k"><span class="dot"></span> <span data-i18n="onlineNow">المتواجدون الآن</span></div><div class="v" id="online">—</div></div>
-      <div class="stat" onclick="window.open('./breaks-admin.html','_blank')" style="cursor:pointer" title="مراقبة الاستراحات">
-        <div class="k" data-i18n="breaksLbl">🍵 جدول الاستراحات</div>
+      <div class="stat" onclick="window.open('./breaks-admin.html','_blank')" style="cursor:pointer" title="مراقبة البريكات">
+        <div class="k" data-i18n="breaksLbl">🍵 جدول البريكات</div>
         <div class="v" id="breaksCount" style="font-size:clamp(18px,5vw,24px);background:linear-gradient(120deg,var(--mint),var(--violet));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">0</div>
       </div>
     </div>
@@ -332,13 +332,13 @@ var XLSXLite=(function(){
 
     <div class="card" id="uploadLinkCard">
       <label>📤 رفع الجداول والبيانات</label>
-      <div style="font-size:12.5px;color:var(--dim);margin-bottom:12px">جدول الأسبوع · جدول الاستراحات · أداء الموظفين — في صفحة مستقلة.</div>
+      <div style="font-size:12.5px;color:var(--dim);margin-bottom:12px">جدول الأسبوع · جدول البريكات · أداء الموظفين — في صفحة مستقلة.</div>
       <a href="./upload.html" style="display:block;text-align:center;background:linear-gradient(135deg,var(--mint),var(--mintd));color:#04211c;font-weight:700;border-radius:12px;padding:14px;text-decoration:none">📤 افتح صفحة الرفع</a>
     </div>
 
     <div class="card" id="monitorLinkCard">
-      <label>🍵 مراقبة الاستراحات</label>
-      <div style="font-size:12.5px;color:var(--dim);margin-bottom:12px">من طلع استراحة ومن تأخّر، مع تنبيه عند تجاوز الوقت. للأدمن ومن يُمنح صلاحية المراقبة فقط.</div>
+      <label>🍵 مراقبة البريكات</label>
+      <div style="font-size:12.5px;color:var(--dim);margin-bottom:12px">من طلع بريك ومن تأخّر، مع تنبيه عند تجاوز الوقت. للأدمن ومن يُمنح صلاحية المراقبة فقط.</div>
       <a href="./breaks-admin.html" target="_blank" style="display:block;text-align:center;background:linear-gradient(135deg,var(--violet),var(--mint));color:#fff;font-weight:700;border-radius:12px;padding:14px;text-decoration:none">🍵 افتح صفحة المراقبة</a>
     </div>
 
@@ -347,7 +347,7 @@ var XLSXLite=(function(){
       <div style="font-size:12.5px;color:var(--dim);margin-bottom:12px">يُنشئ النظام حساباً لاسم مدير الفريق كما ورد في عمود TL بالجدول، فيدخل لوحة التحكم ويُدير أعضاء فريقه. يُرجى اختيار الاسم وتحديد الأذونات.</div>
       <select id="permTLSelect" style="width:100%;background:var(--glass2);border:1px solid var(--stroke);color:var(--txt);font-family:inherit;font-size:14px;border-radius:11px;padding:12px;outline:none;cursor:pointer;margin-bottom:6px"><option value="">— اختيار مدير الفريق —</option></select>
       <div style="display:flex;gap:16px;margin:10px 2px;flex-wrap:wrap">
-        <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--txt);cursor:pointer"><input type="checkbox" id="permMonitor"> 👁️ مراقبة الاستراحات</label>
+        <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--txt);cursor:pointer"><input type="checkbox" id="permMonitor"> 👁️ مراقبة البريكات</label>
         <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--txt);cursor:pointer"><input type="checkbox" id="permUpload"> 📤 رفع الجداول</label>
       </div>
       <button class="mint" id="grantPermBtn" style="width:100%">إنشاء حساب / تحديث الصلاحية</button>
@@ -458,7 +458,7 @@ function start(){
   loadBreaksList();
   loadPerms();
   loadPerfList();
-  // (إجمالي الزيارات أُزيل — استبدل بزر جدول الاستراحات)
+  // (إجمالي الزيارات أُزيل — استبدل بزر جدول البريكات)
   // online (presence with recent heartbeat)
   db.ref(".info/serverTimeOffset").on("value",s=>{SRV_OFFSET=s.val()||0});
   db.ref("presence").on("value",s=>{
@@ -827,10 +827,10 @@ function updateOnlineList(){
     $("onlineCount").textContent=list.length;
     const onBreakCount=list.filter(p=>p.onBreak).length;
     if(!list.length){$("onlineList").innerHTML='<div style="color:var(--faint);font-size:12px;padding:8px">لا أحد متصل الآن</div>';return}
-    const breakHeader=onBreakCount?'<div style="font-size:13px;color:var(--amber,#f59e0b);font-weight:700;margin-bottom:10px;text-align:center;background:rgba(245,158,11,.12);padding:8px;border-radius:10px">🕐 '+onBreakCount+' على استراحة الآن</div>':'';
+    const breakHeader=onBreakCount?'<div style="font-size:13px;color:var(--amber,#f59e0b);font-weight:700;margin-bottom:10px;text-align:center;background:rgba(245,158,11,.12);padding:8px;border-radius:10px">🕐 '+onBreakCount+' على بريك الآن</div>':'';
     $("onlineList").innerHTML=breakHeader+list.map(p=>{
       const ago=Math.floor((now-p.ts)/1000);const str=ago<60?ago+"s":ago<3600?Math.floor(ago/60)+"m":Math.floor(ago/3600)+"h";
-      const breakBadge=p.onBreak?'<span style="background:var(--amber,#f59e0b);color:#000;border-radius:5px;padding:2px 6px;font-size:10px;font-weight:700;margin-inline-start:4px">🕐 استراحة</span>':'';
+      const breakBadge=p.onBreak?'<span style="background:var(--amber,#f59e0b);color:#000;border-radius:5px;padding:2px 6px;font-size:10px;font-weight:700;margin-inline-start:4px">🕐 بريك</span>':'';
       const btns=p.hrid?'<div style="display:flex;gap:6px;margin-top:8px"><button data-hrid="'+p.hrid+'" data-name="'+esc(p.name||"")+'" data-act="alert" style="flex:1;background:var(--rose);color:#fff;border:none;border-radius:8px;padding:7px;font-size:12px;cursor:pointer;font-weight:600;font-family:inherit">🔔 إنذار</button><button data-hrid="'+p.hrid+'" data-name="'+esc(p.name||"")+'" data-act="edit" style="flex:1;background:var(--glass2);border:1px solid var(--stroke);color:var(--txt);border-radius:8px;padding:7px;font-size:12px;cursor:pointer;font-family:inherit">✏️ تعديل جدول</button></div>':'';
       return '<div style="padding:10px 12px;background:var(--glass2);border-radius:12px;margin-bottom:8px">'
         +'<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:600">🟢 '+(p.name||"زائر")+breakBadge+'</span><span style="font-size:11px;color:var(--faint)">'+str+'</span></div>'
@@ -1025,7 +1025,7 @@ function delWeek(id){
   if(!confirm("حذف الأسبوع: "+id))return;
   db.ref("weeks/"+id).remove().then(()=>{loadWeeksList()}).catch(e=>console.error(e));
 }
-/* ---- جدول الاستراحات ---- */
+/* ---- جدول البريكات ---- */
 function brHM(v){ if(v==null||v==="")return ""; if(typeof v==="number"){ var f=v-Math.floor(v); var t=Math.round(f*1440); var hh=Math.floor(t/60)%24, mm=t%60; return (hh<10?"0":"")+hh+":"+(mm<10?"0":"")+mm; } var s=String(v); var m=s.match(/(\d{1,2}):(\d{2})/); return m?((m[1].length<2?"0":"")+m[1]+":"+m[2]):""; }
 function brMin(v){ if(v==null||v==="")return 0; if(typeof v==="number"){ return Math.round((v-Math.floor(v))*1440); } var s=String(v); var m=s.match(/(\d{1,2}):(\d{2})/); return m?(parseInt(m[1],10)*60+parseInt(m[2],10)):0; }
 function parseBreaks(wb){
@@ -1063,9 +1063,9 @@ function uploadBreaks(){
     try{
       var wb=XLSXLite.read(new Uint8Array(e.target.result));
       var parsed=parseBreaks(wb);
-      if(!parsed.length){$("breaksMsg").textContent="لم يتم العثور على أعمدة الاستراحات (HRID/B1/B2/B3).";return;}
+      if(!parsed.length){$("breaksMsg").textContent="لم يتم العثور على أعمدة البريكات (HRID/B1/B2/B3).";return;}
       var ops=parsed.map(function(p){ var dayKey=String(p.day).replace(/[.#$[\]/]/g,"_"); return db.ref("breaks/"+dayKey).set({meta:{day:p.day,updatedAt:firebase.database.ServerValue.TIMESTAMP,count:Object.keys(p.agents).length},agents:p.agents}); });
-      Promise.all(ops).then(function(){ $("breaksMsg").className="err ok"; $("breaksMsg").textContent="تم رفع الاستراحات ✓ ("+parsed.map(function(p){return p.day+":"+Object.keys(p.agents).length;}).join(" · ")+")"; loadBreaksList(); })
+      Promise.all(ops).then(function(){ $("breaksMsg").className="err ok"; $("breaksMsg").textContent="تم رفع البريكات ✓ ("+parsed.map(function(p){return p.day+":"+Object.keys(p.agents).length;}).join(" · ")+")"; loadBreaksList(); })
         .catch(function(err){ $("breaksMsg").className="err"; $("breaksMsg").textContent="فشل النشر: "+((err&&err.code)||"تحقّق من القواعد"); });
     }catch(err){ console.error(err); $("breaksMsg").className="err"; $("breaksMsg").textContent="خطأ في قراءة الملف."; }
   };
@@ -1076,9 +1076,9 @@ function loadBreaksList(){
   db.ref("breaks").once("value",function(s){
     var b=s.val()||{}, ids=Object.keys(b);
     var bc=$("breaksCount"); if(bc) bc.textContent = ids.length ? (ids.length+(ids.length===1?" يوم":" أيام")) : "0";
-    if(!ids.length){$("breaksList").innerHTML='<div style="color:var(--faint);font-size:12px">لا يوجد استراحات محفوظة</div>';return;}
+    if(!ids.length){$("breaksList").innerHTML='<div style="color:var(--faint);font-size:12px">لا يوجد بريكات محفوظة</div>';return;}
     $("breaksList").innerHTML=ids.map(function(id){var m=(b[id].meta)||{};return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--glass2);border-radius:10px;margin-bottom:8px;font-size:13px"><span>🍵 <b>'+esc(m.day||id)+'</b> · '+(m.count||0)+'م</span><button data-brid="'+esc(id)+'" style="background:var(--rose);color:#fff;border:none;border-radius:7px;padding:5px 10px;cursor:pointer;font-size:12px">حذف</button></div>';}).join("");
-    $("breaksList").querySelectorAll("button[data-brid]").forEach(function(btn){btn.addEventListener("click",function(){ if(confirm("حذف استراحات هذا اليوم؟")) db.ref("breaks/"+this.getAttribute("data-brid")).remove().then(loadBreaksList); });});
+    $("breaksList").querySelectorAll("button[data-brid]").forEach(function(btn){btn.addEventListener("click",function(){ if(confirm("حذف بريكات هذا اليوم؟")) db.ref("breaks/"+this.getAttribute("data-brid")).remove().then(loadBreaksList); });});
   });
 }
 /* ---- أداء الموظفين / أفضل الموظفين ---- */

@@ -93,9 +93,10 @@
   .ds-brk-u.over{color:var(--rose);font-weight:700}
   .bu{font-size:13px;color:var(--txt-dim);font-variant-numeric:tabular-nums}
   .bu.over{color:var(--rose);font-weight:700}
-  .brkbtn{border:none;border-radius:10px;padding:8px 16px;font-family:inherit;font-weight:700;font-size:13px;cursor:pointer;color:#fff;background:linear-gradient(120deg,var(--violet),var(--mint));transition:.16s}
+  .brkbtn{border:none;border-radius:11px;padding:9px 18px;font-family:inherit;font-weight:700;font-size:13.5px;cursor:pointer;color:#04211c;background:linear-gradient(135deg,var(--mint),var(--mint-deep));transition:.16s}
   .brkbtn:hover{transform:translateY(-1px)}
-  .brkbtn.act{background:var(--amber)}
+  .brkbtn.act{background:linear-gradient(135deg,var(--amber),#d97706);color:#3b1d00}
+  .brksel{width:100%;background:var(--glass);border:1px solid var(--stroke-soft);color:var(--txt);font-family:inherit;font-size:14px;font-weight:700;border-radius:12px;padding:13px 14px;cursor:pointer;margin-bottom:12px;outline:none;text-align:center;text-align-last:center}
   .brkrow.over{border-color:var(--rose);box-shadow:0 0 0 1px var(--rose)}
   .brktotal{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding:12px 14px;border-radius:12px;background:color-mix(in srgb,var(--mint) 10%,transparent);border:1px solid var(--stroke-soft);font-size:14px}
   .brktotal b{font-variant-numeric:tabular-nums;color:var(--mint)}
@@ -535,7 +536,8 @@ function buildSettings(){
      '<div class="o" data-f="12" onclick="setTimeFmt(\'12\')">'+t("fmt12")+'</div>'+
      '<div class="o" data-f="24" onclick="setTimeFmt(\'24\')">'+t("fmt24")+'</div></div></div>';
   if(me.hrid){ h+='<div class="set-row"><button class="set-btn" onclick="closeSettings();openPw()">'+t("pwTitle")+'</button></div>'; }
-  if(me.hrid){ h+='<div class="set-row"><button class="set-btn" onclick="exportShiftsICS()">'+t("addCal")+'</button></div>'; }
+  if(me.hrid){ h+='<div class="set-row"><button class="set-btn" onclick="exportShiftsICS()">'+t("addCal")+'</button></div>';
+               h+='<div class="set-row"><button class="set-btn" onclick="exportBreaksICS()">'+t("addCalBreaks")+'</button></div>'; }
   if(me.hrid){ h+='<div class="set-row"><button class="set-btn danger" onclick="doLogout()">'+t("logoutBtn")+'</button></div>'; }
   document.getElementById("setBody").innerHTML=h;
   document.querySelectorAll("#tfmt .o").forEach(function(o){o.classList.toggle("on",o.getAttribute("data-f")===TIMEFMT);});
@@ -565,6 +567,41 @@ function exportShiftsICS(){
     setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },2000);
   }catch(e){ alert("تعذّر إنشاء الملف"); }
 }
+function exportBreaksICS(){
+  var ar=(LANG==="ar"), now=new Date(), nowMs=Date.now();
+  var WD=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  var events=[];
+  for(var off=0; off<7; off++){
+    var d=new Date(now.getFullYear(),now.getMonth(),now.getDate()+off);
+    var data=BREAKS_CACHE[WD[d.getDay()]];
+    if(!data||!data.b)continue;
+    data.b.forEach(function(b,i){
+      var pp=String(b.t||"").split(":"); var h=parseInt(pp[0],10), m=parseInt(pp[1],10);
+      if(isNaN(h))return;
+      var st=new Date(d.getFullYear(),d.getMonth(),d.getDate(),h,m,0,0);
+      if(st.getTime() < nowMs-5*60000) return;
+      events.push({start:st, dur:(b.d||15), idx:i+1});
+    });
+  }
+  events.sort(function(a,b){return a.start-b.start;});
+  if(!events.length){ alert(ar?"لا توجد بريكات قادمة لإضافتها (تأكد من إضافة جدول بريكات)":"No upcoming breaks to add"); return; }
+  function p(n){return (n<10?"0":"")+n;}
+  function loc(dt){ return ""+dt.getFullYear()+p(dt.getMonth()+1)+p(dt.getDate())+"T"+p(dt.getHours())+p(dt.getMinutes())+"00"; }
+  function utc(ms){ var dd=new Date(ms); return ""+dd.getUTCFullYear()+p(dd.getUTCMonth()+1)+p(dd.getUTCDate())+"T"+p(dd.getUTCHours())+p(dd.getUTCMinutes())+p(dd.getUTCSeconds())+"Z"; }
+  var L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//d360//schedule-finder//AR","CALSCALE:GREGORIAN","METHOD:PUBLISH"];
+  events.forEach(function(e,i){
+    var endDt=new Date(e.start.getTime()+e.dur*60000);
+    L.push("BEGIN:VEVENT","UID:d360brk-"+e.start.getTime()+"-"+i+"@schedule-finder","DTSTAMP:"+utc(nowMs),"DTSTART:"+loc(e.start),"DTEND:"+loc(endDt),
+      "SUMMARY:"+(ar?("بريك "+e.idx+" ("+e.dur+" د) · d360"):("Break "+e.idx+" ("+e.dur+"m) · d360")),
+      "BEGIN:VALARM","TRIGGER:-PT5M","ACTION:DISPLAY","DESCRIPTION:"+(ar?"تذكير: بريكك بعد ٥ دقائق":"Reminder: break in 5 min"),"END:VALARM","END:VEVENT");
+  });
+  L.push("END:VCALENDAR");
+  try{
+    var blob=new Blob([L.join("\r\n")],{type:"text/calendar;charset=utf-8"});
+    var a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="d360-breaks.ics"; document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },2000);
+  }catch(e){ alert(ar?"تعذّر إنشاء الملف":"Failed to create file"); }
+}
 var IDLE_MS=30*60*1000, _lastTouch=0;
 function touchActivity(){var n=Date.now(); if(n-_lastTouch>15000){_lastTouch=n; localStorage.setItem("lastAct",String(n));}}
 function idleExpired(){var la=parseInt(localStorage.getItem("lastAct")||"0",10); return la>0 && (Date.now()-la>IDLE_MS);}
@@ -588,12 +625,12 @@ var I18N={
     loginBtn:"دخول", loginNote:"طلب الحساب يتطلب تطابق الرقم الوظيفي والهاتف مع الجدول", rememberMe:"تذكّرني",
     logHint:"سجّل دخولك برقمك الوظيفي وكلمة المرور", emailPh:"الإيميل", passPh:"كلمة المرور", newPassPh:"كلمة مرور (6 أحرف+)", pass2Ph:"تأكيد كلمة المرور",
     toRegister:"طلب حساب جديد", forgot:"نسيت كلمة المرور؟", regHint:"طلب حساب جديد — يُرجى إدخال رقمك الوظيفي وهاتفك، وبعد اعتماد الأدمن تصلك كلمة المرور على واتسابك", regBtn:"إرسال الطلب", toLogin:"لدي حساب — تسجيل الدخول",
-    notifTitle:"الإشعارات", notifClear:"مسح الكل", notifEmpty:"لا توجد إشعارات", myBreaks:"استراحاتك اليوم", addCal:"📅 أضف شفتاتي للتقويم",
+    notifTitle:"الإشعارات", notifClear:"مسح الكل", notifEmpty:"لا توجد إشعارات", myBreaks:"بريكاتك اليوم", addCal:"📅 أضف شفتاتي للتقويم", addCalBreaks:"🍵 أضف بريكاتي للتقويم",
     pwTitle:"تغيير كلمة المرور", pwHint:"كلمة المرور أرقام فقط — 4 أو 6 أرقام", pwCurPh:"كلمة المرور الحالية", pwNewPh:"الجديدة (4 أو 6 أرقام)", pwNew2Ph:"تأكيد الجديدة", pwSave:"حفظ",
     change:"تغيير", swap:"🔁 تبديل الشفت",
-    brkReady:"استراحة ساعة كاملة · جاهز", brkStart:"بدء الاستراحة", brkReset:"إعادة ضبط",
-    brkRunning:"استراحة جارٍ ☕", brkPause:"إيقاف مؤقت", brkPaused:"متوقّف مؤقتاً", brkResume:"متابعة",
-    brkDone:"انتهى وقت الاستراحة (ساعة كاملة) ☕\nرجاءً عُد إلى حالة Available.",
+    brkReady:"بريك ساعة كاملة · جاهز", brkStart:"بدء البريك", brkReset:"إعادة ضبط",
+    brkRunning:"بريك جارٍ ☕", brkPause:"إيقاف مؤقت", brkPaused:"متوقّف مؤقتاً", brkResume:"متابعة",
+    brkDone:"انتهى وقت البريك (ساعة كاملة) ☕\nرجاءً عُد إلى حالة Available.",
     legShift:"شفت (وقت البداية)", legOff:"إجازة / OFF", legAnnual:"سنوية", legPH:"رسمية / عيد", legSup:"Support / Senior",
     footBy:"تمت بواسطة مهنّد الغامدي", footHrid:"الرقم الوظيفي: 94467", footLive:"الجدول من خادم الفريق · يُحدّث مباشرة",
     alertTitle:"تنبيه من الأدمن", alertOk:"موافق",
@@ -612,7 +649,7 @@ var I18N={
     loginBtn:"Enter", loginNote:"Account request requires HRID and phone to match the schedule", rememberMe:"Remember me",
     logHint:"Sign in with your HRID and password", emailPh:"Email", passPh:"Password", newPassPh:"Password (6+ chars)", pass2Ph:"Confirm password",
     toRegister:"Request new account", forgot:"Forgot password?", regHint:"Request an account — enter your HRID and phone; after admin approval your password is sent to your WhatsApp", regBtn:"Send request", toLogin:"I have an account — sign in",
-    notifTitle:"Notifications", notifClear:"Clear all", notifEmpty:"No notifications", myBreaks:"Your breaks today", addCal:"📅 Add my shifts to calendar",
+    notifTitle:"Notifications", notifClear:"Clear all", notifEmpty:"No notifications", myBreaks:"Your breaks today", addCal:"📅 Add my shifts to calendar", addCalBreaks:"🍵 Add my breaks to calendar",
     pwTitle:"Change password", pwHint:"Numbers only — 4 or 6 digits", pwCurPh:"Current password", pwNewPh:"New (4 or 6 digits)", pwNew2Ph:"Confirm new", pwSave:"Save",
     change:"Change", swap:"🔁 Shift Swap",
     brkReady:"Full-hour break · Ready", brkStart:"Start break", brkReset:"Reset",
@@ -843,7 +880,7 @@ function logout(){
 }
 
 /* ================= NOTIFICATIONS ================= */
-/* ---- الاستراحات المجدولة (من رفع الأدمن) ---- */
+/* ---- البريكات المجدولة (من رفع الأدمن) ---- */
 function dayNameLocal(){ return ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][new Date().getDay()]; }
 function brkToMs(hm){ if(!hm)return null; var p=String(hm).split(":"); var d=new Date(); d.setHours(parseInt(p[0],10),parseInt(p[1],10)||0,0,0); return d.getTime(); }
 function fmtHMms(ms){ var d=new Date(ms); var h=d.getHours(),m=d.getMinutes(); var mer=merOf(h); return fmtHM(h,m)+(mer?(" "+mer):""); }
@@ -853,9 +890,9 @@ function fmtBrkRange(hm,durMin){
   var p=String(hm).split(":"); var h=parseInt(p[0],10)||0, m=parseInt(p[1],10)||0;
   var endMin=h*60+m+(durMin||0); var eh=Math.floor(endMin/60)%24, em=endMin%60;
   var s1=fmtHM(h,m), s2=fmtHM(eh,em), mer1=merOf(h), mer2=merOf(eh);
-  function n(x){ return '<bdi style="direction:ltr;unicode-bidi:isolate">'+x+'</bdi>'; }
-  if(TIMEFMT==="24"||!mer2) return n(s1+" – "+s2);
-  if(mer1===mer2) return n(s1+" – "+s2)+" "+mer2;
+  function n(x){ return '<bdi>'+x+'</bdi>'; }
+  if(TIMEFMT==="24"||!mer2) return n(s1)+" – "+n(s2);
+  if(mer1===mer2) return n(s1)+" – "+n(s2)+" "+mer2;
   return n(s1)+" "+mer1+" – "+n(s2)+" "+mer2;
 }
 function fmtDur(ms){ var s=Math.max(0,Math.floor(ms/1000)); var h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60; return (h>0?(h+":"+(m<10?"0":"")):"")+m+":"+(ss<10?"0":"")+ss; }
@@ -908,11 +945,11 @@ function renderBreaksCard(){
   var today=dayNameLocal(), ar=(LANG==="ar");
   if(!SEL_BREAK_DAY||days.indexOf(SEL_BREAK_DAY)<0) SEL_BREAK_DAY=(days.indexOf(today)>=0?today:days[days.length-1]);
   var sel=SEL_BREAK_DAY, isToday=(sel===today), data=BREAKS_CACHE[sel]||{b:[]};
-  var tabs=days.map(function(d){ var i=WEEK_DAYS.indexOf(d); var lbl=(ar?WEEK_DAYS_AR[i]:d.slice(0,3)); return '<button class="brktab'+(d===sel?" on":"")+(d===today?" td":"")+'" onclick="selectBreakDay(\''+d+'\')">'+lbl+'</button>'; }).join("");
+  var tabs='<select class="brksel" onchange="selectBreakDay(this.value)">'+days.map(function(d){ var i=WEEK_DAYS.indexOf(d); var lbl=(ar?WEEK_DAYS_AR[i]:d)+(d===today?(ar?" • اليوم":" • Today"):""); return '<option value="'+d+'"'+(d===sel?" selected":"")+'>'+lbl+'</option>'; }).join("")+'</select>';
   var totUsed=0, totPlan=0;
   var rows=(data.b||[]).map(function(b,i){
     totPlan+=(b.d||0);
-    var top='<div class="brkr-top"><span class="bt">'+(ar?"استراحة ":"Break ")+(i+1)+'</span><span class="bd">'+(b.d||0)+(ar?" دقيقة":" min")+'</span></div>';
+    var top='<div class="brkr-top"><span class="bt">'+(ar?"بريك ":"Break ")+(i+1)+'</span><span class="bd">'+(b.d||0)+(ar?" دقيقة":" min")+'</span></div>';
     var timeLine='<div class="brkr-time">'+fmtBrkRange(b.t,b.d)+'</div>';
     if(!isToday){ return '<div class="brkrow row2" data-bi="'+i+'">'+top+timeLine+'</div>'; }
     var used=brkUsedSec(i,true); totUsed+=used; var active=brkIsActive(i); var over=used>(b.d||0)*60;
@@ -920,10 +957,10 @@ function renderBreaksCard(){
     return '<div class="brkrow row2'+(active?" on":"")+(over?" over":"")+'" data-bi="'+i+'">'+top+timeLine+
       '<div class="brkr-bot"><span class="bu'+(over?" over":"")+'" id="bu'+i+'">'+(ar?"المُستخدَم ":"Used ")+fmtMS(used)+'</span>'+btn+'</div></div>';
   }).join("");
-  var head = isToday ? '<div id="brkNext" class="brknext">—</div>' : '<div class="brknext" style="color:var(--txt-dim)">'+(ar?"استراحات يوم ":"Breaks · ")+(ar?WEEK_DAYS_AR[WEEK_DAYS.indexOf(sel)]:sel)+'</div>';
+  var head = isToday ? '<div id="brkNext" class="brknext">—</div>' : '<div class="brknext" style="color:var(--txt-dim)">'+(ar?"بريكات يوم ":"Breaks · ")+(ar?WEEK_DAYS_AR[WEEK_DAYS.indexOf(sel)]:sel)+'</div>';
   var totalRow = isToday ? '<div class="brktotal"><span>'+(ar?"الإجمالي المستخدم":"Total used")+'</span><b id="buTot">'+fmtMS(totUsed)+' / '+totPlan+(ar?" د":" min")+'</b></div>' : '';
   box.innerHTML='<div class="card brkcard"><div class="lbl"><span>🍵 '+t("myBreaks")+'</span></div>'+
-    '<div class="brktabs">'+tabs+'</div>'+head+'<div class="brklist">'+rows+'</div>'+totalRow+'</div>';
+    tabs+head+'<div class="brklist">'+rows+'</div>'+totalRow+'</div>';
   if(isToday) updateBreakCountdown();
 }
 function updateBreakCountdown(){
@@ -939,9 +976,9 @@ function updateBreakCountdown(){
   var nx=document.getElementById("brkNext"); if(!nx)return;
   var now=Date.now(), cur=null, nextI=-1, nextSt=null, curI=-1;
   data.b.forEach(function(b,i){ var st=brkToMs(b.t), en=st+((b.d||0)*60000); if(now>=st&&now<en){ cur={en:en}; curI=i; } else if(st>now&&(nextSt===null||st<nextSt)){ nextSt=st; nextI=i; } });
-  if(cur){ nx.innerHTML='<b style="color:var(--mint)">'+(ar?"وقت استراحتك الآن ☕":"Break time ☕")+'</b> · '+(ar?"ينتهي بعد ":"ends in ")+fmtDur(cur.en-now); }
-  else if(nextI>=0){ nx.innerHTML=(ar?"استراحتك القادم ":"Next break ")+'<b>'+esc(fmtBrk(data.b[nextI].t))+'</b> '+(ar?"بعد ":"in ")+fmtDur(nextSt-now); }
-  else { nx.innerHTML=(ar?"انتهت أوقات استراحاتك اليوم":"Scheduled breaks ended"); }
+  if(cur){ nx.innerHTML='<b style="color:var(--mint)">'+(ar?"وقت بريكك الآن ☕":"Break time ☕")+'</b> · '+(ar?"ينتهي بعد ":"ends in ")+fmtDur(cur.en-now); }
+  else if(nextI>=0){ nx.innerHTML=(ar?"بريكك القادم ":"Next break ")+'<b>'+esc(fmtBrk(data.b[nextI].t))+'</b> '+(ar?"بعد ":"in ")+fmtDur(nextSt-now); }
+  else { nx.innerHTML=(ar?"انتهت أوقات بريكاتك اليوم":"Scheduled breaks ended"); }
 }
 
 function closeDayStats(){ var ov=document.getElementById("dayOv"); if(ov)ov.classList.remove("show"); }
@@ -985,11 +1022,11 @@ function renderDayStats(body,dayName,perf,label,logBreaks){
   var ar=(LANG==="ar"), html="";
   var bdata=dayName?BREAKS_CACHE[dayName]:null;
   if(bdata&&bdata.b&&bdata.b.length){
-    html+='<div class="ds-sec"><div class="ds-h">🍵 '+(ar?"استراحاتك هذا اليوم":"Your breaks")+'</div>';
+    html+='<div class="ds-sec"><div class="ds-h">🍵 '+(ar?"بريكاتك هذا اليوم":"Your breaks")+'</div>';
     html+=bdata.b.map(function(b,i){
       var bk=logBreaks?logBreaks[i]:null; var usedSec=bk?(bk.usedSec||0):0; var over=usedSec>(b.d||0)*60;
       var usedTxt=usedSec?fmtMS(usedSec):(ar?"لم تُؤخذ":"—");
-      return '<div class="ds-brk'+(over?" over":"")+'"><div class="ds-brk-h"><span class="lbl">'+(ar?"استراحة ":"Break ")+(i+1)+' · '+(b.d||0)+(ar?" دقيقة":" min")+'</span><span class="rng">'+fmtBrkRange(b.t,b.d)+'</span></div>'+
+      return '<div class="ds-brk'+(over?" over":"")+'"><div class="ds-brk-h"><span class="lbl">'+(ar?"بريك ":"Break ")+(i+1)+' · '+(b.d||0)+(ar?" دقيقة":" min")+'</span><span class="rng">'+fmtBrkRange(b.t,b.d)+'</span></div>'+
         '<div class="ds-brk-u'+(over?" over":"")+'">'+(ar?"المُستخدَم: ":"Used: ")+usedTxt+'</div></div>';
     }).join("");
     html+='</div>';
@@ -1010,7 +1047,7 @@ function renderDayStats(body,dayName,perf,label,logBreaks){
           '<div class="ds-row"><span>'+(ar?"ترتيبك":"Rank")+'</span><b>#'+(mi+1)+' / '+ags.length+'</b></div>'+
           '<div class="ds-row"><span>'+(ar?"المكالمات":"Calls")+'</span><b>'+(me.calls||0)+'</b></div>'+
           '<div class="ds-row"><span>AHT</span><b>'+fmtAHT(me.ahtSec)+'</b></div>'+
-          (me.breakSec?'<div class="ds-row"><span>'+(ar?"وقت الاستراحة":"Break time")+'</span><b>'+fmtAHT(me.breakSec)+'</b></div>':'')+'</div>';
+          (me.breakSec?'<div class="ds-row"><span>'+(ar?"وقت البريك":"Break time")+'</span><b>'+fmtAHT(me.breakSec)+'</b></div>':'')+'</div>';
       }
     }
   } else {

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>مراقبة الاستراحات · d360</title>
+<title>مراقبة البريكات · d360</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Readex+Pro:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
@@ -76,7 +76,7 @@
 <div class="wrap">
   <div class="head">
     <div>
-      <h1>🍵 مراقبة <span class="a">الاستراحات</span></h1>
+      <h1>🍵 مراقبة <span class="a">البريكات</span></h1>
       <div class="sub" id="dayLabel">—</div>
     </div>
     <button class="themebtn" id="themeBtn" title="الوضع">🌙</button>
@@ -97,9 +97,9 @@
     <div class="card">
       <div class="stats">
         <div class="stat"><div class="k">الموظفون اليوم</div><div class="v" id="sTotal">0</div></div>
-        <div class="stat"><div class="k">أخذوا استراحة</div><div class="v" id="sTook">0</div></div>
+        <div class="stat"><div class="k">أخذوا بريك</div><div class="v" id="sTook">0</div></div>
         <div class="stat"><div class="k">لم يطلعوا</div><div class="v" id="sNone">0</div></div>
-        <div class="stat"><div class="k">على استراحة الآن</div><div class="v" id="sOnb">0</div></div>
+        <div class="stat"><div class="k">على بريك الآن</div><div class="v" id="sOnb">0</div></div>
         <div class="stat danger"><div class="k">تجاوزوا الوقت</div><div class="v" id="sOver">0</div></div>
       </div>
       <div class="alertbar" id="alertBar">⚠️ <span id="alertTxt"></span></div>
@@ -108,7 +108,7 @@
       </div>
       <div class="seg" id="seg">
         <button data-f="all" class="on">الكل</button>
-        <button data-f="onb">على استراحة</button>
+        <button data-f="onb">على بريك</button>
         <button data-f="over">تجاوزوا</button>
         <button data-f="took">أخذوا</button>
         <button data-f="none">لم يطلعوا</button>
@@ -162,7 +162,7 @@ firebase.auth().onAuthStateChanged(function(u){
 });
 function denied(){
   $("loginCard").classList.remove("hidden"); $("dash").classList.add("hidden");
-  $("loginMsg").textContent="ليس لديك صلاحية مراقبة الاستراحات. اطلب من الأدمن منحك الصلاحية.";
+  $("loginMsg").textContent="ليس لديك صلاحية مراقبة البريكات. اطلب من الأدمن منحك الصلاحية.";
   firebase.auth().signOut();
 }
 function authorized(){
@@ -192,14 +192,14 @@ function agentState(hrid){
   return {hrid:hrid,name:(log.name||ros.n||hrid),lob:(log.lob||""),tl:(log.tl||ros.tl||""),breaks:breaks,totUsed:totUsed,totPlan:totPlan,status:status,over:anyOver,active:anyActive};
 }
 function render(){
-  var hrids=Object.keys(ROSTER); if(!hrids.length){ $("list").innerHTML='<div class="empty">لا يوجد جدول استراحات لليوم ('+WEEK_DAYS_AR[new Date().getDay()]+'). ارفعه من لوحة الأدمن.</div>'; return; }
+  var hrids=Object.keys(ROSTER); if(!hrids.length){ $("list").innerHTML='<div class="empty">لا يوجد جدول بريكات لليوم ('+WEEK_DAYS_AR[new Date().getDay()]+'). ارفعه من لوحة الأدمن.</div>'; return; }
   var states=hrids.map(agentState);
   var nTook=0,nNone=0,nOnb=0,nOver=0;
   states.forEach(function(s){ if(s.status==="took")nTook++; if(s.status==="none")nNone++; if(s.active)nOnb++; if(s.over)nOver++; });
   $("sTotal").textContent=states.length; $("sTook").textContent=nTook+nOnb; $("sNone").textContent=nNone; $("sOnb").textContent=nOnb; $("sOver").textContent=nOver;
   // alert on over-limit
   var ab=$("alertBar");
-  if(nOver>0){ ab.classList.add("show"); $("alertTxt").textContent=nOver+" موظف تجاوز وقت الاستراحة المخصّص — راجعهم"; if(nOver>lastOver) beep(); }
+  if(nOver>0){ ab.classList.add("show"); $("alertTxt").textContent=nOver+" موظف تجاوز وقت البريك المخصّص — راجعهم"; if(nOver>lastOver) beep(); }
   else { ab.classList.remove("show"); }
   lastOver=nOver;
   // filter + search
@@ -217,8 +217,8 @@ function render(){
   list.sort(function(a,b){ var ka=a.over?0:ord[a.status], kb=b.over?0:ord[b.status]; if(ka!==kb)return ka-kb; return String(a.name).localeCompare(String(b.name),"ar"); });
   if(!list.length){ $("list").innerHTML='<div class="empty">لا نتائج</div>'; return; }
   $("list").innerHTML=list.map(function(s){
-    var badge = s.over?'<span class="badge b-over">⚠️ تجاوز</span>' : (s.active?'<span class="badge b-onb">☕ على استراحة</span>' : (s.status==="took"?'<span class="badge b-took">أخذ استراحة</span>':'<span class="badge b-none">لم يطلع</span>'));
-    var chips=s.breaks.map(function(b,i){ return '<span class="chip'+(b.over?" over":"")+(b.active?" act":"")+'">استراحة '+(i+1)+': '+fmtMS(b.used)+'/'+(b.plan/60)+'د'+(b.active?" ▶":"")+'</span>'; }).join("");
+    var badge = s.over?'<span class="badge b-over">⚠️ تجاوز</span>' : (s.active?'<span class="badge b-onb">☕ على بريك</span>' : (s.status==="took"?'<span class="badge b-took">أخذ بريك</span>':'<span class="badge b-none">لم يطلع</span>'));
+    var chips=s.breaks.map(function(b,i){ return '<span class="chip'+(b.over?" over":"")+(b.active?" act":"")+'">بريك '+(i+1)+': '+fmtMS(b.used)+'/'+(b.plan/60)+'د'+(b.active?" ▶":"")+'</span>'; }).join("");
     return '<div class="row'+(s.over?" over":(s.active?" onb":""))+'"><div class="rtop"><div><div class="rname">'+esc(s.name)+'</div><div class="rmeta">'+esc(s.hrid)+(s.tl?(' · '+esc(s.tl)):'')+'</div></div>'+badge+'</div>'+
       '<div class="brks">'+chips+'</div>'+
       '<div class="rtotal">الإجمالي المستخدم: <b>'+fmtMS(s.totUsed)+'</b> / '+(s.totPlan/60)+' د</div></div>';
