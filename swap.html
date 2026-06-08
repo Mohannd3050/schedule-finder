@@ -370,12 +370,12 @@ var LANG=localStorage.getItem("lang")||"ar";
 var L={
   ar:{dir:"rtl", title:"تبديل الشفت", sub:"ارفع طلب تبديل يراه كل الفريق · ينتهي خلال ٢٤ ساعة",
     back:"رجوع للجدول", needLogin:"سجّل دخولك في الصفحة الرئيسية أولاً", goLogin:"الصفحة الرئيسية",
-    newReq:"طلب تبديل جديد", wantShift:"نوع الشفت الذي ترغبه", morning:"صباحي ☀️", evening:"مسائي 🌙",
+    newReq:"طلب تبديل جديد", wantShift:"نوع الشفت الذي ترغبه", morning:"صباح ☀️", evening:"مساء 🌙",
     phone:"رقم جوالك (واتساب)", phonePh:"05XXXXXXXX", submit:"رفع الطلب",
     openReqs:"الطلبات المفتوحة", endsIn:"ينتهي خلال", accept:"قبول التبديل", inquire:"استفسار · واتساب",
     mine:"هذا طلبك أنت", waiting:"بانتظار اعتماد الأدمن…", approvedMsg:"تم اعتماد التبديل ✓",
     acceptedByOther:"تم قبوله · بانتظار الأدمن", empty:"لا توجد طلبات تبديل حالياً",
-    wantsM:"يبغى صباحي", wantsE:"يبغى مسائي", toastUp:"تم رفع طلبك ✓", toastAcc:"تم إرسال قبولك · بانتظار الأدمن",
+    wantsM:"صباح", wantsE:"مساء", toastUp:"تم رفع طلبك ✓", toastAcc:"تم إرسال قبولك · بانتظار الأدمن",
     errShift:"اختر نوع الشفت", errPhone:"أدخل رقم جوال صحيح", errOwn:"لا يمكنك قبول طلبك",
     confirmDel:"حذف طلبك؟", del:"حذف طلبي",
     myReq:"طلبك الحالي", editHint:"اضغط على الشفت لتغييره · أو احذف الطلب", toastEdit:"تم تحديث الشفت ✓", toastDel:"تم حذف طلبك",
@@ -390,7 +390,7 @@ var L={
     openReqs:"Open requests", endsIn:"Ends in", accept:"Accept swap", inquire:"Ask · WhatsApp",
     mine:"This is your request", waiting:"Waiting for admin approval…", approvedMsg:"Swap approved ✓",
     acceptedByOther:"Accepted · pending admin", empty:"No swap requests right now",
-    wantsM:"Wants Morning", wantsE:"Wants Evening", toastUp:"Request posted ✓", toastAcc:"Acceptance sent · pending admin",
+    wantsM:"Morning", wantsE:"Evening", toastUp:"Request posted ✓", toastAcc:"Acceptance sent · pending admin",
     errShift:"Choose a shift type", errPhone:"Enter a valid phone", errOwn:"You can't accept your own request",
     confirmDel:"Delete your request?", del:"Delete mine",
     myReq:"Your request", editHint:"Tap a shift to change it · or delete", toastEdit:"Shift updated ✓", toastDel:"Request deleted",
@@ -655,7 +655,7 @@ function renderSwaps(){
     var cols=s.dayCols||[], days=s.days||[], today=todayUTC(), mini="";
     var n=Math.max(cols.length, days.length);
     for(var i=0;i<n;i++){ var col=cols[i]||{}, d=serialToDate(col.serial);
-      var dn = d ? t("days")[d.getUTCDay()].slice(0,LANG==="ar"?6:3) : (col.day||"");
+      var dn = d ? (LANG==="ar" ? t("days")[d.getUTCDay()] : t("days")[d.getUTCDay()].slice(0,3)) : (col.day||"");
       var info=shiftText(days[i]); var tdy = d&&sameDay(d,today)?" tdy":"";
       mini+='<div class="d '+info.cls+tdy+'"><div class="n">'+esc(dn)+'</div><div class="v">'+esc(info.txt)+'</div></div>';
     }
