@@ -108,7 +108,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
-const I18N_ADMIN={ar:{badge:"لوحة الأدمن · d360 · v6",loginTitle:"دخول الأدمن",email:"الإيميل",password:"كلمة المرور",signIn:"دخول",remember:"تذكرني",logout:"خروج",stats:"الإحصائيات",visits:"إجمالي الزيارات",online:"المتواجدون الآن",sched:"إدارة الجدول",upload:"رفع جدول الأسبوع",schedStatus:"حالة الجدول",chooseFile:"اختيار ملف",uploadBtn:"رفع ونشر الجدول",ann:"الإشعار المتحرك",selectDept:"اختر القسم",annText:"نص الإشعار",show:"عرّض",hide:"إخفاء",clear:"حذف",empMgmt:"إدارة الموظفين",searchHrid:"ابحث برقم HRID",empName:"الاسم",empLob:"القسم",delete:"حذف",edit:"تعديل",admin:"الأدمن v5",allTeams:"كل الفرق",allShifts:"كل الأوقات",noEmp:"لا يوجد موظفون — ارفع جدولاً",noMatch:"لا نتائج مطابقة",searchNameHrid:"ابحث بالاسم أو HRID",createUser:"إنشاء مستخدم أدمن جديد",createBtn:"إنشاء المستخدم",passMin:"كلمة مرور (6 أحرف على الأقل)",userCreated:"أُنشئ المستخدم:",badUser:"إيميل غير صحيح أو كلمة مرور قصيرة",loginFirst:"يُرجى تسجيل الدخول أولاً",adminAcct:"حساب أدمن",settings:"الإعدادات",onlineNow:"المتواجدون الآن",breaksLbl:"🍵 جدول الاستراحات",soon:"قريباً",newAccts:"🔑 طلبات الحسابات الجديدة",newAcctsHint:"اعتمد الطلب فتُولّد كلمة مرور، أرسلها للموظف على واتساب الخاص به بضغطة. يدخل برقمه الوظيفي وكلمة المرور.",uploadWeek:"رفع جدول الأسبوع (ملف إكسل)",uploadAll:"رفع ونشر الجدول للجميع",annLbl:"نص الإشعار المتحرك",annShow:"عرض الإشعار للجميع الآن",saveShow:"حفظ وعرض",swapReqs:"🔁 طلبات تبديل الشفت",swapReqsHint:"الطلبات التي قبلها طرف آخر فيها زر اعتماد ثم تطبيق على الجدول. يمكنك تجدّد الطلب أو تغلقه."},en:{badge:"Admin Panel · d360 · v6",loginTitle:"Admin Login",email:"Email",password:"Password",signIn:"Sign in",remember:"Remember me",logout:"Sign out",stats:"Statistics",visits:"Total visits",online:"Online now",sched:"Manage schedule",upload:"Upload weekly schedule",schedStatus:"Schedule status",chooseFile:"Choose file",uploadBtn:"Upload & publish",ann:"Announcements",selectDept:"Select department",annText:"Announcement text",show:"Show",hide:"Hide",clear:"Delete",empMgmt:"Employee management",searchHrid:"Search by HRID",empName:"Name",empLob:"Department",delete:"Delete",edit:"Edit",admin:"Admin v5",allTeams:"All teams",allShifts:"All shifts",noEmp:"No employees — upload a schedule",noMatch:"No matching results",searchNameHrid:"Search by name or HRID",createUser:"Create new admin user",createBtn:"Create user",passMin:"Password (6+ chars)",userCreated:"User created:",badUser:"Invalid email or short password",loginFirst:"Sign in first",adminAcct:"Admin account",settings:"Settings",onlineNow:"Online now",breaksLbl:"🍵 Breaks schedule",soon:"Soon",newAccts:"🔑 New account requests",newAcctsHint:"Approve a request to generate a password, then send it to the employee on WhatsApp in one tap. They sign in with HRID + password.",uploadWeek:"Upload weekly schedule (Excel)",uploadAll:"Upload & publish to everyone",annLbl:"Announcement ticker text",annShow:"Show announcement to everyone now",saveShow:"Save & show",swapReqs:"🔁 Shift swap requests",swapReqsHint:"Requests accepted by another party show Approve, then Apply-to-schedule. You can renew or close."}};
+const I18N_ADMIN={ar:{badge:"لوحة الأدمن · d360 · v6",loginTitle:"دخول الأدمن",email:"الإيميل",password:"كلمة المرور",signIn:"دخول",remember:"تذكرني",logout:"خروج",stats:"الإحصائيات",visits:"إجمالي الزيارات",online:"المتواجدون الآن",sched:"إدارة الجدول",upload:"رفع جدول الأسبوع",schedStatus:"حالة الجدول",chooseFile:"اختيار ملف",uploadBtn:"رفع ونشر الجدول",ann:"الإشعار المتحرك",selectDept:"اختر القسم",annText:"نص الإشعار",show:"عرّض",hide:"إخفاء",clear:"حذف",empMgmt:"إدارة الموظفين",searchHrid:"ابحث برقم HRID",empName:"الاسم",empLob:"القسم",delete:"حذف",edit:"تعديل",admin:"الأدمن v5",allTeams:"كل الفرق",allShifts:"كل الأوقات",noEmp:"لا يوجد موظفون — ارفع جدولاً",noMatch:"لا نتائج مطابقة",searchNameHrid:"ابحث بالاسم أو HRID",createUser:"إنشاء مستخدم أدمن جديد",createBtn:"إنشاء المستخدم",passMin:"كلمة مرور (6 أحرف على الأقل)",userCreated:"أُنشئ المستخدم:",badUser:"إيميل غير صحيح أو كلمة مرور قصيرة",loginFirst:"يُرجى تسجيل الدخول أولاً",adminAcct:"حساب أدمن",settings:"الإعدادات",onlineNow:"المتواجدون الآن",breaksLbl:"🍵 على استراحة الآن",soon:"قريباً",newAccts:"🔑 طلبات الحسابات الجديدة",newAcctsHint:"اعتمد الطلب فتُولّد كلمة مرور، أرسلها للموظف على واتساب الخاص به بضغطة. يدخل برقمه الوظيفي وكلمة المرور.",uploadWeek:"رفع جدول الأسبوع (ملف إكسل)",uploadAll:"رفع ونشر الجدول للجميع",annLbl:"نص الإشعار المتحرك",annShow:"عرض الإشعار للجميع الآن",saveShow:"حفظ وعرض",swapReqs:"🔁 طلبات تبديل الشفت",swapReqsHint:"الطلبات التي قبلها طرف آخر فيها زر اعتماد ثم تطبيق على الجدول. يمكنك تجدّد الطلب أو تغلقه."},en:{badge:"Admin Panel · d360 · v6",loginTitle:"Admin Login",email:"Email",password:"Password",signIn:"Sign in",remember:"Remember me",logout:"Sign out",stats:"Statistics",visits:"Total visits",online:"Online now",sched:"Manage schedule",upload:"Upload weekly schedule",schedStatus:"Schedule status",chooseFile:"Choose file",uploadBtn:"Upload & publish",ann:"Announcements",selectDept:"Select department",annText:"Announcement text",show:"Show",hide:"Hide",clear:"Delete",empMgmt:"Employee management",searchHrid:"Search by HRID",empName:"Name",empLob:"Department",delete:"Delete",edit:"Edit",admin:"Admin v5",allTeams:"All teams",allShifts:"All shifts",noEmp:"No employees — upload a schedule",noMatch:"No matching results",searchNameHrid:"Search by name or HRID",createUser:"Create new admin user",createBtn:"Create user",passMin:"Password (6+ chars)",userCreated:"User created:",badUser:"Invalid email or short password",loginFirst:"Sign in first",adminAcct:"Admin account",settings:"Settings",onlineNow:"Online now",breaksLbl:"🍵 On break now",soon:"Soon",newAccts:"🔑 New account requests",newAcctsHint:"Approve a request to generate a password, then send it to the employee on WhatsApp in one tap. They sign in with HRID + password.",uploadWeek:"Upload weekly schedule (Excel)",uploadAll:"Upload & publish to everyone",annLbl:"Announcement ticker text",annShow:"Show announcement to everyone now",saveShow:"Save & show",swapReqs:"🔁 Shift swap requests",swapReqsHint:"Requests accepted by another party show Approve, then Apply-to-schedule. You can renew or close."}};
 let ADMIN_LANG="ar";
 function t_adm(k){return I18N_ADMIN[ADMIN_LANG][k]||k}
 /* XLSXLite — tiny self-contained .xlsx reader (no deps). Reads cell values into row arrays. */
@@ -305,9 +305,9 @@ var XLSXLite=(function(){
     </div>
     <div class="stats">
       <div class="stat on"><div class="k"><span class="dot"></span> <span data-i18n="onlineNow">المتواجدون الآن</span></div><div class="v" id="online">—</div></div>
-      <div class="stat" onclick="breaksSoon()" style="cursor:pointer" title="إدارة جدول الاستراحات">
+      <div class="stat" onclick="window.open('./breaks-admin.html','_blank')" style="cursor:pointer" title="مراقبة الاستراحات">
         <div class="k" data-i18n="breaksLbl">🍵 جدول الاستراحات</div>
-        <div class="v" id="breaksCount" style="font-size:clamp(18px,5vw,24px);background:linear-gradient(120deg,var(--mint),var(--violet));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">—</div>
+        <div class="v" id="breaksCount" style="font-size:clamp(18px,5vw,24px);background:linear-gradient(120deg,var(--mint),var(--violet));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">0</div>
       </div>
     </div>
     <div id="onlineList" style="margin-top:14px"></div>
@@ -480,6 +480,16 @@ function start(){
   subscribeSwapsAdmin();
   subscribeRequests();
   loadEmployees();
+  subscribeOnBreakCount();
+}
+function subscribeOnBreakCount(){
+  if(!db)return;
+  var today=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][new Date().getDay()];
+  db.ref("breakLog/"+today).on("value",function(s){
+    var v=s.val()||{}, c=0;
+    Object.keys(v).forEach(function(h){ var b=(v[h]||{}).breaks||{}; if(Object.keys(b).some(function(k){return b[k]&&b[k].active;})) c++; });
+    var el=$("breaksCount"); if(el) el.textContent=c;
+  }, function(){ /* لا صلاحية قراءة — تجاهل */ });
 }
 
 function breaksSoon(){ var el=$("breaksCard"); if(el){ el.scrollIntoView({behavior:"smooth",block:"start"}); el.style.transition="box-shadow .4s"; el.style.boxShadow="0 0 0 2px var(--mint)"; setTimeout(function(){el.style.boxShadow="";},1200); } }
@@ -520,7 +530,7 @@ function renderRequests(){
       if(r.pass){ var msg=waReqMsg(hrid,r.name||"",r.pass);
         body='<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px"><code style="background:var(--glass);padding:6px 10px;border-radius:8px;font-size:14px;letter-spacing:1px">'+esc(r.pass)+'</code><a class="mint" href="https://wa.me/'+ph+'?text='+encodeURIComponent(msg)+'" target="_blank" style="padding:8px 12px;text-decoration:none;border-radius:10px">📤 واتساب</a></div>';
       } else { body='<div style="margin-top:8px"><span style="color:var(--mint);font-size:13px">معتمد ✓</span></div>'; }
-      actions='<button class="mint" onclick="markReqDone(\''+hrid+'\')" style="padding:8px 16px">تم ✓</button><button class="ghost" onclick="delReqRecord(\''+hrid+'\')" style="color:var(--rose);padding:8px 14px">حذف</button>';
+      actions='<button class="mint" onclick="markReqDone(\''+hrid+'\')" style="padding:8px 16px">تم ✓</button><button class="ghost" onclick="changeReqPass(\''+hrid+'\')" style="padding:8px 12px">🔄 الكلمة</button><button class="ghost" onclick="delReqRecord(\''+hrid+'\')" style="color:var(--rose);padding:8px 14px">حذف</button>';
     }
     return '<div style="border:1px solid var(--stroke);border-radius:12px;padding:12px;margin-bottom:10px;background:var(--glass2)">'+
       '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap">'+top+'</div>'+body+
@@ -529,12 +539,36 @@ function renderRequests(){
   var h=active.length?active.map(card).join(""):'<div style="text-align:center;color:var(--dim);padding:10px">لا توجد طلبات نشطة</div>';
   if(done.length){
     h+='<details style="margin-top:6px"><summary style="cursor:pointer;color:var(--dim);font-size:13px;padding:6px">📁 السجل ('+done.length+')</summary>';
-    h+=done.map(function(hrid){var r=REQ_CACHE[hrid]||{};return '<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:var(--glass);border-radius:10px;margin-top:8px;font-size:13px"><span>✓ <b>'+esc(r.name||hrid)+'</b> · '+esc(hrid)+'</span><button class="ghost" onclick="delReqRecord(\''+hrid+'\')" style="color:var(--dim);padding:5px 10px;font-size:12px">حذف</button></div>';}).join("");
+    h+=done.map(function(hrid){var r=REQ_CACHE[hrid]||{};return '<div style="background:var(--glass);border-radius:10px;margin-top:8px;padding:9px 12px"><div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;gap:8px"><span>✓ <b>'+esc(r.name||hrid)+'</b> · '+esc(hrid)+'</span><div style="display:flex;gap:6px;flex-shrink:0"><button class="ghost" onclick="togglePass(\''+hrid+'\')" style="padding:5px 10px;font-size:12px">🔑 الكلمة</button><button class="ghost" onclick="delReqRecord(\''+hrid+'\')" style="color:var(--rose);padding:5px 10px;font-size:12px">حذف</button></div></div><div id="pp-'+hrid+'" style="display:none;margin-top:8px"></div></div>';}).join("");
     h+='</details>';
   }
   box.innerHTML=h;
 }
 function markReqDone(hrid){ if(db) db.ref("requests/"+hrid+"/status").set("done"); }
+function togglePass(hrid){
+  var el=document.getElementById("pp-"+hrid); if(!el)return;
+  if(el.style.display!=="none"){ el.style.display="none"; return; }
+  var r=REQ_CACHE[hrid]||{}, ph=swapPhoneIntl(r.phone||"");
+  if(!r.pass){ el.innerHTML='<div style="color:var(--dim);font-size:12px">لا توجد كلمة مرور محفوظة لهذا الحساب.</div>'; el.style.display="block"; return; }
+  var msg=waReqMsg(hrid,r.name||"",r.pass);
+  el.innerHTML='<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--glass2);padding:9px 11px;border-radius:10px;font-size:13px">كلمة المرور: <code style="background:var(--glass);padding:4px 9px;border-radius:7px;letter-spacing:1px">'+esc(r.pass)+'</code>'+
+    '<a class="mint" href="https://wa.me/'+ph+'?text='+encodeURIComponent(msg)+'" target="_blank" style="padding:6px 10px;text-decoration:none;border-radius:9px;font-size:12px">📤 واتساب</a>'+
+    '<button class="ghost" onclick="changeReqPass(\''+hrid+'\')" style="padding:6px 10px;font-size:12px">🔄 تغيير</button></div>';
+  el.style.display="block";
+}
+function changeReqPass(hrid){
+  var r=REQ_CACHE[hrid]||{};
+  if(!r.pass){ toastAdm("لا يمكن التغيير — لا توجد كلمة مرور حالية محفوظة (احذف الحساب من Authentication وأعد الاعتماد)"); return; }
+  if(!confirm("توليد كلمة مرور جديدة لـ "+(r.name||hrid)+"؟")) return;
+  var np=genPass();
+  var sec; try{ sec=firebase.app("secondary"); }catch(e){ sec=firebase.initializeApp(firebaseConfig,"secondary"); }
+  sec.auth().signInWithEmailAndPassword(staffEmailAdm(hrid), r.pass+PIN_SALT)
+    .then(function(cred){ return cred.user.updatePassword(np+PIN_SALT); })
+    .then(function(){ return sec.auth().signOut(); })
+    .then(function(){ return db.ref("requests/"+hrid+"/pass").set(np); })
+    .then(function(){ toastAdm("✓ تم تغيير كلمة المرور إلى "+np+" — أرسلها على واتساب"); })
+    .catch(function(e){ toastAdm("❌ تعذّر التغيير: "+((e&&e.code)||e.message)); });
+}
 function delReqRecord(hrid){ if(!db)return; if(!confirm("حذف هذا الطلب من القائمة؟ (لا يحذف حساب الموظف)"))return; db.ref("requests/"+hrid).remove().then(function(){ toastAdm("تم حذف الطلب"); }); }
 function approveRequest(hrid){
   var r=REQ_CACHE[hrid]||{}, pass=genPass();
