@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>لوحة الأدمن · Admin</title>
+<title>رفع الجداول · d360</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -282,14 +282,14 @@ var XLSXLite=(function(){
 </div>
 <div class="orb a"></div><div class="orb b"></div>
 <div class="wrap">
-  <span class="badge">🔒 لوحة التحكم</span>
-  <h1>لوحة <span class="ac">الأدمن</span></h1>
-  <p class="sub">إحصائيات مباشرة وإدارة الإشعار المتحرك · باحث الجدول</p>
+  <span class="badge">📤 الرفع</span>
+  <h1>رفع <span class="ac">الجداول</span></h1>
+  <p class="sub">رفع جدول الأسبوع · البريكات · أداء الموظفين</p>
 
   <!-- login -->
   <div class="card" id="login">
-    <label for="email">البريد الإلكتروني للأدمن</label>
-    <input type="text" id="email" placeholder="admin@example.com" autocomplete="username" style="margin-bottom:14px">
+    <label for="email">HRID أو إيميل الأدمن</label>
+    <input type="text" id="email" placeholder="94467 أو admin@..." autocomplete="username" style="margin-bottom:14px">
     <label for="pass">كلمة المرور</label>
     <input type="password" id="pass" placeholder="••••••••" autocomplete="current-password" style="margin-bottom:12px">
     <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--dim);margin-bottom:16px;cursor:pointer;margin-top:8px"><input type="checkbox" id="rememberCheckbox"> <span>تذكرني</span></label>
@@ -303,80 +303,39 @@ var XLSXLite=(function(){
       <h2 style="margin:0;font-size:20px" id="dashTitle">لوحة الأدمن</h2>
       <button class="ghost" id="logoutBtn" style="color:var(--rose)">خروج</button>
     </div>
-    <div class="stats">
-      <div class="stat on"><div class="k"><span class="dot"></span> <span data-i18n="onlineNow">المتواجدون الآن</span></div><div class="v" id="online">—</div></div>
-      <div class="stat" onclick="breaksSoon()" style="cursor:pointer" title="إدارة جدول البريكات">
-        <div class="k" data-i18n="breaksLbl">🍵 جدول البريكات</div>
-        <div class="v" id="breaksCount" style="font-size:clamp(18px,5vw,24px);background:linear-gradient(120deg,var(--mint),var(--violet));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">—</div>
-      </div>
-    </div>
-    <div id="onlineList" style="margin-top:14px"></div>
 
-    <div class="card" id="reqCard">
-      <label><span data-i18n="newAccts">🔑 طلبات الحسابات الجديدة</span> <span id="reqCount" style="font-size:12px;color:var(--rose);font-weight:700"></span></label>
-      <div style="font-size:12.5px;color:var(--txt-dim);margin-bottom:12px" data-i18n="newAcctsHint">اعتمد الطلب → تُولّد كلمة مرور → أرسلها للموظف على واتسابه بضغطة. الموظف يدخل برقمه الوظيفي + كلمة المرور.</div>
-      <div id="reqList" style="min-height:40px"></div>
+
+
+    <div class="card">
+      <label data-i18n="uploadWeek">رفع جدول الأسبوع (ملف إكسل)</label>
+      <input type="file" id="schedFile" accept=".xlsx,.xls,.xlsm">
+      <div class="row"><button class="mint" id="uploadBtn" style="flex:1" data-i18n="uploadAll">رفع ونشر الجدول للجميع</button></div>
+      <div class="updated" id="schedStatus"></div>
+      <div class="err" id="uploadMsg"></div>
+      <div style="margin-top:14px"><div id="weeksList"></div></div>
     </div>
 
-    <div class="card" id="empCard">
-      <label id="empMgmtLbl" onclick="toggleEmp()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin-bottom:0"><span data-i18n="empMgmt">إدارة الموظفين</span> <span id="empCaret" style="font-size:18px;color:var(--dim)">▾</span></label>
-      <div id="empBody" style="display:none;margin-top:14px">
-        <input type="text" id="empSearch" data-i18n-ph="searchNameHrid" placeholder="ابحث بالاسم أو HRID..." style="background:var(--glass2);border:1px solid var(--stroke);color:var(--txt);font-family:inherit;font-size:14px;border-radius:12px;padding:12px;width:100%;box-sizing:border-box;margin-bottom:10px;outline:none">
-        <div style="display:flex;gap:8px;margin-bottom:14px">
-          <select id="empShiftFilter" style="flex:1;background:var(--glass2);border:1px solid var(--stroke);color:var(--txt);font-family:inherit;font-size:13px;border-radius:11px;padding:11px;outline:none;cursor:pointer"><option value="" data-i18n="allShifts">كل الأوقات</option></select>
-          <select id="empTeamFilter" style="flex:1;background:var(--glass2);border:1px solid var(--stroke);color:var(--txt);font-family:inherit;font-size:13px;border-radius:11px;padding:11px;outline:none;cursor:pointer"><option value="" data-i18n="allTeams">كل الفرق</option></select>
-        </div>
-        <div id="empResult" style="min-height:60px"></div>
-      </div>
+    <div class="card" id="breaksCard">
+      <label>🍵 جدول البريكات (ملف إكسل · ورقة باسم اليوم)</label>
+      <div style="font-size:12.5px;color:var(--dim);margin-bottom:10px">الأعمدة المتوقعة: HRID · B1·B2·B3 (أوقات البداية) · D1·D2·D3 (المدد). كل ورقة باسم يومها (Sunday…). الموظف يشوف بريكاته في يومها.</div>
+      <input type="file" id="breaksFile" accept=".xlsx,.xls,.xlsm">
+      <div class="row"><button class="mint" id="breaksUploadBtn" style="flex:1">رفع جدول البريكات</button></div>
+      <div class="err" id="breaksMsg"></div>
+      <div style="margin-top:14px"><div id="breaksList"></div></div>
     </div>
 
-    <div class="card" id="uploadLinkCard">
-      <label>📤 رفع الجداول والبيانات</label>
-      <div style="font-size:12.5px;color:var(--dim);margin-bottom:12px">جدول الأسبوع · جدول البريكات · أداء الموظفين — في صفحة مستقلة.</div>
-      <a href="./upload.html" style="display:block;text-align:center;background:linear-gradient(135deg,var(--mint),var(--mintd));color:#04211c;font-weight:700;border-radius:12px;padding:14px;text-decoration:none">📤 افتح صفحة الرفع</a>
+    <div class="card" id="perfCard">
+      <label>📊 أداء الموظفين — أفضل الموظفين (ملف إكسل)</label>
+      <div style="font-size:12.5px;color:var(--dim);margin-bottom:10px">الأعمدة: Date · Agent · Answered Calls · AHT. (اختياري ورقة/أعمدة: Time spent in Break status). يظهر للموظف كأفضل الموظفين عند ضغطه على اليوم.</div>
+      <input type="file" id="perfFile" accept=".xlsx,.xls,.xlsm">
+      <div class="row"><button class="mint" id="perfUploadBtn" style="flex:1">رفع بيانات الأداء</button></div>
+      <div class="err" id="perfMsg"></div>
+      <div style="margin-top:14px"><div id="perfList"></div></div>
     </div>
 
-    <div class="card" id="monitorLinkCard">
-      <label>🍵 مراقبة البريكات</label>
-      <div style="font-size:12.5px;color:var(--dim);margin-bottom:12px">من طلع بريك ومن تأخّر، مع تنبيه عند تجاوز الوقت. للأدمن ومن يُمنح صلاحية المراقبة فقط.</div>
-      <a href="./breaks-admin.html" target="_blank" style="display:block;text-align:center;background:linear-gradient(135deg,var(--violet),var(--mint));color:#fff;font-weight:700;border-radius:12px;padding:14px;text-decoration:none">🍵 افتح صفحة المراقبة</a>
-    </div>
 
-    <div class="card" id="permsCard">
-      <label>🛡️ الصلاحيات والأذونات (مدراء الفرق)</label>
-      <div style="font-size:12.5px;color:var(--dim);margin-bottom:12px">امنح موظفاً صلاحية مدير فريق وحدّد أذوناته. يدخل لوحة الأدمن ويشوف الكل، ويعدّل فريقه فقط. (لازم يكون له حساب أولاً.)</div>
-      <div class="row" style="gap:8px"><input id="permHrid" placeholder="HRID" style="flex:1;background:var(--glass2);border:1px solid var(--stroke);color:var(--txt);font-family:inherit;border-radius:11px;padding:11px;outline:none"><input id="permTeam" placeholder="اسم الفريق (مثال: Support)" style="flex:1.6;background:var(--glass2);border:1px solid var(--stroke);color:var(--txt);font-family:inherit;border-radius:11px;padding:11px;outline:none"></div>
-      <div style="display:flex;gap:16px;margin:12px 2px;flex-wrap:wrap">
-        <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--txt);cursor:pointer"><input type="checkbox" id="permMonitor"> 👁️ مراقبة البريكات</label>
-        <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--txt);cursor:pointer"><input type="checkbox" id="permUpload"> 📤 رفع الجداول</label>
-      </div>
-      <button class="mint" id="grantPermBtn" style="width:100%">منح / تحديث الصلاحية</button>
-      <div class="err" id="permMsg"></div>
-      <div style="margin-top:12px"><div id="permList"></div></div>
-    </div>
 
-    <div class="card" id="annCard">
-      <label for="annText" data-i18n="annLbl">نص الإشعار المتحرك</label>
-      <textarea id="annText" placeholder="اكتب رسالة تظهر كشريط متحرك لكل من يفتح الصفحة… مثال: يرجى الاطلاع على التعليمات الجديدة في قناة الفريق."></textarea>
-      <div class="switch"><input type="checkbox" id="annActive"><label for="annActive" style="margin:0" data-i18n="annShow">عرض الإشعار للجميع الآن</label></div>
-      <div class="row">
-        <button class="mint" id="saveBtn" style="flex:1" data-i18n="saveShow">حفظ وعرض</button>
-        <button class="ghost" id="hideBtn" data-i18n="hide">إخفاء</button>
-        <button class="ghost" id="clearBtn" data-i18n="clear">مسح</button>
-      </div>
-      <div class="updated" id="updated"></div>
-      <div class="err" id="saveMsg"></div>
-    </div>
 
-    <div class="card" id="swapCard">
-      <label data-i18n="swapReqs">🔁 طلبات تبديل الشفت</label>
-      <div style="font-size:12.5px;color:var(--txt-dim);margin-bottom:12px" data-i18n="swapReqsHint">الطلبات التي قبلها طرف آخر تظهر بزر "اعتماد". تقدر تجدّد الطلب (٢٤ ساعة) أو تغلقه.</div>
-      <div id="swapsAdmin" style="min-height:50px"></div>
-    </div>
-
-    <div class="note">
-      <b>الإعداد:</b> فعّل <code>Email/Password</code> و <code>Anonymous</code> من Authentication، وحدّث قواعد القاعدة بالملف الجديد. <b>تدفّق الحسابات:</b> الموظف يرسل طلب (رقم وظيفي + جوال) → يظهر لك في "طلبات الحسابات الجديدة" → تضغط اعتماد فتُولّد كلمة مرور → ترسلها له على واتساب بضغطة → يدخل برقمه الوظيفي + كلمة المرور. كلمات المرور تُدار وتُشفّر في Firebase.
-    </div>
   </div>
 
   <footer>تمت بواسطة مهنّد الغامدي · 94467 · admin v9 · حسابات + اعتماد ✓</footer>
@@ -399,39 +358,27 @@ let PRESENCE_BY_HRID={}, SRV_OFFSET=0;
 try{ if(!firebase.apps.length)firebase.initializeApp(firebaseConfig); db=firebase.database(); auth=firebase.auth(); }
 catch(e){ $("loginErr").textContent="تعذّر الاتصال بقاعدة البيانات."; }
 
-let started=false, IS_ADMIN=false, IS_TL=false, MY_TEAM="", MY_PERMS=null;
+let started=false, IS_ADMIN=false;
 const ADMIN_UID="YKDHaOQj3yMHvtI2uRwNCaoN1dk1";
-function resolveAccess(u){
-  if(!u||!db) return Promise.resolve({none:true});
-  if(u.uid===ADMIN_UID) return Promise.resolve({admin:true});
+function isAdminUser(u){
+  if(!u||!db) return Promise.resolve(false);
+  if(u.uid===ADMIN_UID) return Promise.resolve(true);
   return Promise.all([db.ref("admins/"+u.uid).once("value"),db.ref("perms/"+u.uid).once("value")]).then(function(r){
-    if(r[0].val()===true) return {admin:true};
-    var p=r[1].val(); if(p) return {tl:true, team:(p.team||""), perms:p};
-    return {none:true};
-  }).catch(function(){return {none:true};});
+    if(r[0].val()===true) return true;
+    var p=r[1].val(); return !!(p&&p.upload);
+  }).catch(function(){return false;});
 }
-function showDash(){ $("login").classList.add("hidden"); $("dash").classList.remove("hidden"); if(!started){started=true;start();} applyRoleVisibility(); }
+function showDash(){ $("login").classList.add("hidden"); $("dash").classList.remove("hidden"); if(!started){started=true;start();} }
 function showLogin(){ $("dash").classList.add("hidden"); $("login").classList.remove("hidden"); }
-function applyRoleVisibility(){
-  function show(id,on){ var e=$(id); if(e) e.style.display=on?"":"none"; }
-  if(IS_ADMIN){ ["uploadLinkCard","monitorLinkCard","permsCard","reqCard","annCard","swapCard","empCard"].forEach(function(id){show(id,true);}); var dt=$("dashTitle"); if(dt)dt.textContent="لوحة الأدمن"; return; }
-  if(IS_TL){
-    show("permsCard",false); show("reqCard",false); show("annCard",false); show("swapCard",false);
-    show("empCard",true);
-    show("uploadLinkCard", !!(MY_PERMS&&MY_PERMS.upload));
-    show("monitorLinkCard", !!(MY_PERMS&&MY_PERMS.monitor));
-    var dt2=$("dashTitle"); if(dt2)dt2.textContent="مدير فريق · "+(MY_TEAM||"");
-  }
-}
 if(auth){ auth.onAuthStateChanged(u=>{
   if(u&&!u.isAnonymous){
     if(idleExpired()){auth.signOut();return;}
-    resolveAccess(u).then(function(a){
-      IS_ADMIN=!!a.admin; IS_TL=!!a.tl; MY_TEAM=a.team||""; MY_PERMS=a.perms||null;
-      if(a.admin||a.tl){ touchActivity(); showDash(); }
-      else { IS_ADMIN=false; IS_TL=false; showLogin(); var le=$("loginErr"); if(le) le.textContent="هذا الحساب لا يملك صلاحية الدخول للوحة."; }
+    isAdminUser(u).then(function(ok){
+      IS_ADMIN=ok;
+      if(ok){ touchActivity(); showDash(); }
+      else { showLogin(); var le=$("loginErr"); if(le) le.textContent="ليس لديك صلاحية رفع الجداول. اطلب من الأدمن منحك صلاحية الرفع."; if(auth)auth.signOut(); }
     });
-  } else { IS_ADMIN=false; IS_TL=false; MY_TEAM=""; MY_PERMS=null; showLogin(); }
+  } else { IS_ADMIN=false; showLogin(); }
 }); }
 
 function login(){
@@ -451,34 +398,9 @@ $("logoutBtn").addEventListener("click",logout);
 function start(){
   if(!db)return;
   applyAdminLang();
-  updateOnlineList();
-  setInterval(updateOnlineList,1500);
   loadWeeksList();
   loadBreaksList();
-  loadPerms();
   loadPerfList();
-  // (إجمالي الزيارات أُزيل — استبدل بزر جدول البريكات)
-  // online (presence with recent heartbeat)
-  db.ref(".info/serverTimeOffset").on("value",s=>{SRV_OFFSET=s.val()||0});
-  db.ref("presence").on("value",s=>{
-    const now=Date.now()+SRV_OFFSET; let c=0; const map={};
-    s.forEach(ch=>{ const v=ch.val()||{}; const ts=v.ts;
-      if(typeof ts==="number"){ if(now-ts<120000) c++; if(v.hrid){ if(!map[v.hrid]||ts>map[v.hrid]) map[v.hrid]=ts; } }
-    });
-    $("online").textContent=c;
-    PRESENCE_BY_HRID=map;
-    if($("empBody") && $("empBody").style.display!=="none") renderEmp();
-  });
-  // load current announcement
-  db.ref("announcements/all").on("value",s=>{
-    const v=s.val()||{};
-    if(document.activeElement!==$("annText")) $("annText").value=v.text||"";
-    $("annActive").checked=!!v.active;
-    $("updated").textContent=v.updatedAt?("آخر تحديث: "+new Date(v.updatedAt).toLocaleString("ar-SA")):"";
-  });
-  subscribeSwapsAdmin();
-  subscribeRequests();
-  loadEmployees();
 }
 
 function breaksSoon(){ var el=$("breaksCard"); if(el){ el.scrollIntoView({behavior:"smooth",block:"start"}); el.style.transition="box-shadow .4s"; el.style.boxShadow="0 0 0 2px var(--mint)"; setTimeout(function(){el.style.boxShadow="";},1200); } }
@@ -701,8 +623,8 @@ function uploadSchedule(){
   };
   r.readAsArrayBuffer(f);
 }
-document.addEventListener("DOMContentLoaded",()=>{const b=$("uploadBtn");if(b)b.addEventListener("click",uploadSchedule); const b2=$("breaksUploadBtn");if(b2)b2.addEventListener("click",uploadBreaks); const b3=$("grantPermBtn");if(b3)b3.addEventListener("click",grantPerm); const b4=$("perfUploadBtn");if(b4)b4.addEventListener("click",uploadPerf)});
-if(document.readyState!=="loading"){const b=$("uploadBtn");if(b)b.addEventListener("click",uploadSchedule); const b2=$("breaksUploadBtn");if(b2)b2.addEventListener("click",uploadBreaks); const b3=$("grantPermBtn");if(b3)b3.addEventListener("click",grantPerm); const b4=$("perfUploadBtn");if(b4)b4.addEventListener("click",uploadPerf)}
+document.addEventListener("DOMContentLoaded",()=>{const b=$("uploadBtn");if(b)b.addEventListener("click",uploadSchedule); const b2=$("breaksUploadBtn");if(b2)b2.addEventListener("click",uploadBreaks); const b3=$("grantMonBtn");if(b3)b3.addEventListener("click",grantMonitor); const b4=$("perfUploadBtn");if(b4)b4.addEventListener("click",uploadPerf)});
+if(document.readyState!=="loading"){const b=$("uploadBtn");if(b)b.addEventListener("click",uploadSchedule); const b2=$("breaksUploadBtn");if(b2)b2.addEventListener("click",uploadBreaks); const b3=$("grantMonBtn");if(b3)b3.addEventListener("click",grantMonitor); const b4=$("perfUploadBtn");if(b4)b4.addEventListener("click",uploadPerf)}
 
 /* ===== المميزات الإضافية: لغة + مظهر + موظفين + متواجدون + حفظ دخول ===== */
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
@@ -959,7 +881,6 @@ function renderEmp(){
 function delEmp(hrid){
   var a=null; for(var i=0;i<ADMIN_AGENTS.length;i++){if(ADMIN_AGENTS[i].hrid===hrid){a=ADMIN_AGENTS[i];break;}}
   if(!a)return;
-  if(IS_TL && normTL(a.tl)!==normTL(MY_TEAM)){ toastAdm("تقدر تعدّل فريقك فقط: "+(MY_TEAM||"—")); return; }
   if(!confirm("حذف "+(a.name||hrid)+" من كل الأسابيع؟")) return;
   Promise.all(a.weeks.map(function(w){return db.ref("weeks/"+w+"/agents/"+hrid).remove();})).then(function(){ toastAdm("✓ تم الحذف"); loadEmployees(); });
 }
@@ -1116,26 +1037,24 @@ function loadPerfList(){
     $("perfList").querySelectorAll("button[data-pid]").forEach(function(btn){btn.addEventListener("click",function(){ if(confirm("حذف بيانات هذا التاريخ؟")) db.ref("performance/"+this.getAttribute("data-pid")).remove().then(loadPerfList); });});
   });
 }
-/* ---- الصلاحيات والأذونات (مدراء الفرق) ---- */
-function grantPerm(){
-  if(!db){$("permMsg").textContent="غير متصل";return;}
-  var hrid=$("permHrid").value.trim(); if(!hrid){$("permMsg").className="err";$("permMsg").textContent="أدخل HRID";return;}
-  var team=$("permTeam").value.trim();
-  var monitor=$("permMonitor").checked, upload=$("permUpload").checked;
-  $("permMsg").className="err";$("permMsg").textContent="جارٍ…";
+/* ---- صلاحية مراقبة البريكات ---- */
+function grantMonitor(){
+  if(!db){$("monMsg").textContent="غير متصل";return;}
+  var hrid=$("monHrid").value.trim(); if(!hrid){$("monMsg").className="err";$("monMsg").textContent="أدخل HRID";return;}
+  $("monMsg").className="err";$("monMsg").textContent="جارٍ…";
   db.ref("users/"+hrid).once("value").then(function(s){
-    var u=s.val(); if(!u||!u.uid){ $("permMsg").textContent="ما لقيت حساب لهذا الرقم (لازم يكون له حساب أولاً)."; return; }
-    db.ref("perms/"+u.uid).set({hrid:hrid, team:team, monitor:!!monitor, upload:!!upload, ts:firebase.database.ServerValue.TIMESTAMP}).then(function(){ $("permMsg").className="err ok"; $("permMsg").textContent="تم منح "+hrid+" صلاحية مدير فريق ✓"; $("permHrid").value="";$("permTeam").value="";$("permMonitor").checked=false;$("permUpload").checked=false; loadPerms(); })
-      .catch(function(e){ $("permMsg").textContent="فشل: "+((e&&e.code)||"تحقّق من القواعد"); });
-  }).catch(function(){ $("permMsg").textContent="خطأ في القراءة"; });
+    var u=s.val(); if(!u||!u.uid){ $("monMsg").textContent="ما لقيت حساب لهذا الرقم (لازم يكون له حساب أولاً)."; return; }
+    db.ref("monitors/"+u.uid).set(hrid).then(function(){ $("monMsg").className="err ok"; $("monMsg").textContent="تم منح "+hrid+" صلاحية المراقبة ✓"; $("monHrid").value=""; loadMonitors(); })
+      .catch(function(e){ $("monMsg").textContent="فشل: "+((e&&e.code)||"تحقّق من القواعد"); });
+  }).catch(function(){ $("monMsg").textContent="خطأ في القراءة"; });
 }
-function loadPerms(){
-  if(!db||!$("permList"))return;
-  db.ref("perms").once("value",function(s){
+function loadMonitors(){
+  if(!db||!$("monList"))return;
+  db.ref("monitors").once("value",function(s){
     var m=s.val()||{}, uids=Object.keys(m);
-    if(!uids.length){$("permList").innerHTML='<div style="color:var(--faint);font-size:12px">لا يوجد مدراء فرق</div>';return;}
-    $("permList").innerHTML=uids.map(function(uid){var p=m[uid]||{};var tags=[];if(p.monitor)tags.push("👁️ مراقبة");if(p.upload)tags.push("📤 رفع");return '<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:var(--glass2);border-radius:10px;margin-bottom:8px;font-size:13px;gap:8px"><span>🛡️ <b>'+esc(p.hrid||"?")+'</b>'+(p.team?(' · '+esc(p.team)):'')+(tags.length?(' <span style="color:var(--dim)">· '+tags.join(" · ")+'</span>'):'')+'</span><button data-puid="'+esc(uid)+'" style="background:var(--rose);color:#fff;border:none;border-radius:7px;padding:5px 10px;cursor:pointer;font-size:12px">إلغاء</button></div>';}).join("");
-    $("permList").querySelectorAll("button[data-puid]").forEach(function(btn){btn.addEventListener("click",function(){ if(confirm("إلغاء صلاحية مدير الفريق؟")) db.ref("perms/"+this.getAttribute("data-puid")).remove().then(loadPerms); });});
+    if(!uids.length){$("monList").innerHTML='<div style="color:var(--faint);font-size:12px">لا أحد لديه صلاحية المراقبة (غير الأدمن)</div>';return;}
+    $("monList").innerHTML=uids.map(function(uid){return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--glass2);border-radius:10px;margin-bottom:8px;font-size:13px"><span>👁️ HRID <b>'+esc(m[uid])+'</b></span><button data-muid="'+esc(uid)+'" style="background:var(--rose);color:#fff;border:none;border-radius:7px;padding:5px 10px;cursor:pointer;font-size:12px">إلغاء</button></div>';}).join("");
+    $("monList").querySelectorAll("button[data-muid]").forEach(function(btn){btn.addEventListener("click",function(){ if(confirm("إلغاء صلاحية المراقبة؟")) db.ref("monitors/"+this.getAttribute("data-muid")).remove().then(loadMonitors); });});
   });
 }
 /* ---- تصدير الجدول Excel بنفس صيغة الأصل (يشمل التبديلات المطبّقة) ---- */

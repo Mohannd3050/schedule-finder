@@ -156,8 +156,8 @@ firebase.auth().onAuthStateChanged(function(u){
   if(!u){ $("loginCard").classList.remove("hidden"); $("dash").classList.add("hidden"); return; }
   // check authorization: admin OR /admins OR /monitors
   if(u.uid===ADMIN_UID){ authorized(); return; }
-  Promise.all([db.ref("admins/"+u.uid).once("value"),db.ref("monitors/"+u.uid).once("value")])
-    .then(function(r){ if(r[0].val()===true||r[1].exists()){ authorized(); } else { denied(); } })
+  Promise.all([db.ref("admins/"+u.uid).once("value"),db.ref("perms/"+u.uid).once("value")])
+    .then(function(r){ var p=r[1].val(); if(r[0].val()===true||(p&&p.monitor)){ authorized(); } else { denied(); } })
     .catch(function(){ denied(); });
 });
 function denied(){

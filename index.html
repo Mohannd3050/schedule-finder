@@ -399,6 +399,9 @@
     <!-- today shift -->
     <div id="todayBox"></div>
 
+    <!-- top performers today (inline) -->
+    <div id="leaderBox"></div>
+
     <!-- scheduled breaks (from admin upload) -->
     <div id="myBreaksBox"></div>
 
@@ -805,6 +808,7 @@ function proceedWithHrid(hrid, silent){
     subscribeAnnouncements();
     subscribeNotifs(hrid);
     subscribeBreaks(hrid);
+    loadInlineLeader();
     liveWeeks(hrid);
   }).catch(function(err){
     if(!silent) showErr("تعذّر قراءة الجدول: "+err.code);
@@ -816,7 +820,7 @@ function logout(){
   if(ALERT_REF){ ALERT_REF.off(); ALERT_REF=null; }
   if(WEEKS_REF){ WEEKS_REF.off(); WEEKS_REF=null; }
   if(NOTIF_REF){ NOTIF_REF.off(); NOTIF_REF=null; }
-  if(BREAKS_REF){ BREAKS_REF.off(); BREAKS_REF=null; } if(LOG_REF){ LOG_REF.off(); LOG_REF=null; } MY_BREAKS=null; MY_LOG=null; BREAKS_CACHE={}; SEL_BREAK_DAY=null; var mb=document.getElementById("myBreaksBox"); if(mb) mb.innerHTML="";
+  if(BREAKS_REF){ BREAKS_REF.off(); BREAKS_REF=null; } if(LOG_REF){ LOG_REF.off(); LOG_REF=null; } MY_BREAKS=null; MY_LOG=null; BREAKS_CACHE={}; SEL_BREAK_DAY=null; var mb=document.getElementById("myBreaksBox"); if(mb) mb.innerHTML=""; var lb2=document.getElementById("leaderBox"); if(lb2) lb2.innerHTML="";
   if(SID && db){ db.ref("presence/"+SID).remove(); }
   CURRENT_HRID=null; CURRENT_REC=null;
   try{ firebase.auth().signOut(); }catch(e){}
@@ -921,6 +925,19 @@ function updateBreakCountdown(){
 }
 
 function closeDayStats(){ var ov=document.getElementById("dayOv"); if(ov)ov.classList.remove("show"); }
+function loadInlineLeader(){
+  var box=document.getElementById("leaderBox"); if(!box)return;
+  var d=(typeof TODAY_SHIFT_SERIAL!=="undefined"&&TODAY_SHIFT_SERIAL!=null)?TODAY_SHIFT_SERIAL:null;
+  var ymd=null; var now=new Date(); ymd=now.getFullYear()+"-"+("0"+(now.getMonth()+1)).slice(-2)+"-"+("0"+now.getDate()).slice(-2);
+  loadDayPerf(ymd,function(perf,label){ renderInlineLeader(box,perf,label); });
+}
+function renderInlineLeader(box,perf,label){
+  if(!perf||!perf.agents||!perf.agents.length){ box.innerHTML=""; return; }
+  var ar=(LANG==="ar");
+  var ags=perf.agents.slice().sort(function(a,b){ return (b.calls||0)-(a.calls||0); }).slice(0,5);
+  var rows=ags.map(function(a,i){ var medal=i===0?"🥇":i===1?"🥈":i===2?"🥉":("#"+(i+1)); var mine=CURRENT_REC&&norm2(a.name)===norm2(CURRENT_REC.name); return '<div class="lbrow'+(i<3?(" top top"+(i+1)):"")+(mine?" me":"")+'"><span class="rk">'+medal+'</span><span class="nm">'+esc(a.name)+'</span><span class="cl">'+(a.calls||0)+'</span><span class="ah">'+fmtAHT(a.ahtSec)+'</span></div>'; }).join("");
+  box.innerHTML='<div class="card brkcard"><div class="lbl" style="justify-content:space-between"><span>🏆 '+(ar?"متصدّرو اليوم":"Top performers today")+'</span>'+(label?'<span style="font-size:11px;color:var(--txt-faint);font-weight:400">'+esc(label)+'</span>':'')+'</div><div class="lb">'+rows+'</div></div>';
+}
 function norm2(s){ return String(s==null?"":s).toLowerCase().replace(/\s+/g," ").trim(); }
 function fmtAHT(sec){ sec=Math.max(0,Math.floor(sec||0)); var h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60; return (h>0?(h+":"+("0"+m).slice(-2)):(""+m))+":"+("0"+s).slice(-2); }
 function serialToYMD(serial){ var d=serialToDate(serial); if(!d)return null; return d.getUTCFullYear()+"-"+("0"+(d.getUTCMonth()+1)).slice(-2)+"-"+("0"+d.getUTCDate()).slice(-2); }
