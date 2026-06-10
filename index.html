@@ -868,6 +868,7 @@ function logout(){
   if(NOTIF_REF){ NOTIF_REF.off(); NOTIF_REF=null; }
   if(BREAKS_REF){ BREAKS_REF.off(); BREAKS_REF=null; } if(LOG_REF){ LOG_REF.off(); LOG_REF=null; } MY_BREAKS=null; MY_LOG=null; BREAKS_CACHE={}; SEL_BREAK_DAY=null; var mb=document.getElementById("myBreaksBox"); if(mb) mb.innerHTML=""; var lb2=document.getElementById("leaderBox"); if(lb2) lb2.innerHTML="";
   if(SID && db){ db.ref("presence/"+SID).remove(); }
+  touchLastSeen();
   CURRENT_HRID=null; CURRENT_REC=null;
   try{ firebase.auth().signOut(); }catch(e){}
   document.getElementById("appView").classList.add("hidden");
@@ -1379,12 +1380,30 @@ function startPresence(){
             lob:(CURRENT_REC&&CURRENT_REC.lob)||"", onBreak:false};
   ref.set(data).then(function(){ dbg("👤 حضور مُسجّل"); }).catch(function(e){ dbg("❌ حضور: "+e.message); });
   try{ ref.onDisconnect().remove(); }catch(e){}
-  if(CURRENT_HRID) db.ref("lastSeen/"+CURRENT_HRID).set(Date.now()).catch(function(){});
+  touchLastSeen();
+  selfHealMapping();
   // نبضة كل 45 ثانية
-  setInterval(function(){ if(db&&SID){ db.ref("presence/"+SID+"/ts").set(Date.now()); if(CURRENT_HRID) db.ref("lastSeen/"+CURRENT_HRID).set(Date.now()).catch(function(){}); } },45000);
+  setInterval(function(){ if(db&&SID){ db.ref("presence/"+SID+"/ts").set(Date.now()); touchLastSeen(); } },45000);
 }
 function setBreakPresence(on){
   if(db&&SID) db.ref("presence/"+SID+"/onBreak").set(!!on);
+}
+function touchLastSeen(){
+  if(!db||!CURRENT_HRID) return;
+  db.ref("lastSeen/"+CURRENT_HRID).set(Date.now())
+    .then(function(){ dbg("👁️ آخر ظهور سُجّل"); })
+    .catch(function(e){ dbg("❌ آخر ظهور: "+((e&&e.code)||e.message)+" — تأكد من نشر قواعد lastSeen"); });
+}
+function selfHealMapping(){
+  // إصلاح ذاتي: ربط uid→hrid إن كان مفقوداً (للحسابات القديمة)
+  try{
+    var u=firebase.auth().currentUser;
+    if(!db||!u||u.isAnonymous||!CURRENT_HRID) return;
+    if(!u.email||u.email.indexOf("@d360-staff.com")<0) return;
+    db.ref("uidHrid/"+u.uid).once("value").then(function(s){
+      if(s.val()!==CURRENT_HRID){ db.ref("uidHrid/"+u.uid).set(CURRENT_HRID).then(function(){ dbg("🔗 ربط الحساب أُصلح"); }).catch(function(){}); }
+    }).catch(function(){});
+  }catch(e){}
 }
 
 /* ================= ALERTS ================= */
