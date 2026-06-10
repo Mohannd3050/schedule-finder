@@ -139,7 +139,7 @@
   body.light .themebtn .moon{display:none}
   body:not(.light) .themebtn .sun{display:none}
 
-  .card{background:var(--glass);backdrop-filter:blur(22px) saturate(140%);-webkit-backdrop-filter:blur(22px) saturate(140%);
+  .card{background:var(--glass);backdrop-filter:blur(var(--blurpx,22px)) saturate(140%);-webkit-backdrop-filter:blur(var(--blurpx,22px)) saturate(140%);
     border:1px solid var(--stroke);border-radius:22px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:background .4s,border-color .4s}
   .card::before{content:"";position:absolute;inset:0;border-radius:22px;padding:1px;
     background:linear-gradient(140deg,rgba(255,255,255,.22),transparent 40%);
@@ -321,6 +321,21 @@
   .set-in::placeholder{color:var(--txt-faint)}
   .set-msg{font-size:13px;margin-top:8px;min-height:16px;font-weight:600}
 
+  /* ===== الثيمات ===== */
+  body[data-theme="flat"] .orb,body[data-theme="flat"] .grain,body[data-theme="material"] .orb,body[data-theme="material"] .grain,body[data-theme="neu"] .orb,body[data-theme="neu"] .grain{display:none}
+  body[data-theme="flat"] .card,body[data-theme="material"] .card,body[data-theme="neu"] .card{backdrop-filter:none;-webkit-backdrop-filter:none}
+  body[data-theme="flat"] .card::before,body[data-theme="material"] .card::before,body[data-theme="neu"] .card::before{display:none}
+  body[data-theme="flat"] .card{background:var(--bg-1);border:1px solid var(--stroke-soft);border-radius:12px;box-shadow:none}
+  body[data-theme="material"] .card{background:var(--bg-1);border:none;border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.22)}
+  body.light[data-theme="material"] .card{box-shadow:0 1px 3px rgba(40,60,100,.18),0 6px 18px rgba(40,60,100,.14)}
+  body[data-theme="neu"]{--bg-0:#23262e;--bg-1:#23262e;--glass:#23262e;--glass-strong:#272b34}
+  body[data-theme="neu"] .card{background:#23262e;border:none;border-radius:20px;box-shadow:8px 8px 18px #1b1d23,-8px -8px 18px #2b2f39}
+  body.light[data-theme="neu"]{--bg-0:#e0e5ec;--bg-1:#e0e5ec;--glass:#e0e5ec;--glass-strong:#e8ecf3}
+  body.light[data-theme="neu"] .card{background:#e0e5ec;box-shadow:8px 8px 18px #c3c9d2,-8px -8px 18px #ffffff}
+  .thgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .thgrid .o{text-align:center;padding:11px 8px;border-radius:11px;border:1px solid var(--stroke);background:var(--glass);cursor:pointer;font-weight:600;font-size:12.5px;color:var(--txt-dim);transition:.15s}
+  .thgrid .o.on{background:linear-gradient(120deg,var(--mint),var(--mint-deep));color:#04211c;border-color:transparent}
+  .glassrange{width:100%;accent-color:var(--mint);margin-top:4px}
 </style>
 </head>
 <body>
@@ -519,9 +534,29 @@ function merOf(h){ return (TIMEFMT==="24") ? "" : (h<12?t("am"):t("pm")); }
 function syncThemeIcons(){var lt=document.body.classList.contains("light");
   document.querySelectorAll(".moon").forEach(function(e){e.style.display=lt?"none":"block";});
   document.querySelectorAll(".sun").forEach(function(e){e.style.display=lt?"block":"none";});}
-function toggleTheme(){var lt=document.body.classList.toggle("light");localStorage.setItem("theme",lt?"light":"dark");syncThemeIcons();}
+function toggleTheme(){var lt=document.body.classList.toggle("light");localStorage.setItem("theme",lt?"light":"dark");syncThemeIcons();if(typeof applyTheme==="function")applyTheme();}
 function refreshPage(){location.reload();}
 function openSettings(){buildSettings();document.getElementById("setOv").classList.add("show");}
+/* ===== الثيمات ===== */
+var THEME=localStorage.getItem("uiTheme")||"glass";
+var GLASS_LV=parseInt(localStorage.getItem("glassLv")||"60",10); if(isNaN(GLASS_LV))GLASS_LV=60;
+function applyTheme(){
+  document.body.setAttribute("data-theme",THEME);
+  var cards=document.body;
+  if(THEME==="glass"){
+    var k=Math.max(0,Math.min(100,GLASS_LV))/60; // 60 = الوضع الحالي
+    var dark=!document.body.classList.contains("light");
+    var a1=(dark?0.055:0.62)*k, a2=(dark?0.09:0.8)*k;
+    a1=Math.min(a1,dark?0.5:0.95); a2=Math.min(a2,dark?0.6:0.98);
+    cards.style.setProperty("--glass","rgba(255,255,255,"+a1.toFixed(3)+")");
+    cards.style.setProperty("--glass-strong","rgba(255,255,255,"+a2.toFixed(3)+")");
+    cards.style.setProperty("--blurpx",Math.round(22*k)+"px");
+  } else {
+    cards.style.removeProperty("--glass"); cards.style.removeProperty("--glass-strong"); cards.style.removeProperty("--blurpx");
+  }
+}
+function setTheme(th){ THEME=th; localStorage.setItem("uiTheme",th); applyTheme(); buildSettings(); }
+function setGlassLv(v){ GLASS_LV=parseInt(v,10)||60; localStorage.setItem("glassLv",String(GLASS_LV)); applyTheme(); }
 function closeSettings(){document.getElementById("setOv").classList.remove("show");}
 function setTimeFmt(f){TIMEFMT=f;localStorage.setItem("timefmt",f);
   document.querySelectorAll("#tfmt .o").forEach(function(o){o.classList.toggle("on",o.getAttribute("data-f")===f);});
@@ -536,6 +571,13 @@ function buildSettings(){
   h+='<div class="set-row"><div class="k">'+t("timeFmt")+'</div><div class="tseg" id="tfmt">'+
      '<div class="o" data-f="12" onclick="setTimeFmt(\'12\')">'+t("fmt12")+'</div>'+
      '<div class="o" data-f="24" onclick="setTimeFmt(\'24\')">'+t("fmt24")+'</div></div></div>';
+  var ar=(LANG==="ar");
+  var THS=[["glass",ar?"زجاجي (الحالي)":"Glassmorphism"],["flat",ar?"مسطّح Flat":"Flat"],["material",ar?"ماتيريال":"Material"],["neu",ar?"نيومورفيزم":"Neumorphism"]];
+  h+='<div class="set-row"><div class="k">🎨 '+(ar?"الثيم (التصميم البصري)":"Theme")+'</div><div class="thgrid">'+
+     THS.map(function(x){return '<div class="o'+(THEME===x[0]?" on":"")+'" onclick="setTheme(\''+x[0]+'\')">'+x[1]+'</div>';}).join("")+'</div>'+
+     (THEME==="glass"?('<div class="k" style="margin-top:12px">'+(ar?"قوة الشفافية والضبابية":"Glass intensity")+' · <span id="glv">'+GLASS_LV+'</span>%</div>'+
+       '<input type="range" class="glassrange" min="10" max="100" value="'+GLASS_LV+'" oninput="setGlassLv(this.value);var g=document.getElementById(\'glv\');if(g)g.textContent=this.value;">'):'')+
+     '</div>';
   if(me.hrid){ h+='<div class="set-row"><button class="set-btn" onclick="closeSettings();openPw()">'+t("pwTitle")+'</button></div>'; }
   if(me.hrid){ h+='<div class="set-row"><button class="set-btn" onclick="exportShiftsICS()">'+t("addCal")+'</button></div>';
                h+='<div class="set-row"><button class="set-btn" onclick="exportBreaksICS()">'+t("addCalBreaks")+'</button></div>'; }
@@ -610,6 +652,7 @@ function checkIdle(){ if(idleExpired() && typeof onIdleLogout==="function") onId
 ["click","keydown","touchstart","scroll"].forEach(function(ev){window.addEventListener(ev,touchActivity,{passive:true});});
 setInterval(checkIdle,30000);
 if(localStorage.getItem("theme")==="light"){ document.body.classList.add("light"); }
+if(typeof applyTheme==="function"){ applyTheme(); }
 
 /* ---- page hooks (index) ---- */
 function getMe(){ return {hrid:CURRENT_HRID, name:(CURRENT_REC&&CURRENT_REC.name)||""}; }

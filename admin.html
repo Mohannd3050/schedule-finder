@@ -325,6 +325,7 @@ var XLSXLite=(function(){
         <div style="display:flex;gap:8px;margin-bottom:14px">
           <select id="empShiftFilter" style="flex:1;background:var(--glass2);border:1px solid var(--stroke);color:var(--txt);font-family:inherit;font-size:13px;border-radius:11px;padding:11px;outline:none;cursor:pointer"><option value="" data-i18n="allShifts">كل الأوقات</option></select>
           <select id="empTeamFilter" style="flex:1;background:var(--glass2);border:1px solid var(--stroke);color:var(--txt);font-family:inherit;font-size:13px;border-radius:11px;padding:11px;outline:none;cursor:pointer"><option value="" data-i18n="allTeams">كل الفرق</option></select>
+          <select id="empStatusFilter" style="flex:1;background:var(--glass2);border:1px solid var(--stroke);color:var(--txt);font-family:inherit;font-size:13px;border-radius:11px;padding:11px;outline:none;cursor:pointer"><option value="">كل الحالات</option><option value="online">🟢 متصل الآن</option><option value="onshift">🕐 يداوم الآن</option><option value="both">🟢 متصل ويداوم</option></select>
         </div>
         <div id="empResult" style="min-height:60px"></div>
       </div>
@@ -923,6 +924,22 @@ function presenceStatus(hrid){
   return {on:false,txt:(ADMIN_LANG==="ar"?"آخر ظهور ":"Last seen ")+txt};
 }
 
+function shiftWindow(a){
+  // نافذة الشفت اليوم: البداية بالساعات العشرية + 9 ساعات
+  if(a==null||a.todayHour==null) return null;
+  var now=new Date(), cur=now.getHours()+now.getMinutes()/60;
+  var st=a.todayHour, en=st+9;
+  var inS=false, remH=0;
+  if(cur>=st && cur<en){ inS=true; remH=en-cur; }
+  else if(en>24 && cur<(en-24)){ inS=true; remH=(en-24)-cur; }
+  return {inShift:inS, remH:remH};
+}
+function fmtRem(remH){
+  var h=Math.floor(remH), m=Math.round((remH-h)*60); if(m===60){h++;m=0;}
+  var ar=(ADMIN_LANG==="ar");
+  if(h>0) return ar?(h+"س "+m+"د"):(h+"h "+m+"m");
+  return ar?(m+"د"):(m+"m");
+}
 /* ---- إدارة الموظفين (بحث + فلاتر) ---- */
 var ADMIN_AGENTS=[];
 function toggleEmp(){
@@ -960,12 +977,18 @@ function fillEmpFilters(){
 function renderEmp(){
   var box=$("empResult"); if(!box) return;
   var q=String(($("empSearch")||{}).value||"").trim().toLowerCase();
-  var shift=($("empShiftFilter")||{}).value||"", team=($("empTeamFilter")||{}).value||"";
+  var shift=($("empShiftFilter")||{}).value||"", team=($("empTeamFilter")||{}).value||"", stat=($("empStatusFilter")||{}).value||"";
   if(!ADMIN_AGENTS.length){ box.innerHTML='<div style="color:var(--dim);padding:14px;font-size:13px;text-align:center">'+t_adm("noEmp")+'</div>'; return; }
   var list=ADMIN_AGENTS.filter(function(a){
     if(q && !(String(a.name).toLowerCase().indexOf(q)>-1 || String(a.hrid).indexOf(q)>-1)) return false;
     if(shift && a.todayLabel!==shift) return false;
     if(team && a.tl!==team) return false;
+    if(stat){
+      var on=presenceStatus(a.hrid).on, sw=shiftWindow(a), ins=!!(sw&&sw.inShift);
+      if(stat==="online"&&!on) return false;
+      if(stat==="onshift"&&!ins) return false;
+      if(stat==="both"&&!(on&&ins)) return false;
+    }
     return true;
   });
   var head='<div style="font-size:12px;color:var(--faint);margin-bottom:10px">'+list.length+' / '+ADMIN_AGENTS.length+'</div>';
@@ -974,8 +997,8 @@ function renderEmp(){
     var init=esc(String(a.name||"?").trim().charAt(0));
     var col=a.todayHour==null?"var(--faint)":"var(--mint)";
     var nmJs=esc(String(a.name).replace(/'/g,""));
-    var ps=presenceStatus(a.hrid);
-    var statusHtml='<span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:'+(ps.on?"var(--mint)":"var(--faint)")+'"><span style="width:7px;height:7px;border-radius:50%;background:'+(ps.on?"var(--mint)":"var(--faint)")+(ps.on?";box-shadow:0 0 7px var(--mint)":"")+'"></span>'+esc(ps.txt)+'</span>';
+    var ps=presenceStatus(a.hrid); var sw=shiftWindow(a);
+    var statusHtml='<span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:'+(ps.on?"var(--mint)":"var(--faint)")+'"><span style="width:7px;height:7px;border-radius:50%;background:'+(ps.on?"var(--mint)":"var(--faint)")+(ps.on?";box-shadow:0 0 7px var(--mint)":"")+'"></span>'+esc(ps.txt)+'</span>'+((sw&&sw.inShift)?('<span style="font-size:11px;color:var(--amber);margin-inline-start:8px">⏳ '+(ADMIN_LANG==="ar"?"متبقٍ ":"left ")+fmtRem(sw.remH)+(ADMIN_LANG==="ar"?" على نهاية الشفت":"")+'</span>'):'');
     return '<div style="display:flex;align-items:center;gap:11px;background:var(--glass2);padding:12px;border-radius:13px;margin-bottom:8px">'+
       '<div style="width:40px;height:40px;border-radius:11px;display:grid;place-items:center;font-weight:700;color:#04211c;background:linear-gradient(140deg,var(--mint),var(--mintd));flex-shrink:0">'+init+'</div>'+
       '<div style="flex:1;min-width:0"><div style="font-weight:600;font-size:14.5px">'+esc(a.name)+' <span style="color:var(--faint);font-size:12px">#'+esc(a.hrid)+'</span></div>'+
@@ -996,7 +1019,7 @@ function delEmp(hrid){
   Promise.all(a.weeks.map(function(w){return db.ref("weeks/"+w+"/agents/"+hrid).remove();})).then(function(){ toastAdm("✓ تم الحذف"); loadEmployees(); });
 }
 function bindEmpFilters(){
-  ["empSearch","empShiftFilter","empTeamFilter"].forEach(function(id){var el=$(id); if(el) el.addEventListener("input",renderEmp);});
+  ["empSearch","empShiftFilter","empTeamFilter","empStatusFilter"].forEach(function(id){var el=$(id); if(el) el.addEventListener("input",renderEmp);});
 }
 
 /* ---- حفظ بيانات الدخول ---- */
