@@ -61,13 +61,14 @@
 
   /* scheduled breaks */
   .brkcard{margin-top:18px}
-  .brkcard .lbl{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px;margin-bottom:10px}
-  .brknext{font-size:14px;color:var(--txt-dim);background:var(--glass);border:1px solid var(--stroke-soft);border-radius:12px;padding:11px 14px;margin-bottom:12px}
-  .brklist{display:flex;flex-direction:column;gap:8px}
-  .brkrow{display:flex;justify-content:space-between;align-items:center;padding:11px 14px;border-radius:12px;background:var(--glass);border:1px solid var(--stroke-soft);transition:.2s}
-  .brkrow .bt{font-weight:700;font-size:14.5px}
-  .brkr-time{font-size:13.5px;color:var(--txt-dim);font-variant-numeric:tabular-nums;margin-top:6px;letter-spacing:.2px}
-  .brkrow .bd{font-size:12px;color:var(--txt-dim);background:color-mix(in srgb,var(--mint) 12%,transparent);padding:3px 9px;border-radius:100px}
+  .brkcard .lbl{display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:700;font-size:15px;margin-bottom:10px;cursor:pointer;user-select:none}
+  .brkcard .lbl .car{font-size:13px;color:var(--txt-dim);transition:.2s}
+  .brknext{font-size:12.5px;color:var(--txt-dim);background:var(--glass);border:1px solid var(--stroke-soft);border-radius:11px;padding:9px 12px;margin-bottom:9px}
+  .brklist{display:flex;flex-direction:column;gap:7px}
+  .brkrow{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-radius:11px;background:var(--glass);border:1px solid var(--stroke-soft);transition:.2s}
+  .brkrow .bt{font-weight:700;font-size:13.5px;white-space:nowrap}
+  .brkr-time{font-size:12.5px;color:var(--txt-dim);font-variant-numeric:tabular-nums;letter-spacing:.2px;white-space:nowrap}
+  .brkrow .bd{font-size:11px;color:var(--txt-dim);background:color-mix(in srgb,var(--mint) 12%,transparent);padding:2px 8px;border-radius:100px;white-space:nowrap}
   .brkrow.on{border-color:var(--mint);box-shadow:0 0 0 1px var(--mint)}
   .brkrow.nx{border-color:color-mix(in srgb,var(--violet) 50%,transparent)}
   .brkrow.done:not(.on){opacity:.5}
@@ -83,7 +84,7 @@
   .brktoggle.on{box-shadow:0 0 0 1px var(--amber)}
   .brkrow.row2{flex-direction:column;align-items:stretch;gap:9px}
   .brkr-top{display:flex;justify-content:space-between;align-items:center}
-  .brkr-bot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px;padding-top:10px;border-top:1px solid var(--stroke-soft)}
+  .brkr-bot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;padding-top:8px;border-top:1px solid var(--stroke-soft)}
   .ds-brk{background:var(--glass);border:1px solid var(--stroke-soft);border-radius:11px;padding:10px 13px;margin-bottom:7px}
   .ds-brk.over{border-color:var(--rose)}
   .ds-brk-h{display:flex;justify-content:space-between;align-items:center;font-size:13.5px;margin-bottom:5px;gap:8px}
@@ -91,14 +92,14 @@
   .ds-brk-h .rng{font-weight:700;font-variant-numeric:tabular-nums}
   .ds-brk-u{font-size:12.5px;color:var(--txt-dim);font-variant-numeric:tabular-nums}
   .ds-brk-u.over{color:var(--rose);font-weight:700}
-  .bu{font-size:13px;color:var(--txt-dim);font-variant-numeric:tabular-nums}
+  .bu{font-size:12px;color:var(--txt-dim);font-variant-numeric:tabular-nums}
   .bu.over{color:var(--rose);font-weight:700}
-  .brkbtn{border:none;border-radius:11px;padding:9px 18px;font-family:inherit;font-weight:700;font-size:13.5px;cursor:pointer;color:#04211c;background:linear-gradient(135deg,var(--mint),var(--mint-deep));transition:.16s}
+  .brkbtn{border:none;border-radius:10px;padding:7px 15px;font-family:inherit;font-weight:700;font-size:12.5px;cursor:pointer;color:#04211c;background:linear-gradient(135deg,var(--mint),var(--mint-deep));transition:.16s}
   .brkbtn:hover{transform:translateY(-1px)}
   .brkbtn.act{background:linear-gradient(135deg,var(--amber),#d97706);color:#3b1d00}
-  .brksel{width:100%;background:var(--glass);border:1px solid var(--stroke-soft);color:var(--txt);font-family:inherit;font-size:14px;font-weight:700;border-radius:12px;padding:13px 14px;cursor:pointer;margin-bottom:12px;outline:none;text-align:center;text-align-last:center}
+  .brksel{width:100%;background:var(--glass);border:1px solid var(--stroke-soft);color:var(--txt);font-family:inherit;font-size:13.5px;font-weight:700;border-radius:11px;padding:10px 12px;cursor:pointer;margin-bottom:9px;outline:none;text-align:center;text-align-last:center}
   .brkrow.over{border-color:var(--rose);box-shadow:0 0 0 1px var(--rose)}
-  .brktotal{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding:12px 14px;border-radius:12px;background:color-mix(in srgb,var(--mint) 10%,transparent);border:1px solid var(--stroke-soft);font-size:14px}
+  .brktotal{display:flex;justify-content:space-between;align-items:center;margin-top:9px;padding:9px 12px;border-radius:11px;background:color-mix(in srgb,var(--mint) 10%,transparent);border:1px solid var(--stroke-soft);font-size:12.5px}
   .brktotal b{font-variant-numeric:tabular-nums;color:var(--mint)}
   /* day stats + leaderboard */
   .ds-sec{margin-bottom:18px}
@@ -949,19 +950,26 @@ function renderBreaksCard(){
   var totUsed=0, totPlan=0;
   var rows=(data.b||[]).map(function(b,i){
     totPlan+=(b.d||0);
-    var top='<div class="brkr-top"><span class="bt">'+(ar?"بريك ":"Break ")+(i+1)+'</span><span class="bd">'+(b.d||0)+(ar?" دقيقة":" min")+'</span></div>';
-    var timeLine='<div class="brkr-time">'+fmtBrkRange(b.t,b.d)+'</div>';
-    if(!isToday){ return '<div class="brkrow row2" data-bi="'+i+'">'+top+timeLine+'</div>'; }
+    var top='<div class="brkr-top"><span class="bt">'+(ar?"بريك ":"Break ")+(i+1)+'</span><span class="brkr-time">'+fmtBrkRange(b.t,b.d)+'</span><span class="bd">'+(b.d||0)+(ar?" د":"m")+'</span></div>';
+    if(!isToday){ return '<div class="brkrow row2" data-bi="'+i+'">'+top+'</div>'; }
     var used=brkUsedSec(i,true); totUsed+=used; var active=brkIsActive(i); var over=used>(b.d||0)*60;
     var btn='<button class="brkbtn'+(active?" act":"")+'" onclick="toggleBreakUsage('+i+')">'+(active?(ar?"⏹️ إيقاف":"⏹️ Stop"):(ar?"▶️ بدء":"▶️ Start"))+'</button>';
-    return '<div class="brkrow row2'+(active?" on":"")+(over?" over":"")+'" data-bi="'+i+'">'+top+timeLine+
+    return '<div class="brkrow row2'+(active?" on":"")+(over?" over":"")+'" data-bi="'+i+'">'+top+
       '<div class="brkr-bot"><span class="bu'+(over?" over":"")+'" id="bu'+i+'">'+(ar?"المُستخدَم ":"Used ")+fmtMS(used)+'</span>'+btn+'</div></div>';
   }).join("");
   var head = isToday ? '<div id="brkNext" class="brknext">—</div>' : '<div class="brknext" style="color:var(--txt-dim)">'+(ar?"بريكات يوم ":"Breaks · ")+(ar?WEEK_DAYS_AR[WEEK_DAYS.indexOf(sel)]:sel)+'</div>';
   var totalRow = isToday ? '<div class="brktotal"><span>'+(ar?"الإجمالي المستخدم":"Total used")+'</span><b id="buTot">'+fmtMS(totUsed)+' / '+totPlan+(ar?" د":" min")+'</b></div>' : '';
-  box.innerHTML='<div class="card brkcard"><div class="lbl"><span>🍵 '+t("myBreaks")+'</span></div>'+
-    tabs+head+'<div class="brklist">'+rows+'</div>'+totalRow+'</div>';
-  if(isToday) updateBreakCountdown();
+  var open=(localStorage.getItem("brkOpen")!=="0");
+  box.innerHTML='<div class="card brkcard"><div class="lbl" onclick="toggleBrkCard()"><span>🍵 '+t("myBreaks")+'</span><span class="car" id="brkCar">'+(open?"▴":"▾")+'</span></div>'+
+    '<div id="brkBody" style="'+(open?"":"display:none")+'">'+tabs+head+'<div class="brklist">'+rows+'</div>'+totalRow+'</div></div>';
+  if(isToday&&open) updateBreakCountdown();
+}
+function toggleBrkCard(){
+  var b=document.getElementById("brkBody"), c=document.getElementById("brkCar"); if(!b)return;
+  var open=b.style.display==="none";
+  b.style.display=open?"":"none"; if(c)c.textContent=open?"▴":"▾";
+  localStorage.setItem("brkOpen",open?"1":"0");
+  if(open) updateBreakCountdown();
 }
 function updateBreakCountdown(){
   var today=dayNameLocal();
@@ -1371,8 +1379,9 @@ function startPresence(){
             lob:(CURRENT_REC&&CURRENT_REC.lob)||"", onBreak:false};
   ref.set(data).then(function(){ dbg("👤 حضور مُسجّل"); }).catch(function(e){ dbg("❌ حضور: "+e.message); });
   try{ ref.onDisconnect().remove(); }catch(e){}
+  if(CURRENT_HRID) db.ref("lastSeen/"+CURRENT_HRID).set(Date.now()).catch(function(){});
   // نبضة كل 45 ثانية
-  setInterval(function(){ if(db&&SID) db.ref("presence/"+SID+"/ts").set(Date.now()); },45000);
+  setInterval(function(){ if(db&&SID){ db.ref("presence/"+SID+"/ts").set(Date.now()); if(CURRENT_HRID) db.ref("lastSeen/"+CURRENT_HRID).set(Date.now()).catch(function(){}); } },45000);
 }
 function setBreakPresence(on){
   if(db&&SID) db.ref("presence/"+SID+"/onBreak").set(!!on);

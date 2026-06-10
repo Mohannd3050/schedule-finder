@@ -64,6 +64,8 @@
   .chip{font-size:11.5px;padding:5px 10px;border-radius:9px;background:var(--glass2);border:1px solid var(--stroke-soft);font-variant-numeric:tabular-nums}
   .chip.over{border-color:var(--rose);color:var(--rose);font-weight:700}
   .chip.act{border-color:var(--mint);color:var(--mint);font-weight:700}
+  .rstbtn{border:none;background:transparent;cursor:pointer;font-size:12px;padding:0 2px;opacity:.85}
+  .rstbtn:hover{opacity:1;transform:scale(1.1)}
   .rtotal{font-size:12.5px;color:var(--dim);margin-top:9px;font-variant-numeric:tabular-nums}
   .rtotal b{color:var(--txt)}
   .empty{color:var(--faint);text-align:center;padding:24px;font-size:13px}
@@ -218,11 +220,18 @@ function render(){
   if(!list.length){ $("list").innerHTML='<div class="empty">لا نتائج</div>'; return; }
   $("list").innerHTML=list.map(function(s){
     var badge = s.over?'<span class="badge b-over">⚠️ تجاوز</span>' : (s.active?'<span class="badge b-onb">☕ على بريك</span>' : (s.status==="took"?'<span class="badge b-took">أخذ بريك</span>':'<span class="badge b-none">لم يطلع</span>'));
-    var chips=s.breaks.map(function(b,i){ return '<span class="chip'+(b.over?" over":"")+(b.active?" act":"")+'">بريك '+(i+1)+': '+fmtMS(b.used)+'/'+(b.plan/60)+'د'+(b.active?" ▶":"")+'</span>'; }).join("");
+    var chips=s.breaks.map(function(b,i){ return '<span class="chip'+(b.over?" over":"")+(b.active?" act":"")+'">بريك '+(i+1)+': '+fmtMS(b.used)+'/'+(b.plan/60)+'د'+(b.active?" ▶":"")+(b.used>0?' <button class="rstbtn" onclick="resetBreak(\''+esc(s.hrid)+'\','+i+',\''+esc(String(s.name).replace(/'/g,""))+'\')" title="تجديد البريك">🔄</button>':'')+'</span>'; }).join("");
     return '<div class="row'+(s.over?" over":(s.active?" onb":""))+'"><div class="rtop"><div><div class="rname">'+esc(s.name)+'</div><div class="rmeta">'+esc(s.hrid)+(s.tl?(' · '+esc(s.tl)):'')+'</div></div>'+badge+'</div>'+
       '<div class="brks">'+chips+'</div>'+
       '<div class="rtotal">الإجمالي المستخدم: <b>'+fmtMS(s.totUsed)+'</b> / '+(s.totPlan/60)+' د</div></div>';
   }).join("");
+}
+function resetBreak(hrid,i,name){
+  if(!confirm("تجديد بريك "+(i+1)+" لـ "+name+"؟ سيُصفَّر الوقت المستخدم ويمكنه أخذه من جديد.")) return;
+  var today=WEEK_DAYS[new Date().getDay()];
+  db.ref("breakLog/"+today+"/"+hrid+"/breaks/"+i).update({usedSec:0, active:false, startTs:null, endTs:null})
+    .then(function(){ db.ref("breakLog/"+today+"/"+hrid+"/updatedAt").set(Date.now()); })
+    .catch(function(e){ alert("تعذّر التجديد: "+((e&&e.code)||e.message)); });
 }
 function beep(){ try{ var c=new (window.AudioContext||window.webkitAudioContext)(); var o=c.createOscillator(),g=c.createGain(); o.connect(g); g.connect(c.destination); o.frequency.value=880; g.gain.value=.08; o.start(); setTimeout(function(){o.stop();c.close();},250); }catch(e){} }
 </script>

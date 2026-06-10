@@ -396,7 +396,7 @@ const firebaseConfig={
 };
 const $=id=>document.getElementById(id);
 let db=null,auth=null;
-let PRESENCE_BY_HRID={}, SRV_OFFSET=0;
+let PRESENCE_BY_HRID={}, LASTSEEN_BY_HRID={}, SRV_OFFSET=0;
 try{ if(!firebase.apps.length)firebase.initializeApp(firebaseConfig); db=firebase.database(); auth=firebase.auth(); }
 catch(e){ $("loginErr").textContent="تعذّر الاتصال بقاعدة البيانات."; }
 
@@ -468,6 +468,10 @@ function start(){
     });
     $("online").textContent=c;
     PRESENCE_BY_HRID=map;
+    if($("empBody") && $("empBody").style.display!=="none") renderEmp();
+  });
+  db.ref("lastSeen").on("value",s=>{
+    LASTSEEN_BY_HRID=s.val()||{};
     if($("empBody") && $("empBody").style.display!=="none") renderEmp();
   });
   // load current announcement
@@ -909,7 +913,7 @@ function shiftLabelAdm(raw){
 /* ---- إشعارات + حالة الاتصال ---- */
 function notifyUser(hrid,type,text){ if(!db||!hrid)return; var id=db.ref("notifications/"+hrid).push().key; db.ref("notifications/"+hrid+"/"+id).set({type:type,text:text,ts:Date.now(),read:false}); }
 function presenceStatus(hrid){
-  var ts=PRESENCE_BY_HRID[hrid]; if(!ts) return {on:false,txt:(ADMIN_LANG==="ar"?"غير متصل":"Offline")};
+  var ts=Math.max(PRESENCE_BY_HRID[hrid]||0, LASTSEEN_BY_HRID[hrid]||0); if(!ts) return {on:false,txt:(ADMIN_LANG==="ar"?"لم يدخل بعد":"Never seen")};
   var now=Date.now()+SRV_OFFSET, diff=now-ts;
   if(diff<120000) return {on:true,txt:(ADMIN_LANG==="ar"?"متصل الآن":"Online now")};
   var mins=Math.floor(diff/60000), txt;
