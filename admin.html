@@ -323,10 +323,10 @@ var XLSXLite=(function(){
       <label id="empMgmtLbl" onclick="toggleEmp()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin-bottom:0"><span data-i18n="empMgmt">إدارة الموظفين</span> <span id="empCaret" style="font-size:18px;color:var(--dim)">▾</span></label>
       <div id="empBody" style="display:none;margin-top:14px">
         <input type="text" id="empSearch" data-i18n-ph="searchNameHrid" placeholder="ابحث بالاسم أو HRID..." style="background:var(--glass2);border:1px solid var(--stroke);color:var(--txt);font-family:inherit;font-size:14px;border-radius:12px;padding:12px;width:100%;box-sizing:border-box;margin-bottom:10px;outline:none">
-        <div style="display:flex;gap:8px;margin-bottom:14px">
-          <select id="empShiftFilter" style="flex:1;background:var(--glass2);border:1px solid var(--stroke);color:var(--txt);font-family:inherit;font-size:13px;border-radius:11px;padding:11px;outline:none;cursor:pointer"><option value="" data-i18n="allShifts">كل الأوقات</option></select>
-          <select id="empTeamFilter" style="flex:1;background:var(--glass2);border:1px solid var(--stroke);color:var(--txt);font-family:inherit;font-size:13px;border-radius:11px;padding:11px;outline:none;cursor:pointer"><option value="" data-i18n="allTeams">كل الفرق</option></select>
-          <select id="empStatusFilter" style="flex:1;background:var(--glass2);border:1px solid var(--stroke);color:var(--txt);font-family:inherit;font-size:13px;border-radius:11px;padding:11px;outline:none;cursor:pointer"><option value="">كل الحالات</option><option value="online">🟢 متصل الآن</option><option value="onshift">🕐 يداوم الآن</option><option value="both">🟢 متصل ويداوم</option></select>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+          <select id="empShiftFilter" style="width:100%;min-width:0;background:var(--glass2);border:1px solid var(--stroke);color:var(--txt);font-family:inherit;font-size:13px;border-radius:11px;padding:11px;outline:none;cursor:pointer"><option value="" data-i18n="allShifts">كل الأوقات</option></select>
+          <select id="empTeamFilter" style="width:100%;min-width:0;background:var(--glass2);border:1px solid var(--stroke);color:var(--txt);font-family:inherit;font-size:13px;border-radius:11px;padding:11px;outline:none;cursor:pointer"><option value="" data-i18n="allTeams">كل الفرق</option></select>
+          <select id="empStatusFilter" style="grid-column:1/-1;background:var(--glass2);border:1px solid var(--stroke);color:var(--txt);font-family:inherit;font-size:13px;border-radius:11px;padding:11px;outline:none;cursor:pointer;width:100%"><option value="">كل الحالات</option><option value="online">متصل الآن</option><option value="onshift">يداوم الآن</option><option value="both">متصل ويداوم الآن</option></select>
         </div>
         <div id="empResult" style="min-height:60px"></div>
       </div>
@@ -382,7 +382,7 @@ var XLSXLite=(function(){
     </div>
   </div>
 
-  <footer>تمت بواسطة مهنّد الغامدي · 94467 · admin v9 · حسابات + اعتماد ✓</footer>
+  <footer>تمت بواسطة مهنّد الغامدي · 94467 · Beta v1.9</footer>
 </div>
 
 <script>

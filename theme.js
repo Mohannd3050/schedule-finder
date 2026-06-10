@@ -92,8 +92,22 @@ var CSS=''+
 '.tk-bg.on{border-color:var(--mint,#5eead4);transform:scale(1.06)}'+
 '.tk-k{font-size:12.5px;color:var(--txt-dim,#9fb0cc);margin:13px 0 8px;font-weight:700}'+
 '.tk-range{width:100%;accent-color:var(--mint,#5eead4)}'+
-'.tk-seg{display:flex;gap:6px}.tk-seg .tk-o{flex:1}';
+'.tk-seg{display:flex;gap:6px}.tk-seg .tk-o{flex:1}'+
+/* --- صفحات الإدارة: طابع رسمي --- */
+'body[data-tkpage=admin][data-theme=material] button,body[data-tkpage=admin][data-theme=material] .btn{border-radius:12px!important}'+
+'body[data-tkpage=admin][data-theme=neu] .card,body[data-tkpage=admin][data-theme=neu] .stat{border-radius:14px!important}'+
+'body[data-tkpage=admin] .tk-rand{filter:saturate(.65)}'+
+/* --- وضوح شاشات الكمبيوتر --- */
+'@media(min-width:1100px){'+
+ 'body[data-tkpage=admin] .wrap{max-width:980px!important}'+
+ 'body[data-tkpage=app] .wrap,body[data-tkpage=app] .shell{max-width:1040px!important}'+
+ '.card{border-radius:18px}'+
+ 'body{font-size:15.5px}'+
+'}'+
+'@media(min-width:1100px){body[data-tkpage=admin] #empResult{display:grid;grid-template-columns:1fr 1fr;gap:10px}body[data-tkpage=admin] #empResult>div:first-child{grid-column:1/-1}body[data-tkpage=admin] #empResult>div{margin-bottom:0!important}}';
 
+var PAGE=(function(){ var p=(location.pathname||"").toLowerCase();
+  if(p.indexOf("admin")>=0||p.indexOf("upload")>=0) return "admin"; return "app"; })();
 function inject(){
   if(document.getElementById("tkStyles"))return;
   var st=document.createElement("style"); st.id="tkStyles"; st.textContent=CSS;
@@ -105,7 +119,7 @@ function isLight(){ return document.body.classList.contains("light"); }
 function apply(){
   inject();
   var b=document.body, r=b.style, L=isLight();
-  b.setAttribute("data-theme",S.theme);
+  b.setAttribute("data-theme",S.theme); b.setAttribute("data-tkpage",PAGE);
   /* اللون الرئيسي — يغطي كل تسميات الصفحات */
   var A=ACCENTS[S.accent];
   var main=L?A.lmain:A.main, deep=L?A.ldeep:A.deep;

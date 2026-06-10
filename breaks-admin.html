@@ -99,10 +99,10 @@
     <div class="card">
       <div class="stats">
         <div class="stat"><div class="k">الموظفون اليوم</div><div class="v" id="sTotal">0</div></div>
-        <div class="stat"><div class="k">أخذوا بريك</div><div class="v" id="sTook">0</div></div>
-        <div class="stat"><div class="k">لم يطلعوا</div><div class="v" id="sNone">0</div></div>
+        <div class="stat"><div class="k">أخذوا البريك</div><div class="v" id="sTook">0</div></div>
+        <div class="stat"><div class="k">لم يأخذوا البريك</div><div class="v" id="sNone">0</div></div>
         <div class="stat"><div class="k">على بريك الآن</div><div class="v" id="sOnb">0</div></div>
-        <div class="stat danger"><div class="k">تجاوزوا الوقت</div><div class="v" id="sOver">0</div></div>
+        <div class="stat danger"><div class="k">تجاوزوا الوقت المحدد</div><div class="v" id="sOver">0</div></div>
       </div>
       <div class="alertbar" id="alertBar">⚠️ <span id="alertTxt"></span></div>
       <div class="filters">
@@ -111,9 +111,9 @@
       <div class="seg" id="seg">
         <button data-f="all" class="on">الكل</button>
         <button data-f="onb">على بريك</button>
-        <button data-f="over">تجاوزوا</button>
-        <button data-f="took">أخذوا</button>
-        <button data-f="none">لم يطلعوا</button>
+        <button data-f="over">متجاوزون</button>
+        <button data-f="took">أخذوا البريك</button>
+        <button data-f="none">لم يأخذوا البريك</button>
       </div>
     </div>
     <div id="list"></div>
@@ -202,7 +202,7 @@ function render(){
   $("sTotal").textContent=states.length; $("sTook").textContent=nTook+nOnb; $("sNone").textContent=nNone; $("sOnb").textContent=nOnb; $("sOver").textContent=nOver;
   // alert on over-limit
   var ab=$("alertBar");
-  if(nOver>0){ ab.classList.add("show"); $("alertTxt").textContent=nOver+" موظف تجاوز وقت البريك المخصّص — راجعهم"; if(nOver>lastOver) beep(); }
+  if(nOver>0){ ab.classList.add("show"); $("alertTxt").textContent=nOver+" موظف تجاوز وقت البريك المحدد — يُرجى المراجعة"; if(nOver>lastOver) beep(); }
   else { ab.classList.remove("show"); }
   lastOver=nOver;
   // filter + search
@@ -220,7 +220,7 @@ function render(){
   list.sort(function(a,b){ var ka=a.over?0:ord[a.status], kb=b.over?0:ord[b.status]; if(ka!==kb)return ka-kb; return String(a.name).localeCompare(String(b.name),"ar"); });
   if(!list.length){ $("list").innerHTML='<div class="empty">لا نتائج</div>'; return; }
   $("list").innerHTML=list.map(function(s){
-    var badge = s.over?'<span class="badge b-over">⚠️ تجاوز</span>' : (s.active?'<span class="badge b-onb">☕ على بريك</span>' : (s.status==="took"?'<span class="badge b-took">أخذ بريك</span>':'<span class="badge b-none">لم يطلع</span>'));
+    var badge = s.over?'<span class="badge b-over">⚠️ تجاوز الوقت</span>' : (s.active?'<span class="badge b-onb">☕ على بريك</span>' : (s.status==="took"?'<span class="badge b-took">أخذ البريك</span>':'<span class="badge b-none">لم يأخذ البريك</span>'));
     var chips=s.breaks.map(function(b,i){ return '<span class="chip'+(b.over?" over":"")+(b.active?" act":"")+'">بريك '+(i+1)+': '+fmtMS(b.used)+'/'+(b.plan/60)+'د'+(b.active?" ▶":"")+(b.used>0?' <button class="rstbtn" onclick="resetBreak(\''+esc(s.hrid)+'\','+i+',\''+esc(String(s.name).replace(/'/g,""))+'\')" title="تجديد البريك">🔄</button>':'')+'</span>'; }).join("");
     return '<div class="row'+(s.over?" over":(s.active?" onb":""))+'"><div class="rtop"><div><div class="rname">'+esc(s.name)+'</div><div class="rmeta">'+esc(s.hrid)+(s.tl?(' · '+esc(s.tl)):'')+'</div></div>'+badge+'</div>'+
       '<div class="brks">'+chips+'</div>'+
@@ -236,5 +236,6 @@ function resetBreak(hrid,i,name){
 }
 function beep(){ try{ var c=new (window.AudioContext||window.webkitAudioContext)(); var o=c.createOscillator(),g=c.createGain(); o.connect(g); g.connect(c.destination); o.frequency.value=880; g.gain.value=.08; o.start(); setTimeout(function(){o.stop();c.close();},250); }catch(e){} }
 </script>
+<footer style="text-align:center;color:var(--dim);font-size:11.5px;padding:16px 0 24px">مراقبة البريكات · Beta v1.9</footer>
 </body>
 </html>
