@@ -854,9 +854,11 @@ function updateOnlineList(){
 /* ===== nav / settings / idle (admin) ===== */
 function refreshPage(){location.reload();}
 function openSettings(){buildAdminSettings();$("setOv").classList.add("show");}
+window.tkRefreshPanel=function(){ var p=$("tkPanel"); if(p&&window.TK) p.innerHTML=TK.panel(ADMIN_LANG); };
 function closeSettings(){$("setOv").classList.remove("show");}
 function buildAdminSettings(){
   var u=auth&&auth.currentUser, logged=IS_ADMIN, h='';
+  h+='<div class="set-row"><div class="k">🎨 '+(ADMIN_LANG==="ar"?"الثيم والتخصيص":"Theme")+'</div><div id="tkPanel">'+(window.TK?TK.panel(ADMIN_LANG):'')+'</div></div>';
   h+='<div class="set-row"><div class="k">'+(ADMIN_LANG==="ar"?"اللغة":"Language")+'</div><div class="tseg" id="lseg">'+
      '<div class="o" data-l="ar" onclick="setAdminLang(\'ar\')">العربية</div>'+
      '<div class="o" data-l="en" onclick="setAdminLang(\'en\')">English</div></div></div>';

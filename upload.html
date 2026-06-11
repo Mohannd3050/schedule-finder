@@ -378,9 +378,9 @@ if(auth){ auth.onAuthStateChanged(u=>{
     isAdminUser(u).then(function(ok){
       IS_ADMIN=ok;
       if(ok){ touchActivity(); showDash(); }
-      else { showLogin(); var le=$("loginErr"); if(le) le.textContent="ليس لديك صلاحية رفع الجداول. اطلب من الأدمن منحك صلاحية الرفع."; if(auth)auth.signOut(); }
+      else { if(auth)auth.signOut(); location.replace("./admin.html"); }
     });
-  } else { IS_ADMIN=false; showLogin(); }
+  } else { IS_ADMIN=false; location.replace("./admin.html"); }
 }); }
 
 function login(){
@@ -928,6 +928,9 @@ function sheetToWeekday(name){
   var wd=["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
   var WD=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
   for(var i=0;i<wd.length;i++){ if(low.indexOf(wd[i])>=0) return WD[i]; }
+  var ab={sun:0,mon:1,tue:2,tues:2,wed:3,thu:4,thur:4,thurs:4,fri:5,sat:6};
+  var tok=low.replace(/[^a-z]/g," ").split(/\s+/);
+  for(var j=0;j<tok.length;j++){ if(ab[tok[j]]!=null) return WD[ab[tok[j]]]; }
   var ar=[["الأحد","Sunday"],["الاثنين","Monday"],["الإثنين","Monday"],["الثلاثاء","Tuesday"],["الأربعاء","Wednesday"],["الخميس","Thursday"],["الجمعة","Friday"],["السبت","Saturday"]];
   for(var j=0;j<ar.length;j++){ if(s.indexOf(ar[j][0])>=0) return ar[j][1]; }
   var months={jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};

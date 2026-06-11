@@ -541,7 +541,9 @@ function buildSettings(){
   h+='<div class="set-row"><div class="k">🎨 '+(LANG==="ar"?"الثيم والتخصيص":"Theme & customization")+'</div><div id="tkPanel">'+(window.TK?TK.panel(LANG):'')+'</div></div>';
   if(me.hrid){ h+='<div class="set-row"><button class="set-btn" onclick="closeSettings();openPw()">'+t("pwTitle")+'</button></div>'; }
   if(me.hrid){ h+='<div class="set-row"><button class="set-btn" onclick="exportShiftsICS()">'+t("addCal")+'</button></div>';
-               h+='<div class="set-row"><button class="set-btn" onclick="exportBreaksICS()">'+t("addCalBreaks")+'</button></div>'; }
+               h+='<div class="set-row"><button class="set-btn" onclick="exportBreaksICS()">'+t("addCalBreaks")+'</button></div>';
+               var ntf=(localStorage.getItem("brkNotif")==="1");
+               h+='<div class="set-row"><div class="k">🔔 '+(LANG==="ar"?"تنبيه البريكات (إشعار قبل ٥ دقائق وعند الوقت)":"Break alerts (5 min before & on time)")+'</div><div class="tseg"><div class="o'+(ntf?" on":"")+'" onclick="toggleBrkNotif(1)">'+(LANG==="ar"?"مفعّل":"On")+'</div><div class="o'+(!ntf?" on":"")+'" onclick="toggleBrkNotif(0)">'+(LANG==="ar"?"مطفأ":"Off")+'</div></div><div style="font-size:11px;color:var(--txt-faint);margin-top:7px">'+(LANG==="ar"?"يعمل والتطبيق مفتوح أو مثبّت على الشاشة الرئيسية. للتنبيه المضمون استخدم زر التقويم أعلاه.":"Works while the app is open/installed. For guaranteed alarms use the calendar button.")+'</div></div>'; }
   if(me.hrid){ h+='<div class="set-row"><button class="set-btn danger" onclick="doLogout()">'+t("logoutBtn")+'</button></div>'; }
   document.getElementById("setBody").innerHTML=h;
   document.querySelectorAll("#tfmt .o").forEach(function(o){o.classList.toggle("on",o.getAttribute("data-f")===TIMEFMT);});
@@ -870,7 +872,7 @@ function logout(){
   if(ALERT_REF){ ALERT_REF.off(); ALERT_REF=null; }
   if(WEEKS_REF){ WEEKS_REF.off(); WEEKS_REF=null; }
   if(NOTIF_REF){ NOTIF_REF.off(); NOTIF_REF=null; }
-  if(BREAKS_REF){ BREAKS_REF.off(); BREAKS_REF=null; } if(LOG_REF){ LOG_REF.off(); LOG_REF=null; } MY_BREAKS=null; MY_LOG=null; BREAKS_CACHE={}; SEL_BREAK_DAY=null; var mb=document.getElementById("myBreaksBox"); if(mb) mb.innerHTML=""; var lb2=document.getElementById("leaderBox"); if(lb2) lb2.innerHTML="";
+  if(BREAKS_REF){ BREAKS_REF.off(); BREAKS_REF=null; } if(LOG_REF){ LOG_REF.off(); LOG_REF=null; } MY_BREAKS=null; MY_LOG=null; BREAKS_CACHE={}; SEL_BREAK_DAY=null; if(typeof clearBreakNotifs==="function")clearBreakNotifs(); var mb=document.getElementById("myBreaksBox"); if(mb) mb.innerHTML=""; var lb2=document.getElementById("leaderBox"); if(lb2) lb2.innerHTML="";
   if(SID && db){ db.ref("presence/"+SID).remove(); }
   touchLastSeen();
   CURRENT_HRID=null; CURRENT_REC=null;
@@ -968,6 +970,7 @@ function renderBreaksCard(){
   box.innerHTML='<div class="card brkcard"><div class="lbl" onclick="toggleBrkCard()"><span>🍵 '+t("myBreaks")+'</span><span class="car" id="brkCar">'+(open?"▴":"▾")+'</span></div>'+
     '<div id="brkBody" style="'+(open?"":"display:none")+'">'+tabs+head+'<div class="brklist">'+rows+'</div>'+totalRow+'</div></div>';
   if(isToday&&open) updateBreakCountdown();
+  if(isToday) scheduleBreakNotifs();
 }
 function toggleBrkCard(){
   var b=document.getElementById("brkBody"), c=document.getElementById("brkCar"); if(!b)return;
@@ -1397,6 +1400,36 @@ function touchLastSeen(){
   db.ref("lastSeen/"+CURRENT_HRID).set(Date.now())
     .then(function(){ dbg("👁️ آخر ظهور سُجّل"); })
     .catch(function(e){ dbg("❌ آخر ظهور: "+((e&&e.code)||e.message)+" — تأكد من نشر قواعد lastSeen"); });
+}
+var BRK_NTF_TIMERS=[];
+function toggleBrkNotif(on){
+  if(on){
+    if(!("Notification" in window)){ alert(LANG==="ar"?"المتصفح لا يدعم الإشعارات":"Notifications unsupported"); return; }
+    Notification.requestPermission().then(function(p){
+      if(p==="granted"){ localStorage.setItem("brkNotif","1"); scheduleBreakNotifs(); }
+      else { alert(LANG==="ar"?"يُرجى السماح بالإشعارات من إعدادات المتصفح":"Please allow notifications"); localStorage.setItem("brkNotif","0"); }
+      buildSettings();
+    });
+  } else { localStorage.setItem("brkNotif","0"); clearBreakNotifs(); buildSettings(); }
+}
+function clearBreakNotifs(){ BRK_NTF_TIMERS.forEach(clearTimeout); BRK_NTF_TIMERS=[]; }
+function fireBrkNotif(title,body){
+  try{ if(("Notification" in window)&&Notification.permission==="granted") new Notification(title,{body:body,icon:"./icon-192.png",badge:"./icon-192.png"}); }catch(e){}
+  try{ if(navigator.vibrate) navigator.vibrate([220,90,220]); }catch(e){}
+  try{ var C=window.AudioContext||window.webkitAudioContext; if(C){ var c=new C(),o=c.createOscillator(),g=c.createGain(); o.connect(g); g.connect(c.destination); o.frequency.value=880; g.gain.setValueAtTime(.25,c.currentTime); g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.7); o.start(); o.stop(c.currentTime+.7);} }catch(e){}
+}
+function scheduleBreakNotifs(){
+  clearBreakNotifs();
+  if(localStorage.getItem("brkNotif")!=="1") return;
+  var today=WEEK_DAYS[new Date().getDay()], data=BREAKS_CACHE[today];
+  if(!data||!data.b) return;
+  var ar=(LANG==="ar"), now=Date.now();
+  data.b.forEach(function(b,i){
+    var ms=brkToMs(b.t); if(!ms) return;
+    var pre=ms-5*60000;
+    if(pre>now) BRK_NTF_TIMERS.push(setTimeout(function(){ fireBrkNotif(ar?("☕ بريكك بعد ٥ دقائق"):"☕ Break in 5 minutes", (ar?("بريك "+(i+1)+" · "):"Break "+(i+1)+" · ")+fmtBrk(b.t)+" · "+(b.d||0)+(ar?" د":"m")); },pre-now));
+    if(ms>now)  BRK_NTF_TIMERS.push(setTimeout(function(){ fireBrkNotif(ar?("🍵 حان وقت بريكك الآن"):"🍵 Break time now", (ar?("بريك "+(i+1)+" · "):"Break "+(i+1)+" · ")+(b.d||0)+(ar?" دقيقة — اضغط بدء في التطبيق":" min — press Start in the app")); },ms-now));
+  });
 }
 function selfHealMapping(){
   // إصلاح ذاتي: ربط uid→hrid إن كان مفقوداً (للحسابات القديمة)

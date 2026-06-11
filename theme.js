@@ -19,7 +19,15 @@ var BGS={
   ocean:   {ar:"محيط",     b0:"#051320", b1:"#0a2033"},
   grape:   {ar:"عنبي",     b0:"#0d0716", b1:"#171029"},
   forest:  {ar:"غابة",     b0:"#06130d", b1:"#0c2015"},
-  coal:    {ar:"أسود فحمي", b0:"#000000", b1:"#0d0d0f"}
+  coal:    {ar:"أسود فحمي", b0:"#000000", b1:"#0d0d0f"},
+  /* تدرّجات بأسلوب Outlook */
+  sky:     {ar:"سماء",    g:"linear-gradient(135deg,#1e3a8a 0%,#0ea5e9 55%,#67e8f9 100%)"},
+  sunset:  {ar:"غروب",    g:"linear-gradient(135deg,#3b0764 0%,#be185d 45%,#fb923c 100%)"},
+  aurora:  {ar:"شفق",     g:"linear-gradient(135deg,#022c22 0%,#0d9488 45%,#a78bfa 100%)"},
+  orchid:  {ar:"أوركيد",  g:"linear-gradient(135deg,#312e81 0%,#7c3aed 50%,#f0abfc 100%)"},
+  ember:   {ar:"جمر",     g:"linear-gradient(135deg,#1c1917 0%,#7c2d12 50%,#f59e0b 100%)"},
+  steel:   {ar:"رمادي هادئ",g:"linear-gradient(135deg,#0f172a 0%,#334155 60%,#94a3b8 100%)"},
+  img:     {ar:"صورة 🖼️", img:true}
 };
 var THEMES={
   glass:   {ar:"زجاجي ✨"},
@@ -39,15 +47,20 @@ var S={
   glassLv:parseInt(LS.getItem("glassLv")||"60",10),
   flatRad:LS.getItem("flatRad")||"round",   // sharp | round
   matElev:LS.getItem("matElev")||"high",    // low | high
-  neuDepth:LS.getItem("neuDepth")||"soft"   // soft | deep
+  neuDepth:LS.getItem("neuDepth")||"soft",  // soft | deep
+  btnShape:LS.getItem("btnShape")||"round", // round | sharp | pill
+  btnOp:parseInt(LS.getItem("btnOp")||"100",10),
+  dayDone:LS.getItem("dayDone")||"dim"      // dim | neon | fire | accent
 };
 /* مستخدم جديد ⇒ ثيم عشوائي افتراضياً */
 if(!S.theme||!THEMES[S.theme]){
   S.theme=rnd(THEME_KEYS); S.accent=rnd(ACC_KEYS); S.bg=rnd(BG_KEYS);
   S.glassLv=40+Math.floor(Math.random()*50);
   S.flatRad=rnd(["sharp","round"]); S.matElev=rnd(["low","high"]); S.neuDepth=rnd(["soft","deep"]);
+  S.btnShape=rnd(["round","sharp","pill"]); S.btnOp=100; S.dayDone=rnd(["dim","neon","accent"]);
   persist();
 }
+if(isNaN(S.btnOp)) S.btnOp=100;
 if(!S.accent||!ACCENTS[S.accent]) S.accent="mint";
 if(!S.bg||!BGS[S.bg]) S.bg="def";
 if(isNaN(S.glassLv)) S.glassLv=60;
@@ -56,6 +69,7 @@ function persist(){
   LS.setItem("uiTheme",S.theme); LS.setItem("uiAccent",S.accent); LS.setItem("uiBg",S.bg);
   LS.setItem("glassLv",String(S.glassLv)); LS.setItem("flatRad",S.flatRad);
   LS.setItem("matElev",S.matElev); LS.setItem("neuDepth",S.neuDepth);
+  LS.setItem("btnShape",S.btnShape); LS.setItem("btnOp",String(S.btnOp)); LS.setItem("dayDone",S.dayDone);
 }
 
 /* ---- حقن CSS الثيمات (مرة واحدة) ---- */
@@ -104,6 +118,17 @@ var CSS=''+
  '.card{border-radius:18px}'+
  'body{font-size:15.5px}'+
 '}'+
+/* --- شكل الأزرار وشفافيتها --- */
+'body[data-btnshape=sharp] button,body[data-btnshape=sharp] .btn,body[data-btnshape=sharp] .brkbtn,body[data-btnshape=sharp] .set-btn,body[data-btnshape=sharp] .nav-btn{border-radius:6px!important}'+
+'body[data-btnshape=pill] button,body[data-btnshape=pill] .btn,body[data-btnshape=pill] .brkbtn,body[data-btnshape=pill] .set-btn{border-radius:999px!important}'+
+'.btn,.brkbtn,.set-btn,button.mint,.brktoggle,.tk-rand{opacity:var(--tk-btnop,1)}'+
+/* --- أنماط الأيام المنتهية (جدول التطبيق) --- */
+'body[data-daydone=neon] .day.past{opacity:1!important;filter:none!important;border-color:var(--mint)!important;box-shadow:0 0 10px color-mix(in srgb,var(--mint) 55%,transparent),inset 0 0 16px color-mix(in srgb,var(--mint) 22%,transparent)}'+
+'body[data-daydone=neon] .day.past .dn,body[data-daydone=neon] .day.past .dd,body[data-daydone=neon] .day.past .val{text-decoration:none!important;color:var(--mint);text-shadow:0 0 8px color-mix(in srgb,var(--mint) 70%,transparent)}'+
+'body[data-daydone=fire] .day.past{opacity:1!important;filter:none!important;background:linear-gradient(150deg,#450a0a,#9a3412 55%,#f59e0b)!important;border-color:#f59e0b!important}'+
+'body[data-daydone=fire] .day.past .dn,body[data-daydone=fire] .day.past .dd,body[data-daydone=fire] .day.past .val{text-decoration:none!important;color:#fff7ed!important}'+
+'body[data-daydone=accent] .day.past{opacity:1!important;filter:none!important;background:linear-gradient(150deg,color-mix(in srgb,var(--mint) 30%,transparent),color-mix(in srgb,var(--mint-deep,var(--mintd,#14b8a6)) 55%,transparent))!important;border-color:var(--mint)!important}'+
+'body[data-daydone=accent] .day.past .dn,body[data-daydone=accent] .day.past .dd,body[data-daydone=accent] .day.past .val{text-decoration:none!important;color:#fff!important}'+
 '@media(min-width:1100px){body[data-tkpage=admin] #empResult{display:grid;grid-template-columns:1fr 1fr;gap:10px}body[data-tkpage=admin] #empResult>div:first-child{grid-column:1/-1}body[data-tkpage=admin] #empResult>div{margin-bottom:0!important}}';
 
 var PAGE=(function(){ var p=(location.pathname||"").toLowerCase();
@@ -119,14 +144,24 @@ function isLight(){ return document.body.classList.contains("light"); }
 function apply(){
   inject();
   var b=document.body, r=b.style, L=isLight();
-  b.setAttribute("data-theme",S.theme); b.setAttribute("data-tkpage",PAGE);
+  b.setAttribute("data-theme",S.theme); b.setAttribute("data-tkpage",PAGE); b.setAttribute("data-btnshape",S.btnShape); b.setAttribute("data-daydone",S.dayDone); r.setProperty("--tk-btnop",(Math.max(35,Math.min(100,S.btnOp))/100).toFixed(2));
   /* اللون الرئيسي — يغطي كل تسميات الصفحات */
   var A=ACCENTS[S.accent];
   var main=L?A.lmain:A.main, deep=L?A.ldeep:A.deep;
   r.setProperty("--mint",main); r.setProperty("--mint-deep",deep); r.setProperty("--mintd",deep);
   /* الخلفية (الوضع الداكن فقط) */
-  var G=BGS[S.bg];
-  if(!L && G.b0){ r.setProperty("--bg-0",G.b0); r.setProperty("--bg-1",G.b1); r.setProperty("--bg",G.b0); r.setProperty("--bg2",G.b1); r.setProperty("--tk-surface",G.b1); }
+  var G=BGS[S.bg]||BGS.def;
+  b.style.backgroundImage=""; b.style.backgroundSize=""; b.style.backgroundAttachment=""; b.style.backgroundPosition="";
+  var IMG=LS.getItem("uiBgImg");
+  if(G.img && IMG){
+    var ov=L?"linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,.6))":"linear-gradient(rgba(4,7,14,.55),rgba(4,7,14,.66))";
+    b.style.backgroundImage=ov+",url("+IMG+")"; b.style.backgroundSize="cover"; b.style.backgroundPosition="center"; b.style.backgroundAttachment="fixed";
+    r.setProperty("--tk-surface",L?"rgba(255,255,255,.92)":"rgba(10,16,28,.92)");
+  } else if(G.g){
+    var ov2=L?"":"linear-gradient(rgba(4,7,14,.38),rgba(4,7,14,.5)),";
+    b.style.backgroundImage=ov2+G.g; b.style.backgroundSize="cover"; b.style.backgroundAttachment="fixed";
+    r.setProperty("--tk-surface",L?"rgba(255,255,255,.9)":"rgba(10,16,28,.9)");
+  } else if(!L && G.b0){ r.setProperty("--bg-0",G.b0); r.setProperty("--bg-1",G.b1); r.setProperty("--bg",G.b0); r.setProperty("--bg2",G.b1); r.setProperty("--tk-surface",G.b1); }
   else { r.removeProperty("--bg-0"); r.removeProperty("--bg-1"); r.removeProperty("--bg"); r.removeProperty("--bg2"); r.setProperty("--tk-surface",L?"#ffffff":"#0c1424"); }
   r.setProperty("--tk-line",L?"rgba(22,44,78,.14)":"rgba(255,255,255,.09)");
   /* خصائص كل ثيم */
@@ -155,6 +190,7 @@ function randomize(){
   S.theme=rnd(THEME_KEYS); S.accent=rnd(ACC_KEYS); S.bg=rnd(BG_KEYS);
   S.glassLv=40+Math.floor(Math.random()*50);
   S.flatRad=rnd(["sharp","round"]); S.matElev=rnd(["low","high"]); S.neuDepth=rnd(["soft","deep"]);
+  S.btnShape=rnd(["round","sharp","pill"]); S.dayDone=rnd(["dim","neon","fire","accent"]);
   persist(); apply();
 }
 
@@ -173,8 +209,26 @@ function panel(lang){
   h+='</div>';
   /* الخلفية */
   h+='<div class="tk-k">🌌 '+T("لون الخلفية (الوضع الداكن)","Background (dark mode)")+'</div><div class="tk-sw">';
-  BG_KEYS.forEach(function(k){ var g=BGS[k]; var bg=g.b0?("linear-gradient(135deg,"+g.b0+","+g.b1+")"):"linear-gradient(135deg,#070b14,#0c1424)"; h+='<div class="tk-bg'+(S.bg===k?" on":"")+'" style="background:'+bg+'" title="'+g.ar+'" onclick="TK.set(\'bg\',\''+k+'\');TK.refresh()"></div>'; });
+  BG_KEYS.forEach(function(k){ var g=BGS[k];
+    var bg=g.g?g.g:(g.b0?("linear-gradient(135deg,"+g.b0+","+g.b1+")"):"linear-gradient(135deg,#070b14,#0c1424)");
+    if(g.img){ var has=!!LS.getItem("uiBgImg");
+      h+='<div class="tk-bg'+(S.bg===k?" on":"")+'" style="background:'+(has?'#222 center/cover url('+LS.getItem("uiBgImg")+')':'repeating-linear-gradient(45deg,#1f2937 0 8px,#374151 8px 16px)')+';display:grid;place-items:center;font-size:15px" title="'+g.ar+'" onclick="TK.pickImage()">🖼️</div>';
+    } else {
+      h+='<div class="tk-bg'+(S.bg===k?" on":"")+'" style="background:'+bg+'" title="'+g.ar+'" onclick="TK.set(\'bg\',\''+k+'\');TK.refresh()"></div>';
+    }
+  });
   h+='</div>';
+  if(S.bg==="img"&&LS.getItem("uiBgImg")) h+='<div style="margin-top:6px"><span class="tk-o" style="display:inline-block;padding:6px 12px" onclick="TK.clearImage()">🗑️ '+T("إزالة الصورة","Remove image")+'</span></div>';
+  /* الأزرار */
+  h+='<div class="tk-k">🔘 '+T("شكل الأزرار","Button shape")+'</div><div class="tk-seg">'+
+     '<div class="tk-o'+(S.btnShape==="round"?" on":"")+'" onclick="TK.set(\'btnShape\',\'round\');TK.refresh()">'+T("دائري","Round")+'</div>'+
+     '<div class="tk-o'+(S.btnShape==="sharp"?" on":"")+'" onclick="TK.set(\'btnShape\',\'sharp\');TK.refresh()">'+T("حاد","Sharp")+'</div>'+
+     '<div class="tk-o'+(S.btnShape==="pill"?" on":"")+'" onclick="TK.set(\'btnShape\',\'pill\');TK.refresh()">'+T("كبسولة","Pill")+'</div></div>';
+  h+='<div class="tk-k">'+T("شفافية الأزرار","Button opacity")+' · <span id="tkBop">'+S.btnOp+'</span>%</div>'+
+     '<input type="range" class="tk-range" min="35" max="100" value="'+S.btnOp+'" oninput="TK.set(\'btnOp\',parseInt(this.value,10));var g=document.getElementById(\'tkBop\');if(g)g.textContent=this.value">';
+  /* الأيام المنتهية */
+  h+='<div class="tk-k">📅 '+T("شكل الأيام المنتهية في الجدول","Finished-day style")+'</div><div class="tk-grid">'+
+     [["dim",T("خافت (الحالي)","Dim")],["neon",T("نيون","Neon")],["fire",T("ناري","Fire")],["accent",T("بلون الثيم","Accent")]].map(function(x){return '<div class="tk-o'+(S.dayDone===x[0]?" on":"")+'" onclick="TK.set(\'dayDone\',\''+x[0]+'\');TK.refresh()">'+x[1]+'</div>';}).join("")+'</div>';
   /* ميزات الثيم المختار */
   if(S.theme==="glass"){
     h+='<div class="tk-k">✨ '+T("قوة الشفافية والضبابية","Glass intensity")+' · <span id="tkGlv">'+S.glassLv+'</span>%</div>'+
@@ -200,7 +254,22 @@ try{
   new MutationObserver(function(){ apply(); }).observe(document.body,{attributes:true,attributeFilter:["class"]});
 }catch(e){}
 
-window.TK={apply:apply,set:set,randomize:randomize,panel:panel,state:S,
+function pickImage(){
+  var inp=document.getElementById("tkImgInp");
+  if(!inp){ inp=document.createElement("input"); inp.type="file"; inp.accept="image/*"; inp.id="tkImgInp"; inp.style.display="none";
+    inp.addEventListener("change",function(){
+      var f=this.files&&this.files[0]; if(!f)return;
+      if(f.size>2500000){ alert("الصورة كبيرة — يُرجى اختيار صورة أقل من 2.5MB"); this.value=""; return; }
+      var rd=new FileReader();
+      rd.onload=function(){ try{ LS.setItem("uiBgImg",rd.result); }catch(e){ alert("تعذّر حفظ الصورة (المساحة ممتلئة)"); return; } S.bg="img"; persist(); apply(); if(window.TK)TK.refresh(); };
+      rd.readAsDataURL(f); this.value="";
+    });
+    document.body.appendChild(inp);
+  }
+  inp.click();
+}
+function clearImage(){ LS.removeItem("uiBgImg"); if(S.bg==="img"){S.bg="def";persist();} apply(); if(window.TK)TK.refresh(); }
+window.TK={apply:apply,set:set,randomize:randomize,panel:panel,state:S,pickImage:pickImage,clearImage:clearImage,
   refresh:function(){ if(typeof window.tkRefreshPanel==="function"){ try{ window.tkRefreshPanel(); }catch(e){} } }};
 apply();
 })();

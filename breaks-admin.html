@@ -156,7 +156,7 @@ function doLogin(){
     .catch(function(e){ $("loginMsg").textContent="بيانات غير صحيحة"; });
 }
 firebase.auth().onAuthStateChanged(function(u){
-  if(!u){ $("loginCard").classList.remove("hidden"); $("dash").classList.add("hidden"); return; }
+  if(!u){ location.replace("./admin.html"); return; }
   // check authorization: admin OR /admins OR /monitors
   if(u.uid===ADMIN_UID){ authorized(); return; }
   Promise.all([db.ref("admins/"+u.uid).once("value"),db.ref("perms/"+u.uid).once("value")])
@@ -164,9 +164,8 @@ firebase.auth().onAuthStateChanged(function(u){
     .catch(function(){ denied(); });
 });
 function denied(){
-  $("loginCard").classList.remove("hidden"); $("dash").classList.add("hidden");
-  $("loginMsg").textContent="ليس لديك صلاحية مراقبة البريكات. اطلب من الأدمن منحك الصلاحية.";
-  firebase.auth().signOut();
+  try{ firebase.auth().signOut(); }catch(e){}
+  location.replace("./admin.html");
 }
 function authorized(){
   $("loginCard").classList.add("hidden"); $("dash").classList.remove("hidden");
