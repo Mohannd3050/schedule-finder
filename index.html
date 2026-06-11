@@ -64,11 +64,11 @@
   .brkcard .lbl{display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:700;font-size:15px;margin-bottom:10px;cursor:pointer;user-select:none}
   .brkcard .lbl .car{font-size:13px;color:var(--txt-dim);transition:.2s}
   .brknext{font-size:12.5px;color:var(--txt-dim);background:var(--glass);border:1px solid var(--stroke-soft);border-radius:11px;padding:9px 12px;margin-bottom:9px}
-  .brklist{display:flex;flex-direction:column;gap:7px}
-  .brkrow{display:block;padding:12px 14px;border-radius:13px;background:var(--glass);border:1px solid var(--stroke-soft);transition:.2s}
-  .brkrow .bt{font-weight:700;font-size:14px;white-space:nowrap}
+  .brklist{display:flex;flex-direction:column;gap:11px}
+  .brkrow{display:block;padding:16px;border-radius:16px;background:var(--glass);border:1px solid var(--stroke-soft);transition:.2s}
+  .brkrow .bt{font-weight:700;font-size:13px;color:var(--txt-dim);letter-spacing:.3px;white-space:nowrap}
   .brkr-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
-  .brkr-time{font-size:14.5px;font-weight:600;color:var(--txt);font-variant-numeric:tabular-nums;letter-spacing:.3px;margin-top:7px}
+  .brkr-time{font-size:19px;font-weight:800;color:var(--txt);font-variant-numeric:tabular-nums;letter-spacing:.4px;margin-top:9px;line-height:1.3}
   .brkrow .bd{font-size:11.5px;color:var(--txt-dim);background:color-mix(in srgb,var(--mint) 12%,transparent);padding:2px 8px;border-radius:100px;white-space:nowrap}
   .brkrow.on{border-color:var(--mint);box-shadow:0 0 0 1px var(--mint)}
   .brkrow.nx{border-color:color-mix(in srgb,var(--violet) 50%,transparent)}
@@ -85,7 +85,10 @@
   .brktoggle.on{box-shadow:0 0 0 1px var(--amber)}
   .brkrow.row2{flex-direction:column;align-items:stretch;gap:9px}
   .brkr-top{display:flex;justify-content:space-between;align-items:center}
-  .brkr-bot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;padding-top:8px;border-top:1px solid var(--stroke-soft)}
+  .brkr-bot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px}
+  .brkbar{height:6px;border-radius:99px;background:var(--stroke-soft);margin-top:12px;overflow:hidden}
+  .brkbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--mint),var(--mint-deep));border-radius:99px;transition:width .45s ease}
+  .brkrow.over .brkbar i{background:linear-gradient(90deg,#f87171,#dc2626)}
   .ds-brk{background:var(--glass);border:1px solid var(--stroke-soft);border-radius:11px;padding:10px 13px;margin-bottom:7px}
   .ds-brk.over{border-color:var(--rose)}
   .ds-brk-h{display:flex;justify-content:space-between;align-items:center;font-size:13.5px;margin-bottom:5px;gap:8px}
@@ -93,9 +96,9 @@
   .ds-brk-h .rng{font-weight:700;font-variant-numeric:tabular-nums}
   .ds-brk-u{font-size:12.5px;color:var(--txt-dim);font-variant-numeric:tabular-nums}
   .ds-brk-u.over{color:var(--rose);font-weight:700}
-  .bu{font-size:12px;color:var(--txt-dim);font-variant-numeric:tabular-nums}
+  .bu{font-size:12.5px;color:var(--txt-dim);font-variant-numeric:tabular-nums}
   .bu.over{color:var(--rose);font-weight:700}
-  .brkbtn{border:none;border-radius:10px;padding:7px 15px;font-family:inherit;font-weight:700;font-size:12.5px;cursor:pointer;color:#04211c;background:linear-gradient(135deg,var(--mint),var(--mint-deep));transition:.16s}
+  .brkbtn{border:none;border-radius:11px;padding:9px 20px;font-family:inherit;font-weight:700;font-size:12.5px;cursor:pointer;color:#04211c;background:linear-gradient(135deg,var(--mint),var(--mint-deep));transition:.16s}
   .brkbtn:hover{transform:translateY(-1px)}
   .brkbtn.act{background:linear-gradient(135deg,var(--amber),#d97706);color:#3b1d00}
   .brksel{width:100%;background:var(--glass);border:1px solid var(--stroke-soft);color:var(--txt);font-family:inherit;font-size:13.5px;font-weight:700;border-radius:11px;padding:10px 12px;cursor:pointer;margin-bottom:9px;outline:none;text-align:center;text-align-last:center}
@@ -229,6 +232,10 @@
   .day.code.ph .val,.day.code.eid .val{color:var(--amber)}
   .day.code.support .val{color:var(--support)}
   .day.today{border-color:var(--mint);box-shadow:0 0 0 1px var(--mint),0 14px 30px -12px color-mix(in srgb,var(--mint) 40%,transparent)}
+  .day.today::before{content:"";position:absolute;left:0;right:0;bottom:0;height:var(--dayfill,0%);background:linear-gradient(180deg,color-mix(in srgb,var(--mint) 34%,transparent),color-mix(in srgb,var(--mint-deep) 26%,transparent));transition:height 1s ease;z-index:0;pointer-events:none}
+  .day.today::after{content:"";position:absolute;left:0;right:0;bottom:calc(var(--dayfill,0%) - 2px);height:2.5px;background:color-mix(in srgb,var(--mint) 75%,transparent);filter:blur(.4px);animation:wave 2.6s ease-in-out infinite;z-index:0;pointer-events:none}
+  @keyframes wave{0%,100%{transform:translateX(-5%) scaleX(1.02)}50%{transform:translateX(5%) scaleX(.98)}}
+  .day.today>*{position:relative;z-index:1}
   .day.today::after{content:"اليوم";position:absolute;top:7px;left:7px;font-size:9px;font-weight:700;color:#04211c;background:var(--mint);padding:2px 7px;border-radius:6px}
   .day.past{opacity:.42;filter:grayscale(.4)}
   .day.past .dn,.day.past .dd,.day.past .val{text-decoration:line-through;text-decoration-thickness:1.5px}
@@ -967,7 +974,9 @@ function renderBreaksCard(){
     if(!isToday){ return '<div class="brkrow row2" data-bi="'+i+'">'+top+'</div>'; }
     var used=brkUsedSec(i,true); totUsed+=used; var active=brkIsActive(i); var over=used>(b.d||0)*60;
     var btn='<button class="brkbtn'+(active?" act":"")+'" onclick="toggleBreakUsage('+i+')">'+(active?(ar?"⏹️ إيقاف":"⏹️ Stop"):(ar?"▶️ بدء":"▶️ Start"))+'</button>';
+    var pct=Math.min(100,Math.round(used/((b.d||15)*60)*100));
     return '<div class="brkrow row2'+(active?" on":"")+(over?" over":"")+'" data-bi="'+i+'">'+top+
+      '<div class="brkbar"><i id="bbar'+i+'" style="width:'+pct+'%"></i></div>'+
       '<div class="brkr-bot"><span class="bu'+(over?" over":"")+'" id="bu'+i+'">'+(ar?"المُستخدَم ":"Used ")+fmtMS(used)+'</span>'+btn+'</div></div>';
   }).join("");
   var head = isToday ? '<div id="brkNext" class="brknext">—</div>' : '<div class="brknext" style="color:var(--txt-dim)">'+(ar?"بريكات يوم ":"Breaks · ")+(ar?WEEK_DAYS_AR[WEEK_DAYS.indexOf(sel)]:sel)+'</div>';
@@ -991,7 +1000,8 @@ function updateBreakCountdown(){
   var data=BREAKS_CACHE[today]; if(!data||!data.b)return;
   var ar=(LANG==="ar"), totUsed=0, totPlan=0;
   data.b.forEach(function(b,i){ totPlan+=(b.d||0); var used=brkUsedSec(i,true); totUsed+=used; var over=used>(b.d||0)*60;
-    var el=document.getElementById("bu"+i); if(el){ el.textContent=(ar?"المُستخدَم ":"Used ")+fmtMS(used); el.classList.toggle("over",over); }
+    var el=document.getElementById("bu"+i); if(el){ el.textContent=(ar?"المُستخدَم ":"Used ")+fmtMS(used);
+      var bb=document.getElementById("bbar"+i); if(bb) bb.style.width=Math.min(100,Math.round(used/(((b.d)||15)*60)*100))+"%"; el.classList.toggle("over",over); }
     var row=document.querySelector('.brkrow[data-bi="'+i+'"]'); if(row){ row.classList.toggle("over",over); row.classList.toggle("on",brkIsActive(i)); }
   });
   var tot=document.getElementById("buTot"); if(tot){ tot.textContent=fmtMS(totUsed)+" / "+totPlan+(ar?" د":" min"); }
@@ -1214,7 +1224,7 @@ function showApp(records){
   startTodayTick(records);
 }
 
-function renderWeeks(records){
+function renderWeeks(records){ setTimeout(function(){ if(typeof dayFillTick==="function") dayFillTick(); },50);
   var box=document.getElementById("weeksBox");
   var html="";
   records.forEach(function(R){
@@ -1431,6 +1441,11 @@ function pwxHTML(){
 }
 function pwxTick(){ var el=document.getElementById("pwx"); if(el) el.innerHTML=pwxHTML(); }
 pwxFetch(); setInterval(pwxTick,1000); setInterval(pwxFetch,1800000);
+function dayFillTick(){
+  var now=new Date(); var pct=((now-new Date(now.getFullYear(),now.getMonth(),now.getDate()))/86400000)*100;
+  document.querySelectorAll(".day.today").forEach(function(c){ c.style.setProperty("--dayfill",pct.toFixed(2)+"%"); });
+}
+dayFillTick(); setInterval(dayFillTick,30000);
 
 function startPresence(){
   if(!db || !CURRENT_HRID) return;

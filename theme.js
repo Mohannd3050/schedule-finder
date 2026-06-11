@@ -49,15 +49,14 @@ var S={
   matElev:LS.getItem("matElev")||"high",    // low | high
   neuDepth:LS.getItem("neuDepth")||"soft",  // soft | deep
   btnShape:LS.getItem("btnShape")||"round", // round | sharp | pill
-  btnOp:parseInt(LS.getItem("btnOp")||"100",10),
-  dayDone:LS.getItem("dayDone")||"dim"      // dim | neon | fire | accent
+  btnOp:parseInt(LS.getItem("btnOp")||"100",10)
 };
 /* مستخدم جديد ⇒ ثيم عشوائي افتراضياً */
 if(!S.theme||!THEMES[S.theme]){
   S.theme=rnd(THEME_KEYS); S.accent=rnd(ACC_KEYS); S.bg=rnd(BG_KEYS);
   S.glassLv=40+Math.floor(Math.random()*50);
   S.flatRad=rnd(["sharp","round"]); S.matElev=rnd(["low","high"]); S.neuDepth=rnd(["soft","deep"]);
-  S.btnShape=rnd(["round","sharp","pill"]); S.btnOp=100; S.dayDone=rnd(["dim","neon","accent"]);
+  S.btnShape=rnd(["round","sharp","pill"]); S.btnOp=100;
   persist();
 }
 if(isNaN(S.btnOp)) S.btnOp=100;
@@ -69,7 +68,7 @@ function persist(){
   LS.setItem("uiTheme",S.theme); LS.setItem("uiAccent",S.accent); LS.setItem("uiBg",S.bg);
   LS.setItem("glassLv",String(S.glassLv)); LS.setItem("flatRad",S.flatRad);
   LS.setItem("matElev",S.matElev); LS.setItem("neuDepth",S.neuDepth);
-  LS.setItem("btnShape",S.btnShape); LS.setItem("btnOp",String(S.btnOp)); LS.setItem("dayDone",S.dayDone);
+  LS.setItem("btnShape",S.btnShape); LS.setItem("btnOp",String(S.btnOp));
 }
 
 /* ---- حقن CSS الثيمات (مرة واحدة) ---- */
@@ -108,6 +107,12 @@ var CSS=''+
 '.tk-k{font-size:12.5px;color:var(--txt-dim,#9fb0cc);margin:13px 0 8px;font-weight:700}'+
 '.tk-range{width:100%;accent-color:var(--mint,#5eead4)}'+
 '.tk-seg{display:flex;gap:6px}.tk-seg .tk-o{flex:1}'+
+'.tk-reveal{opacity:0;transform:translateY(14px)}'+
+'.tk-in{opacity:1!important;transform:none!important;transition:opacity .55s ease,transform .55s cubic-bezier(.2,.7,.3,1)}'+
+'.tk-ripple{position:absolute;border-radius:50%;pointer-events:none;background:rgba(255,255,255,.32);transform:scale(0);animation:tkRip .55s ease-out forwards;z-index:5}'+
+'@keyframes tkRip{to{transform:scale(2.7);opacity:0}}'+
+'@media(hover:hover){body[data-theme] .card:hover{transform:translateY(-2px)}}'+
+'@media(prefers-reduced-motion:reduce){.tk-reveal{opacity:1;transform:none}}'+
 /* --- صفحات الإدارة: طابع رسمي --- */
 'body[data-tkpage=admin][data-theme=material] button,body[data-tkpage=admin][data-theme=material] .btn{border-radius:12px!important}'+
 'body[data-tkpage=admin][data-theme=neu] .card,body[data-tkpage=admin][data-theme=neu] .stat{border-radius:14px!important}'+
@@ -127,13 +132,6 @@ var CSS=''+
 'body[data-btnshape=sharp] button,body[data-btnshape=sharp] .btn,body[data-btnshape=sharp] .brkbtn,body[data-btnshape=sharp] .set-btn,body[data-btnshape=sharp] .nav-btn{border-radius:6px!important}'+
 'body[data-btnshape=pill] button,body[data-btnshape=pill] .btn,body[data-btnshape=pill] .brkbtn,body[data-btnshape=pill] .set-btn{border-radius:999px!important}'+
 '.btn,.brkbtn,.set-btn,button.mint,.brktoggle,.tk-rand{opacity:var(--tk-btnop,1)}'+
-/* --- أنماط الأيام المنتهية (جدول التطبيق) --- */
-'body[data-daydone=neon] .day.past{opacity:1!important;filter:none!important;border-color:var(--mint)!important;box-shadow:0 0 10px color-mix(in srgb,var(--mint) 55%,transparent),inset 0 0 16px color-mix(in srgb,var(--mint) 22%,transparent)}'+
-'body[data-daydone=neon] .day.past .dn,body[data-daydone=neon] .day.past .dd,body[data-daydone=neon] .day.past .val{text-decoration:none!important;color:var(--mint);text-shadow:0 0 8px color-mix(in srgb,var(--mint) 70%,transparent)}'+
-'body[data-daydone=fire] .day.past{opacity:1!important;filter:none!important;background:linear-gradient(150deg,#450a0a,#9a3412 55%,#f59e0b)!important;border-color:#f59e0b!important}'+
-'body[data-daydone=fire] .day.past .dn,body[data-daydone=fire] .day.past .dd,body[data-daydone=fire] .day.past .val{text-decoration:none!important;color:#fff7ed!important}'+
-'body[data-daydone=accent] .day.past{opacity:1!important;filter:none!important;background:linear-gradient(150deg,color-mix(in srgb,var(--mint) 30%,transparent),color-mix(in srgb,var(--mint-deep,var(--mintd,#14b8a6)) 55%,transparent))!important;border-color:var(--mint)!important}'+
-'body[data-daydone=accent] .day.past .dn,body[data-daydone=accent] .day.past .dd,body[data-daydone=accent] .day.past .val{text-decoration:none!important;color:#fff!important}'+
 '@media(min-width:1100px){body[data-tkpage=admin] #empResult{display:grid;grid-template-columns:1fr 1fr;gap:10px}body[data-tkpage=admin] #empResult>div:first-child{grid-column:1/-1}body[data-tkpage=admin] #empResult>div{margin-bottom:0!important}}';
 
 var PAGE=(function(){ var p=(location.pathname||"").toLowerCase();
@@ -149,7 +147,7 @@ function isLight(){ return document.body.classList.contains("light"); }
 function apply(){
   inject();
   var b=document.body, r=b.style, L=isLight();
-  b.setAttribute("data-theme",S.theme); b.setAttribute("data-tkpage",PAGE); b.setAttribute("data-btnshape",S.btnShape); b.setAttribute("data-daydone",S.dayDone); r.setProperty("--tk-btnop",(Math.max(35,Math.min(100,S.btnOp))/100).toFixed(2));
+  b.setAttribute("data-theme",S.theme); b.setAttribute("data-tkpage",PAGE); b.setAttribute("data-btnshape",S.btnShape); r.setProperty("--tk-btnop",(Math.max(35,Math.min(100,S.btnOp))/100).toFixed(2));
   /* اللون الرئيسي — يغطي كل تسميات الصفحات */
   var A=ACCENTS[S.accent];
   var main=L?A.lmain:A.main, deep=L?A.ldeep:A.deep;
@@ -159,11 +157,11 @@ function apply(){
   b.style.backgroundImage=""; b.style.backgroundSize=""; b.style.backgroundAttachment=""; b.style.backgroundPosition="";
   var IMG=LS.getItem("uiBgImg");
   if(G.img && IMG){
-    var ov=L?"linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,.6))":"linear-gradient(rgba(4,7,14,.55),rgba(4,7,14,.66))";
+    var ov=L?"linear-gradient(rgba(255,255,255,.78),rgba(255,255,255,.84))":"linear-gradient(rgba(4,7,14,.62),rgba(4,7,14,.72))";
     b.style.backgroundImage=ov+",url("+IMG+")"; b.style.backgroundSize="cover"; b.style.backgroundPosition="center"; b.style.backgroundAttachment="fixed";
     r.setProperty("--tk-surface",L?"rgba(255,255,255,.92)":"rgba(10,16,28,.92)");
   } else if(G.g){
-    var ov2=L?"":"linear-gradient(rgba(4,7,14,.38),rgba(4,7,14,.5)),";
+    var ov2=L?"linear-gradient(rgba(255,255,255,.74),rgba(255,255,255,.8)),":"linear-gradient(rgba(4,7,14,.5),rgba(4,7,14,.62)),";
     b.style.backgroundImage=ov2+G.g; b.style.backgroundSize="cover"; b.style.backgroundAttachment="fixed";
     r.setProperty("--tk-surface",L?"rgba(255,255,255,.9)":"rgba(10,16,28,.9)");
   } else if(!L && G.b0){ r.setProperty("--bg-0",G.b0); r.setProperty("--bg-1",G.b1); r.setProperty("--bg",G.b0); r.setProperty("--bg2",G.b1); r.setProperty("--tk-surface",G.b1); }
@@ -194,14 +192,14 @@ function set(k,v){ S[k]=v; persist(); apply(); }
 function classic(){
   S.theme="glass"; S.accent="mint"; S.bg="def"; S.glassLv=60;
   S.flatRad="round"; S.matElev="high"; S.neuDepth="soft";
-  S.btnShape="round"; S.btnOp=100; S.dayDone="dim";
+  S.btnShape="round"; S.btnOp=100; 
   persist(); apply();
 }
 function randomize(){
   S.theme=rnd(THEME_KEYS); S.accent=rnd(ACC_KEYS); S.bg=rnd(BG_KEYS);
   S.glassLv=40+Math.floor(Math.random()*50);
   S.flatRad=rnd(["sharp","round"]); S.matElev=rnd(["low","high"]); S.neuDepth=rnd(["soft","deep"]);
-  S.btnShape=rnd(["round","sharp","pill"]); S.dayDone=rnd(["dim","neon","fire","accent"]);
+  S.btnShape=rnd(["round","sharp","pill"]);
   persist(); apply();
 }
 
@@ -238,9 +236,6 @@ function panel(lang){
      '<div class="tk-o'+(S.btnShape==="pill"?" on":"")+'" onclick="TK.set(\'btnShape\',\'pill\');TK.refresh()">'+T("كبسولة","Pill")+'</div></div>';
   h+='<div class="tk-k">'+T("شفافية الأزرار","Button opacity")+' · <span id="tkBop">'+S.btnOp+'</span>%</div>'+
      '<input type="range" class="tk-range" min="35" max="100" value="'+S.btnOp+'" oninput="TK.set(\'btnOp\',parseInt(this.value,10));var g=document.getElementById(\'tkBop\');if(g)g.textContent=this.value">';
-  /* الأيام المنتهية */
-  h+='<div class="tk-k">📅 '+T("شكل الأيام المنتهية في الجدول","Finished-day style")+'</div><div class="tk-grid">'+
-     [["dim",T("خافت (الحالي)","Dim")],["neon",T("نيون","Neon")],["fire",T("ناري","Fire")],["accent",T("بلون الثيم","Accent")]].map(function(x){return '<div class="tk-o'+(S.dayDone===x[0]?" on":"")+'" onclick="TK.set(\'dayDone\',\''+x[0]+'\');TK.refresh()">'+x[1]+'</div>';}).join("")+'</div>';
   /* ميزات الثيم المختار */
   if(S.theme==="glass"){
     h+='<div class="tk-k">✨ '+T("قوة الشفافية والضبابية","Glass intensity")+' · <span id="tkGlv">'+S.glassLv+'</span>%</div>'+
@@ -283,5 +278,27 @@ function pickImage(){
 function clearImage(){ LS.removeItem("uiBgImg"); if(S.bg==="img"){S.bg="def";persist();} apply(); if(window.TK)TK.refresh(); }
 window.TK={apply:apply,set:set,randomize:randomize,classic:classic,panel:panel,state:S,pickImage:pickImage,clearImage:clearImage,
   refresh:function(){ if(typeof window.tkRefreshPanel==="function"){ try{ window.tkRefreshPanel(); }catch(e){} } }};
+function fx(){
+  try{
+    if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("tk-in"); io.unobserve(e.target); } }); },{threshold:.06});
+    function scan(){ document.querySelectorAll(".card:not(.tk-seen)").forEach(function(c){ c.classList.add("tk-seen","tk-reveal"); io.observe(c); }); }
+    scan();
+    new MutationObserver(function(){ scan(); }).observe(document.body,{childList:true,subtree:true});
+    document.addEventListener("pointerdown",function(ev){
+      var b=ev.target&&ev.target.closest&&ev.target.closest("button,.btn,.set-btn,.tk-o,.brkbtn,.nav-btn,.brktoggle");
+      if(!b)return;
+      var r=b.getBoundingClientRect();
+      if(getComputedStyle(b).position==="static") b.style.position="relative";
+      b.style.overflow="hidden";
+      var sp=document.createElement("span"); sp.className="tk-ripple";
+      var sz=Math.max(r.width,r.height);
+      sp.style.width=sp.style.height=sz+"px";
+      sp.style.left=(ev.clientX-r.left-sz/2)+"px"; sp.style.top=(ev.clientY-r.top-sz/2)+"px";
+      b.appendChild(sp); setTimeout(function(){ sp.remove(); },600);
+    },{passive:true});
+  }catch(e){}
+}
 apply();
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",fx); else fx();
 })();
