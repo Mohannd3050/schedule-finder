@@ -5,12 +5,12 @@ var LS=window.localStorage;
 
 /* ---- الألوان الرئيسية (Accent) ---- */
 var ACCENTS={
-  mint:   {ar:"نعناعي", main:"#5eead4", deep:"#14b8a6", lmain:"#0d9488", ldeep:"#0f766e"},
-  violet: {ar:"بنفسجي", main:"#a78bfa", deep:"#7c3aed", lmain:"#7c3aed", ldeep:"#6d28d9"},
-  blue:   {ar:"أزرق",   main:"#60a5fa", deep:"#2563eb", lmain:"#2563eb", ldeep:"#1d4ed8"},
-  rose:   {ar:"وردي",   main:"#fb7185", deep:"#e11d48", lmain:"#e11d48", ldeep:"#be123c"},
-  amber:  {ar:"كهرماني",main:"#fbbf24", deep:"#d97706", lmain:"#c2740a", ldeep:"#a16207"},
-  lime:   {ar:"ليموني", main:"#a3e635", deep:"#65a30d", lmain:"#65a30d", ldeep:"#4d7c0f"}
+  mint:   {ar:"نعناعي هادئ", main:"#4fd1c5", deep:"#11998e", lmain:"#0e9488", ldeep:"#0c766b"},
+  violet: {ar:"بنفسجي ناعم", main:"#b4a7f0", deep:"#7a6ad8", lmain:"#6c5cc9", ldeep:"#5a49b0"},
+  blue:   {ar:"أزرق هادئ",  main:"#8fb9ee", deep:"#4477c8", lmain:"#3b69b5", ldeep:"#2f549a"},
+  rose:   {ar:"وردي دافئ",  main:"#eda6b8", deep:"#c75d80", lmain:"#b34d70", ldeep:"#963e5d"},
+  amber:  {ar:"رملي",      main:"#e3c075", deep:"#b08540", lmain:"#9c7733", ldeep:"#82622a"},
+  lime:   {ar:"زيتي",      main:"#aac3a2", deep:"#6f8f6a", lmain:"#5e7d59", ldeep:"#4d6849"}
 };
 /* ---- خلفيات (للوضع الداكن) ---- */
 var BGS={
@@ -98,7 +98,8 @@ var CSS=''+
 '.tk-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}'+
 '.tk-o{text-align:center;padding:11px 8px;border-radius:11px;border:1px solid var(--stroke,rgba(255,255,255,.12));background:var(--glass,rgba(255,255,255,.06));cursor:pointer;font-weight:600;font-size:12.5px;color:var(--txt-dim,#9fb0cc);transition:.15s;user-select:none}'+
 '.tk-o.on{background:linear-gradient(120deg,var(--mint,#5eead4),var(--mint-deep,var(--mintd,#14b8a6)));color:#04211c;border-color:transparent}'+
-'.tk-rand{grid-column:1/-1;background:linear-gradient(120deg,#a78bfa,#5eead4,#fbbf24);color:#10131c;font-weight:800}'+
+'.tk-rand{background:linear-gradient(120deg,#b4a7f0,#4fd1c5,#e3c075);color:#10131c;font-weight:800}'+
+'.tk-classic{background:var(--glass,rgba(255,255,255,.08));border:1px dashed var(--mint,#4fd1c5)!important;font-weight:800}'+
 '.tk-sw{display:flex;gap:9px;flex-wrap:wrap;margin-top:4px}'+
 '.tk-c{width:34px;height:34px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:.15s;position:relative}'+
 '.tk-c.on{border-color:#fff;box-shadow:0 0 0 2px var(--mint,#5eead4);transform:scale(1.08)}'+
@@ -118,6 +119,10 @@ var CSS=''+
  '.card{border-radius:18px}'+
  'body{font-size:15.5px}'+
 '}'+
+/* --- توحيد مظهر الأزرار في كل الصفحات --- */
+'body button{font-family:inherit}'+
+'body button.mint,body .btn,body .brkbtn,body .set-btn.go,body .brktoggle{background:linear-gradient(120deg,var(--mint,#4fd1c5),var(--mint-deep,var(--mintd,#11998e)))!important;color:#06241f!important;border:none!important;font-weight:700!important}'+
+'body button.ghost,body .set-btn:not(.go):not(.danger){background:var(--glass,rgba(255,255,255,.06))!important;border:1px solid var(--stroke,rgba(255,255,255,.14))!important;color:var(--txt,#e8eefc)!important;font-weight:600!important}'+
 /* --- شكل الأزرار وشفافيتها --- */
 'body[data-btnshape=sharp] button,body[data-btnshape=sharp] .btn,body[data-btnshape=sharp] .brkbtn,body[data-btnshape=sharp] .set-btn,body[data-btnshape=sharp] .nav-btn{border-radius:6px!important}'+
 'body[data-btnshape=pill] button,body[data-btnshape=pill] .btn,body[data-btnshape=pill] .brkbtn,body[data-btnshape=pill] .set-btn{border-radius:999px!important}'+
@@ -186,6 +191,12 @@ function apply(){
 }
 
 function set(k,v){ S[k]=v; persist(); apply(); }
+function classic(){
+  S.theme="glass"; S.accent="mint"; S.bg="def"; S.glassLv=60;
+  S.flatRad="round"; S.matElev="high"; S.neuDepth="soft";
+  S.btnShape="round"; S.btnOp=100; S.dayDone="dim";
+  persist(); apply();
+}
 function randomize(){
   S.theme=rnd(THEME_KEYS); S.accent=rnd(ACC_KEYS); S.bg=rnd(BG_KEYS);
   S.glassLv=40+Math.floor(Math.random()*50);
@@ -200,7 +211,8 @@ function panel(lang){
   function T(o,en){return ar?o:en;}
   var h='';
   h+='<div class="tk-grid">';
-  h+='<div class="tk-o tk-rand" onclick="TK.randomize();TK.refresh()">🎲 '+T("ثيم عشوائي","Random theme")+'</div>';
+  h+='<div class="tk-o tk-rand" onclick="TK.randomize();TK.refresh()">🎲 '+T("عشوائي","Random")+'</div>';
+  h+='<div class="tk-o tk-classic" onclick="TK.classic();TK.refresh()">🏠 '+T("الأساسي","Classic")+'</div>';
   THEME_KEYS.forEach(function(k){ h+='<div class="tk-o'+(S.theme===k?" on":"")+'" onclick="TK.set(\'theme\',\''+k+'\');TK.refresh()">'+THEMES[k].ar+'</div>'; });
   h+='</div>';
   /* اللون الرئيسي */
@@ -269,7 +281,7 @@ function pickImage(){
   inp.click();
 }
 function clearImage(){ LS.removeItem("uiBgImg"); if(S.bg==="img"){S.bg="def";persist();} apply(); if(window.TK)TK.refresh(); }
-window.TK={apply:apply,set:set,randomize:randomize,panel:panel,state:S,pickImage:pickImage,clearImage:clearImage,
+window.TK={apply:apply,set:set,randomize:randomize,classic:classic,panel:panel,state:S,pickImage:pickImage,clearImage:clearImage,
   refresh:function(){ if(typeof window.tkRefreshPanel==="function"){ try{ window.tkRefreshPanel(); }catch(e){} } }};
 apply();
 })();

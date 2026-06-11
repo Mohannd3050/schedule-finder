@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>باحث الجدول · OPS Schedule</title>
+<title>جدولي · My Schedule</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#070b14">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -65,10 +65,11 @@
   .brkcard .lbl .car{font-size:13px;color:var(--txt-dim);transition:.2s}
   .brknext{font-size:12.5px;color:var(--txt-dim);background:var(--glass);border:1px solid var(--stroke-soft);border-radius:11px;padding:9px 12px;margin-bottom:9px}
   .brklist{display:flex;flex-direction:column;gap:7px}
-  .brkrow{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-radius:11px;background:var(--glass);border:1px solid var(--stroke-soft);transition:.2s}
-  .brkrow .bt{font-weight:700;font-size:13.5px;white-space:nowrap}
-  .brkr-time{font-size:12.5px;color:var(--txt-dim);font-variant-numeric:tabular-nums;letter-spacing:.2px;white-space:nowrap}
-  .brkrow .bd{font-size:11px;color:var(--txt-dim);background:color-mix(in srgb,var(--mint) 12%,transparent);padding:2px 8px;border-radius:100px;white-space:nowrap}
+  .brkrow{display:block;padding:12px 14px;border-radius:13px;background:var(--glass);border:1px solid var(--stroke-soft);transition:.2s}
+  .brkrow .bt{font-weight:700;font-size:14px;white-space:nowrap}
+  .brkr-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .brkr-time{font-size:14.5px;font-weight:600;color:var(--txt);font-variant-numeric:tabular-nums;letter-spacing:.3px;margin-top:7px}
+  .brkrow .bd{font-size:11.5px;color:var(--txt-dim);background:color-mix(in srgb,var(--mint) 12%,transparent);padding:2px 8px;border-radius:100px;white-space:nowrap}
   .brkrow.on{border-color:var(--mint);box-shadow:0 0 0 1px var(--mint)}
   .brkrow.nx{border-color:color-mix(in srgb,var(--violet) 50%,transparent)}
   .brkrow.done:not(.on){opacity:.5}
@@ -295,7 +296,8 @@
   .nav-btn:hover{background:var(--glass-strong);transform:translateY(-1px)}
   .nav-btn svg{width:20px;height:20px;stroke:var(--txt);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   .nav-brand{font-family:"Readex Pro";font-weight:700;font-size:15.5px;color:var(--txt);display:flex;align-items:center;gap:8px}
-  .nav-brand .nb-dot{width:8px;height:8px;border-radius:50%;background:var(--mint);box-shadow:0 0 10px var(--mint)}
+  .nav-brand .nb-dot{width:8px;height:8px;border-radius:50%;background:var(--mint);box-shadow:0 0 10px var(--mint);animation:nbLive 1.8s ease-out infinite}
+  @keyframes nbLive{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--mint) 65%,transparent)}70%{box-shadow:0 0 0 9px transparent}100%{box-shadow:0 0 0 0 transparent}}
   /* settings overlay */
   .set-ov{position:fixed;inset:0;z-index:1100;background:rgba(4,8,18,.72);backdrop-filter:blur(6px);display:none;align-items:flex-start;justify-content:center;padding:74px 16px 16px;overflow:auto}
   .set-ov.show{display:flex;animation:fadeIn .2s}
@@ -321,6 +323,9 @@
   .set-in::placeholder{color:var(--txt-faint)}
   .set-msg{font-size:13px;margin-top:8px;min-height:16px;font-weight:600}
 
+  .pwx{margin-top:11px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  .pwx .chip{display:inline-flex;align-items:center;gap:6px;background:var(--glass);border:1px solid var(--stroke-soft);border-radius:100px;padding:6px 13px;font-size:12.5px;color:var(--txt-dim);font-variant-numeric:tabular-nums}
+  .pwx .chip b{color:var(--txt);font-weight:700}
 </style>
 </head>
 <body>
@@ -330,7 +335,7 @@
     <div class="nav-btn" onclick="refreshPage()" title="تحديث">
       <svg viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.8-3.4L23 10M1 14l4.7 4.4A9 9 0 0 0 20.5 15"/></svg>
     </div>
-    <span class="nav-brand"><span class="nb-dot"></span><span data-i18n="navHome">باحث الجدول</span></span>
+    <span class="nav-brand"><span class="nb-dot"></span><span data-i18n="navHome">جدولي</span></span>
   </div>
   <div class="grp">
     <div class="nav-btn" onclick="toggleTheme()" title="الوضع">
@@ -647,7 +652,7 @@ var I18N={
     days:["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"],
     mons:["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"],
     am:"صباحاً", pm:"مساءً",
-    navHome:"باحث الجدول", settings:"الإعدادات", timeFmt:"تنسيق الوقت", fmt12:"12 ساعة", fmt24:"24 ساعة", logoutBtn:"تسجيل الخروج"
+    navHome:"جدولي", settings:"الإعدادات", timeFmt:"تنسيق الوقت", fmt12:"12 ساعة", fmt24:"24 ساعة", logoutBtn:"تسجيل الخروج"
   },
   en:{
     dir:"ltr",
@@ -671,7 +676,7 @@ var I18N={
     days:["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
     mons:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
     am:"AM", pm:"PM",
-    navHome:"Schedule Finder", settings:"Settings", timeFmt:"Time format", fmt12:"12-hour", fmt24:"24-hour", logoutBtn:"Log out"
+    navHome:"My Schedule", settings:"Settings", timeFmt:"Time format", fmt12:"12-hour", fmt24:"24-hour", logoutBtn:"Log out"
   }
 };
 function t(k){ var L=I18N[LANG]||I18N.ar; return (k in L)?L[k]:(I18N.ar[k]!==undefined?I18N.ar[k]:k); }
@@ -957,7 +962,8 @@ function renderBreaksCard(){
   var totUsed=0, totPlan=0;
   var rows=(data.b||[]).map(function(b,i){
     totPlan+=(b.d||0);
-    var top='<div class="brkr-top"><span class="bt">'+(ar?"بريك ":"Break ")+(i+1)+'</span><span class="brkr-time">'+fmtBrkRange(b.t,b.d)+'</span><span class="bd">'+(b.d||0)+(ar?" د":"m")+'</span></div>';
+    var top='<div class="brkr-top"><span class="bt">'+(ar?"بريك ":"Break ")+(i+1)+'</span><span class="bd">'+(b.d||0)+(ar?" دقيقة":" min")+'</span></div>'+
+            '<div class="brkr-time">'+fmtBrkRange(b.t,b.d)+'</div>';
     if(!isToday){ return '<div class="brkrow row2" data-bi="'+i+'">'+top+'</div>'; }
     var used=brkUsedSec(i,true); totUsed+=used; var active=brkIsActive(i); var over=used>(b.d||0)*60;
     var btn='<button class="brkbtn'+(active?" act":"")+'" onclick="toggleBreakUsage('+i+')">'+(active?(ar?"⏹️ إيقاف":"⏹️ Stop"):(ar?"▶️ بدء":"▶️ Start"))+'</button>';
@@ -1310,6 +1316,7 @@ function renderToday(records){
       box.innerHTML='<div class="card today"><div class="lbl"><span class="pulse"></span><span id="todState">'+t("startsIn")+'</span></div>'+
         '<div class="clock" id="todClock">--:--:--</div>'+
         '<div class="range">'+t("startsAt")+' <span dir="ltr">'+esc(todayCell.txt)+' '+esc(todayCell.mer)+'</span></div>'+
+        '<div class="pwx" id="pwx">'+pwxHTML()+'</div>'+
         '<div class="bar"><i id="todBar"></i></div></div>';
       tickToday(); return;
     }
@@ -1378,6 +1385,53 @@ function p2(n){return (n<10?"0":"")+n;}
 function esc(t){return String(t==null?"":t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 
 /* ================= PRESENCE ================= */
+/* ===== الصلاة القادمة + الحرارة (الرياض) ===== */
+var PRAYER_T=null, TEMP_C=null;
+function pwxFetch(){
+  try{
+    var d=new Date(), key="prayer_"+d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+    var cached=localStorage.getItem(key);
+    if(cached){ PRAYER_T=JSON.parse(cached); }
+    else{
+      fetch("https://api.aladhan.com/v1/timingsByCity?city=Riyadh&country=Saudi%20Arabia&method=4").then(function(r){return r.json();}).then(function(j){
+        if(j&&j.data&&j.data.timings){ PRAYER_T=j.data.timings; try{localStorage.setItem(key,JSON.stringify(PRAYER_T));}catch(e){} pwxTick(); }
+      }).catch(function(){});
+    }
+    var tts=parseInt(localStorage.getItem("tempTs")||"0",10);
+    if(Date.now()-tts<1800000 && localStorage.getItem("tempC")!==null){ TEMP_C=localStorage.getItem("tempC"); }
+    else{
+      fetch("https://api.open-meteo.com/v1/forecast?latitude=24.7136&longitude=46.6753&current=temperature_2m").then(function(r){return r.json();}).then(function(j){
+        if(j&&j.current){ TEMP_C=Math.round(j.current.temperature_2m); localStorage.setItem("tempC",String(TEMP_C)); localStorage.setItem("tempTs",String(Date.now())); pwxTick(); }
+      }).catch(function(){});
+    }
+  }catch(e){}
+}
+function pwxNext(){
+  if(!PRAYER_T) return null;
+  var names=[["Fajr","الفجر"],["Dhuhr","الظهر"],["Asr","العصر"],["Maghrib","المغرب"],["Isha","العشاء"]];
+  var now=new Date();
+  for(var i=0;i<names.length;i++){
+    var t=PRAYER_T[names[i][0]]; if(!t)continue;
+    var p=t.split(":"); var dt=new Date(now.getFullYear(),now.getMonth(),now.getDate(),parseInt(p[0],10),parseInt(p[1],10),0);
+    if(dt>now) return {ar:names[i][1],en:names[i][0],at:dt};
+  }
+  var f=PRAYER_T["Fajr"]; if(!f)return null; var q=f.split(":");
+  return {ar:"الفجر",en:"Fajr",at:new Date(now.getFullYear(),now.getMonth(),now.getDate()+1,parseInt(q[0],10),parseInt(q[1],10),0)};
+}
+function pwxHTML(){
+  var ar=(LANG==="ar"), parts=[];
+  var nx=pwxNext();
+  if(nx){
+    var diff=Math.max(0,nx.at-Date.now()), h=Math.floor(diff/3600000), m=Math.floor(diff%3600000/60000), sec=Math.floor(diff%60000/1000);
+    var cd=(h>0?(h+":"):"")+(m<10?"0":"")+m+":"+(sec<10?"0":"")+sec;
+    parts.push('<span class="chip">🕌 '+(ar?nx.ar:nx.en)+' <b dir="ltr">'+cd+'</b></span>');
+  }
+  if(TEMP_C!==null&&TEMP_C!==undefined&&TEMP_C!=="") parts.push('<span class="chip">🌡️ '+(ar?"الرياض ":"Riyadh ")+'<b dir="ltr">'+TEMP_C+'°</b></span>');
+  return parts.join("");
+}
+function pwxTick(){ var el=document.getElementById("pwx"); if(el) el.innerHTML=pwxHTML(); }
+pwxFetch(); setInterval(pwxTick,1000); setInterval(pwxFetch,1800000);
+
 function startPresence(){
   if(!db || !CURRENT_HRID) return;
   var uid=(firebase.auth().currentUser||{}).uid || ("s_"+CURRENT_HRID+"_"+Date.now());
@@ -1526,6 +1580,6 @@ function liveWeeks(hrid){
 
 
 </script>
-<footer style="text-align:center;color:var(--txt-faint);font-size:11.5px;padding:18px 0 26px;position:relative;z-index:1">باحث الجدول · Beta v1.9</footer>
+<footer style="text-align:center;color:var(--txt-faint);font-size:11.5px;padding:18px 0 26px;position:relative;z-index:1">جدولي · Beta v1.9</footer>
 </body>
 </html>
