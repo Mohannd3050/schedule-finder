@@ -229,8 +229,11 @@ function panel(lang){
   });
   h+='</div>';
   if(S.bg==="img"&&LS.getItem("uiBgImg")) h+='<div style="margin-top:6px"><span class="tk-o" style="display:inline-block;padding:6px 12px" onclick="TK.clearImage()">🗑️ '+T("إزالة الصورة","Remove image")+'</span></div>';
+  var adv=(LS.getItem("tkAdv")==="1");
+  h+='<div class="tk-k" style="cursor:pointer;user-select:none;display:flex;justify-content:space-between" onclick="localStorage.setItem(\'tkAdv\',\''+(adv?"0":"1")+'\');TK.refresh()"><span>⚙️ '+T("خيارات متقدمة","Advanced")+'</span><span>'+(adv?"▴":"▾")+'</span></div>';
+  h+='<div style="'+(adv?"":"display:none")+'">';
   /* الأزرار */
-  h+='<div class="tk-k">🔘 '+T("شكل الأزرار","Button shape")+'</div><div class="tk-seg">'+
+  h+='<div class="tk-k" style="margin-top:4px">🔘 '+T("شكل الأزرار","Button shape")+'</div><div class="tk-seg">'+
      '<div class="tk-o'+(S.btnShape==="round"?" on":"")+'" onclick="TK.set(\'btnShape\',\'round\');TK.refresh()">'+T("دائري","Round")+'</div>'+
      '<div class="tk-o'+(S.btnShape==="sharp"?" on":"")+'" onclick="TK.set(\'btnShape\',\'sharp\');TK.refresh()">'+T("حاد","Sharp")+'</div>'+
      '<div class="tk-o'+(S.btnShape==="pill"?" on":"")+'" onclick="TK.set(\'btnShape\',\'pill\');TK.refresh()">'+T("كبسولة","Pill")+'</div></div>';
@@ -253,6 +256,7 @@ function panel(lang){
        '<div class="tk-o'+(S.neuDepth==="soft"?" on":"")+'" onclick="TK.set(\'neuDepth\',\'soft\');TK.refresh()">'+T("ناعم","Soft")+'</div>'+
        '<div class="tk-o'+(S.neuDepth==="deep"?" on":"")+'" onclick="TK.set(\'neuDepth\',\'deep\');TK.refresh()">'+T("عميق","Deep")+'</div></div>';
   }
+  h+='</div>';
   return h;
 }
 

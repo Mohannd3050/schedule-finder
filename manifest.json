@@ -1,6 +1,6 @@
 {
-  "name": "جدول الفريق d360",
-  "short_name": "باحث الجدول",
+  "name": "جدولي · d360",
+  "short_name": "جدولي",
   "start_url": "/schedule-finder/",
   "display": "standalone",
   "background_color": "#0f172a",
@@ -18,6 +18,30 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "بدء بريك",
+      "short_name": "بريك",
+      "url": "/schedule-finder/index.html?action=startbreak",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "جدول اليوم",
+      "short_name": "اليوم",
+      "url": "/schedule-finder/index.html",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }
