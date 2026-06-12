@@ -232,10 +232,37 @@
   .day.code.ph .val,.day.code.eid .val{color:var(--amber)}
   .day.code.support .val{color:var(--support)}
   .day.today{border-color:var(--mint);box-shadow:0 0 0 1px var(--mint),0 14px 30px -12px color-mix(in srgb,var(--mint) 40%,transparent)}
-  .day .dayfill{position:absolute;left:0;right:0;bottom:0;height:var(--dayfill,0%);background:linear-gradient(180deg,color-mix(in srgb,var(--mint) 34%,transparent),color-mix(in srgb,var(--mint-deep) 26%,transparent));transition:height 1s ease;z-index:0;pointer-events:none}
-  .day .daywave{position:absolute;left:0;right:0;bottom:calc(var(--dayfill,0%) - 2px);height:2.5px;background:color-mix(in srgb,var(--mint) 75%,transparent);filter:blur(.4px);animation:wave 2.6s ease-in-out infinite;z-index:0;pointer-events:none}
+  .day .dprog{position:absolute;inset:0;border-radius:inherit;z-index:0;pointer-events:none;display:none}
+  .day .dayfill{position:absolute;left:0;right:0;bottom:0;border-radius:inherit;height:min(var(--dayfill,0%),100%);background:linear-gradient(180deg,color-mix(in srgb,var(--mint) 34%,transparent),color-mix(in srgb,var(--mint-deep) 26%,transparent));transition:height 1s ease}
+  .day .daywave{position:absolute;left:6%;right:6%;border-radius:99px;bottom:clamp(2px,calc(var(--dayfill,0%) - 2px),calc(100% - 5px));height:2.5px;background:color-mix(in srgb,var(--mint) 75%,transparent);filter:blur(.4px);animation:wave 2.6s ease-in-out infinite}
   @keyframes wave{0%,100%{transform:translateX(-5%) scaleX(1.02)}50%{transform:translateX(5%) scaleX(.98)}}
-  .day.today>*:not(.dayfill):not(.daywave){position:relative;z-index:1}
+  /* 💧 ماء */
+  body[data-dayprog="water"] .day .dprog.p-water{display:block}
+  /* 🌊 سائل: حافة محززة متحركة */
+  body[data-dayprog="liquid"] .day .dprog.p-liquid{display:block}
+  .p-liquid .dayfill{transition:height 1s ease}
+  .p-liquid .sc{position:absolute;left:0;right:0;height:8px;bottom:min(var(--dayfill,0%),calc(100% - 8px));background:radial-gradient(circle at 8px 9px,color-mix(in srgb,var(--mint) 30%,transparent) 7px,transparent 8px) repeat-x;background-size:16px 9px;animation:liq 3.2s linear infinite}
+  .p-liquid .sc.b{opacity:.55;animation-duration:4.6s;animation-direction:reverse;bottom:calc(min(var(--dayfill,0%),calc(100% - 8px)) - 2px)}
+  @keyframes liq{from{background-position-x:0}to{background-position-x:16px}}
+  /* 🔋 شحن */
+  body[data-dayprog="bar"] .day .dprog.p-bar{display:block}
+  .p-bar .tr{position:absolute;left:10%;right:10%;bottom:7px;height:5px;border-radius:99px;background:var(--stroke-soft)}
+  .p-bar .fi{position:absolute;inset-inline-start:10%;bottom:7px;height:5px;border-radius:99px;width:calc(80% * var(--dayfillN,0) / 100);background:linear-gradient(90deg,var(--mint),var(--mint-deep));transition:width 1s ease}
+  .p-bar .pc{position:absolute;top:6px;right:7px;font-size:8.5px;font-weight:700;color:var(--mint);font-variant-numeric:tabular-nums}
+  /* ⭕ حلقة */
+  body[data-dayprog="ring"] .day .dprog.p-ring{display:block}
+  .p-ring .rg{position:absolute;top:6px;right:6px;width:20px;height:20px;border-radius:50%;background:conic-gradient(var(--mint) calc(var(--dayfillN,0)*1%),var(--stroke-soft) 0);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 3.5px),#000 calc(100% - 3px));mask:radial-gradient(farthest-side,transparent calc(100% - 3.5px),#000 calc(100% - 3px));transition:background .8s}
+  /* ✨ إطار زاحف */
+  body[data-dayprog="border"] .day .dprog.p-border{display:block}
+  .p-border .bd2{position:absolute;inset:0;border-radius:inherit;padding:2px;background:conic-gradient(from -90deg,var(--mint) calc(var(--dayfillN,0)*1%),transparent 0);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;transition:background .8s}
+  /* ⏳ تعتيم */
+  body[data-dayprog="tint"] .day .dprog.p-tint{display:block}
+  .p-tint .tn{position:absolute;inset:0;border-radius:inherit;background:linear-gradient(180deg,color-mix(in srgb,var(--mint) 22%,transparent),color-mix(in srgb,var(--mint-deep) 30%,transparent));opacity:calc(var(--dayfillN,0)/115);transition:opacity 1s}
+  /* 🕯️ عمود */
+  body[data-dayprog="pole"] .day .dprog.p-pole{display:block}
+  .p-pole .pt{position:absolute;right:5px;top:8px;bottom:8px;width:4.5px;border-radius:99px;background:var(--stroke-soft)}
+  .p-pole .pf{position:absolute;right:5px;bottom:8px;width:4.5px;border-radius:99px;height:calc((100% - 16px) * var(--dayfillN,0) / 100);background:linear-gradient(0deg,var(--mint-deep),var(--mint));transition:height 1s ease}
+  .day.today>*:not(.dprog){position:relative;z-index:1}
   .day.today::after{content:"اليوم";position:absolute;top:7px;left:7px;font-size:9px;font-weight:700;color:#04211c;background:var(--mint);padding:2px 7px;border-radius:6px}
   .day.past{opacity:.42;filter:grayscale(.4)}
   .day.past .dn,.day.past .dd,.day.past .val{text-decoration:line-through;text-decoration-thickness:1.5px}
@@ -1252,7 +1279,7 @@ function renderWeeks(records){ setTimeout(function(){ if(typeof dayFillTick==="f
       var cls="day "+info.cls+(info.isWork?" work":"")+(isToday?" today":"")+(isPast?" past":"");
       var valHtml = '<div class="val">'+esc(info.txt)+ (info.mer?'<span class="meridiem">'+info.mer+'</span>':'') +'</div>';
       var hasNote=!!dayNotes()[col.serial];
-      html+='<div class="'+cls+'" data-serial="'+col.serial+'" onclick="openDayStats('+(col.serial!=null?col.serial:'null')+')" style="cursor:pointer">'+(isToday?'<span class="dayfill"></span><span class="daywave"></span>':'')+(hasNote?'<span style="position:absolute;top:6px;inset-inline-start:7px;font-size:9px">📝</span>':'')+'<div class="dn">'+esc(dn)+'</div><div class="dd">'+esc(dd)+'</div>'+valHtml+'</div>';
+      html+='<div class="'+cls+'" data-serial="'+col.serial+'" onclick="openDayStats('+(col.serial!=null?col.serial:'null')+')" style="cursor:pointer">'+(isToday?'<span class="dprog p-water"><span class="dayfill"></span><span class="daywave"></span></span><span class="dprog p-liquid"><span class="dayfill"></span><span class="sc"></span><span class="sc b"></span></span><span class="dprog p-bar"><span class="tr"></span><span class="fi"></span><b class="pc"></b></span><span class="dprog p-ring"><span class="rg"></span></span><span class="dprog p-border"><span class="bd2"></span></span><span class="dprog p-tint"><span class="tn"></span></span><span class="dprog p-pole"><span class="pt"></span><span class="pf"></span></span>':'')+(hasNote?'<span style="position:absolute;top:6px;inset-inline-start:7px;font-size:9px">📝</span>':'')+'<div class="dn">'+esc(dn)+'</div><div class="dd">'+esc(dd)+'</div>'+valHtml+'</div>';
     }
     html+='</div>';
   });
@@ -1454,11 +1481,40 @@ function pwxHTML(){
 }
 function pwxTick(){ var el=document.getElementById("pwx"); if(el) el.innerHTML=pwxHTML(); }
 pwxFetch(); setInterval(pwxTick,1000); setInterval(pwxFetch,1800000);
+function todayShiftWin(){
+  try{
+    if(!LAST_RECORDS||!LAST_RECORDS.length)return null;
+    var r=LAST_RECORDS[0], cols=(r.meta&&r.meta.dayCols)||[], days=(r.rec&&(r.rec.d||r.rec.days))||[];
+    var today=new Date();
+    for(var i=0;i<cols.length;i++){
+      var d=serialToDate(cols[i].serial);
+      if(d&&sameDay(d,today)){
+        var inf=classifyVal(days[i]);
+        if(inf&&inf.isWork&&inf.time){ var st=new Date(today.getFullYear(),today.getMonth(),today.getDate(),inf.time.h,inf.time.m,0).getTime(); return {st:st,en:st+9*3600000}; }
+        return null;
+      }
+    }
+  }catch(e){}
+  return null;
+}
 function dayFillTick(){
-  var now=new Date(); var pct=((now-new Date(now.getFullYear(),now.getMonth(),now.getDate()))/86400000)*100;
-  document.querySelectorAll(".day.today").forEach(function(c){ c.style.setProperty("--dayfill",pct.toFixed(2)+"%"); });
+  var now=new Date(), pct;
+  var base=document.body.getAttribute("data-progbase")||"day";
+  if(base==="shift"){
+    var w=todayShiftWin();
+    if(!w){ pct=0; }
+    else { pct=Math.max(0,Math.min(100,((now.getTime()-w.st)/(w.en-w.st))*100)); }
+  } else {
+    pct=((now-new Date(now.getFullYear(),now.getMonth(),now.getDate()))/86400000)*100;
+  }
+  document.querySelectorAll(".day.today").forEach(function(c){
+    c.style.setProperty("--dayfill",pct.toFixed(2)+"%");
+    c.style.setProperty("--dayfillN",pct.toFixed(1));
+    var pc=c.querySelector(".pc"); if(pc) pc.textContent=Math.round(pct)+"%";
+  });
 }
 dayFillTick(); setInterval(dayFillTick,30000);
+window.tkOnChange=function(){ try{ dayFillTick(); }catch(e){} };
 
 function nextOffInfo(){
   try{

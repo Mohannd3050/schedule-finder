@@ -49,14 +49,16 @@ var S={
   matElev:LS.getItem("matElev")||"high",    // low | high
   neuDepth:LS.getItem("neuDepth")||"soft",  // soft | deep
   btnShape:LS.getItem("btnShape")||"round", // round | sharp | pill
-  btnOp:parseInt(LS.getItem("btnOp")||"100",10)
+  btnOp:parseInt(LS.getItem("btnOp")||"100",10),
+  dayProg:LS.getItem("dayProg")||"water",   // off|water|liquid|bar|ring|border|tint|pole
+  progBase:LS.getItem("progBase")||"day"    // day | shift
 };
 /* مستخدم جديد ⇒ ثيم عشوائي افتراضياً */
 if(!S.theme||!THEMES[S.theme]){
   S.theme=rnd(THEME_KEYS); S.accent=rnd(ACC_KEYS); S.bg=rnd(BG_KEYS);
   S.glassLv=40+Math.floor(Math.random()*50);
   S.flatRad=rnd(["sharp","round"]); S.matElev=rnd(["low","high"]); S.neuDepth=rnd(["soft","deep"]);
-  S.btnShape=rnd(["round","sharp","pill"]); S.btnOp=100;
+  S.btnShape=rnd(["round","sharp","pill"]); S.btnOp=100; S.dayProg=rnd(["water","liquid","bar","ring","border","tint","pole"]);
   persist();
 }
 if(isNaN(S.btnOp)) S.btnOp=100;
@@ -68,7 +70,7 @@ function persist(){
   LS.setItem("uiTheme",S.theme); LS.setItem("uiAccent",S.accent); LS.setItem("uiBg",S.bg);
   LS.setItem("glassLv",String(S.glassLv)); LS.setItem("flatRad",S.flatRad);
   LS.setItem("matElev",S.matElev); LS.setItem("neuDepth",S.neuDepth);
-  LS.setItem("btnShape",S.btnShape); LS.setItem("btnOp",String(S.btnOp));
+  LS.setItem("btnShape",S.btnShape); LS.setItem("btnOp",String(S.btnOp)); LS.setItem("dayProg",S.dayProg); LS.setItem("progBase",S.progBase);
 }
 
 /* ---- حقن CSS الثيمات (مرة واحدة) ---- */
@@ -147,7 +149,7 @@ function isLight(){ return document.body.classList.contains("light"); }
 function apply(){
   inject();
   var b=document.body, r=b.style, L=isLight();
-  b.setAttribute("data-theme",S.theme); b.setAttribute("data-tkpage",PAGE); b.setAttribute("data-btnshape",S.btnShape); r.setProperty("--tk-btnop",(Math.max(35,Math.min(100,S.btnOp))/100).toFixed(2));
+  b.setAttribute("data-theme",S.theme); b.setAttribute("data-tkpage",PAGE); b.setAttribute("data-btnshape",S.btnShape); b.setAttribute("data-dayprog",S.dayProg); b.setAttribute("data-progbase",S.progBase); r.setProperty("--tk-btnop",(Math.max(35,Math.min(100,S.btnOp))/100).toFixed(2));
   /* اللون الرئيسي — يغطي كل تسميات الصفحات */
   var A=ACCENTS[S.accent];
   var main=L?A.lmain:A.main, deep=L?A.ldeep:A.deep;
@@ -192,14 +194,14 @@ function set(k,v){ S[k]=v; persist(); apply(); }
 function classic(){
   S.theme="glass"; S.accent="mint"; S.bg="def"; S.glassLv=60;
   S.flatRad="round"; S.matElev="high"; S.neuDepth="soft";
-  S.btnShape="round"; S.btnOp=100; 
+  S.btnShape="round"; S.btnOp=100; S.dayProg="water"; S.progBase="day"; 
   persist(); apply();
 }
 function randomize(){
   S.theme=rnd(THEME_KEYS); S.accent=rnd(ACC_KEYS); S.bg=rnd(BG_KEYS);
   S.glassLv=40+Math.floor(Math.random()*50);
   S.flatRad=rnd(["sharp","round"]); S.matElev=rnd(["low","high"]); S.neuDepth=rnd(["soft","deep"]);
-  S.btnShape=rnd(["round","sharp","pill"]);
+  S.btnShape=rnd(["round","sharp","pill"]); S.dayProg=rnd(["water","liquid","bar","ring","border","tint","pole"]);
   persist(); apply();
 }
 
@@ -232,6 +234,15 @@ function panel(lang){
   var adv=(LS.getItem("tkAdv")==="1");
   h+='<div class="tk-k" style="cursor:pointer;user-select:none;display:flex;justify-content:space-between" onclick="localStorage.setItem(\'tkAdv\',\''+(adv?"0":"1")+'\');TK.refresh()"><span>⚙️ '+T("خيارات متقدمة","Advanced")+'</span><span>'+(adv?"▴":"▾")+'</span></div>';
   h+='<div style="'+(adv?"":"display:none")+'">';
+  /* تقدّم اليوم الحالي */
+  var DP=[["off",T("بدون","Off")],["water","💧 "+T("ماء","Water")],["liquid","🌊 "+T("سائل","Liquid")],["bar","🔋 "+T("شحن","Charge")],["ring","⭕ "+T("حلقة","Ring")],["border","✨ "+T("إطار","Border")],["tint","⏳ "+T("تعتيم","Tint")],["pole","🕯️ "+T("عمود","Pole")]];
+  h+='<div class="tk-k">📅 '+T("شكل تقدّم اليوم في الجدول","Today-progress style")+'</div><div class="tk-grid">'+
+     DP.map(function(x){return '<div class="tk-o'+(S.dayProg===x[0]?" on":"")+'" onclick="TK.set(\'dayProg\',\''+x[0]+'\');TK.refresh()">'+x[1]+'</div>';}).join("")+'</div>';
+  if(S.dayProg!=="off"){
+    h+='<div class="tk-k">'+T("أساس التقدّم","Progress basis")+'</div><div class="tk-seg">'+
+       '<div class="tk-o'+(S.progBase==="day"?" on":"")+'" onclick="TK.set(\'progBase\',\'day\');TK.refresh()">'+T("اليوم كامل","Full day")+'</div>'+
+       '<div class="tk-o'+(S.progBase==="shift"?" on":"")+'" onclick="TK.set(\'progBase\',\'shift\');TK.refresh()">'+T("شفتي","My shift")+'</div></div>';
+  }
   /* الأزرار */
   h+='<div class="tk-k" style="margin-top:4px">🔘 '+T("شكل الأزرار","Button shape")+'</div><div class="tk-seg">'+
      '<div class="tk-o'+(S.btnShape==="round"?" on":"")+'" onclick="TK.set(\'btnShape\',\'round\');TK.refresh()">'+T("دائري","Round")+'</div>'+
