@@ -352,18 +352,11 @@
 
 <div class="toast" id="toast"></div>
 
+<script src="./app-core.js"></script>
 <script src="./theme.js"></script>
 <script>
 /* ===== تبديل الشفت · swap.html ===== */
-var firebaseConfig = {
-  apiKey: "AIzaSyCCRyoWDVCvL4y_pW2U8CcUUUb13ynKfdo",
-  authDomain: "d360-schedule.firebaseapp.com",
-  databaseURL: "https://d360-schedule-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "d360-schedule",
-  storageBucket: "d360-schedule.firebasestorage.app",
-  messagingSenderId: "616387729679",
-  appId: "1:616387729679:web:9c2b01dd325ae1530f867a"
-};
+/* firebaseConfig من app-core.js */
 var db=null, AUTH_OK=false, MY_HRID=null, MY_REC=null, MY_META=null, MY_WEEKID=null, MY_PHONE="";
 var SHIFT_SEL=null, SWAPS_REF=null, ALL_SWAPS={}, OPENED=null, MY_SWAP=null, MY_SWAP_ID=null;
 var LANG=localStorage.getItem("lang")||"ar";

@@ -426,6 +426,7 @@
 
     <!-- scheduled breaks (from admin upload) -->
     <div id="myBreaksBox"></div>
+    <div id="withMeBox"></div>
 
     <!-- weeks -->
     <div id="weeksBox"></div>
@@ -492,20 +493,13 @@
   </div>
 </div>
 
+<script src="./app-core.js"></script>
 <script src="./theme.js"></script>
 <script>
 /* ===== باحث الجدول · v7 — مصادقة مجهولة + قراءة /weeks ===== */
-var firebaseConfig = {
-  apiKey: "AIzaSyCCRyoWDVCvL4y_pW2U8CcUUUb13ynKfdo",
-  authDomain: "d360-schedule.firebaseapp.com",
-  databaseURL: "https://d360-schedule-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "d360-schedule",
-  storageBucket: "d360-schedule.firebasestorage.app",
-  messagingSenderId: "616387729679",
-  appId: "1:616387729679:web:9c2b01dd325ae1530f867a"
-};
+/* firebaseConfig من app-core.js */
 
-var db=null, AUTH_OK=false, CURRENT_HRID=null, CURRENT_REC=null, LAST_RECORDS=null;
+var db=null, AUTH_OK=false, CURRENT_HRID=null, CURRENT_REC=null, LAST_RECORDS=null, WEEK_FULL=null;
 var SID=null, ALERT_REF=null, WEEKS_REF=null, NOTIF_REF=null, ALL_NOTIFS={}, REMEMBER=true, PENDING=null, REGISTERING=false;
 var BREAKS_REF=null, MY_BREAKS=null, BRK_SCHED_TIMER=null;
 var LOG_REF=null, MY_LOG=null;
@@ -778,7 +772,6 @@ function authErr(e){
 /* ---- بريد داخلي مشتق من الرقم الوظيفي (لا يُرسل، فقط لـ Firebase) ---- */
 function staffEmail(hrid){ return String(hrid).trim()+"@d360-staff.com"; }
 /* لاحقة ثابتة تُضاف للرقم السري داخلياً ليقبله Firebase (حد أدنى 6 خانات). الموظف يكتب 4 أو 6 أرقام فقط. */
-var PIN_SALT="#d360sf";
 function validPin(p){ return /^(\d{4}|\d{6})$/.test(String(p||"")); }
 
 /* ---- تسجيل الدخول بالرقم الوظيفي + كلمة المرور ---- */
@@ -884,7 +877,7 @@ function logout(){
   if(ALERT_REF){ ALERT_REF.off(); ALERT_REF=null; }
   if(WEEKS_REF){ WEEKS_REF.off(); WEEKS_REF=null; }
   if(NOTIF_REF){ NOTIF_REF.off(); NOTIF_REF=null; }
-  if(BREAKS_REF){ BREAKS_REF.off(); BREAKS_REF=null; } if(LOG_REF){ LOG_REF.off(); LOG_REF=null; } MY_BREAKS=null; MY_LOG=null; BREAKS_CACHE={}; SEL_BREAK_DAY=null; if(typeof clearBreakNotifs==="function")clearBreakNotifs(); var mb=document.getElementById("myBreaksBox"); if(mb) mb.innerHTML=""; var lb2=document.getElementById("leaderBox"); if(lb2) lb2.innerHTML="";
+  if(BREAKS_REF){ BREAKS_REF.off(); BREAKS_REF=null; } if(LOG_REF){ LOG_REF.off(); LOG_REF=null; } MY_BREAKS=null; MY_LOG=null; BREAKS_CACHE={}; SEL_BREAK_DAY=null; if(typeof clearBreakNotifs==="function")clearBreakNotifs(); SHIFT_NTF_TIMERS.forEach(clearTimeout); SHIFT_NTF_TIMERS=[]; WEEK_FULL=null; var wm=document.getElementById("withMeBox"); if(wm)wm.innerHTML=""; var mb=document.getElementById("myBreaksBox"); if(mb) mb.innerHTML=""; var lb2=document.getElementById("leaderBox"); if(lb2) lb2.innerHTML="";
   if(SID && db){ db.ref("presence/"+SID).remove(); }
   touchLastSeen();
   CURRENT_HRID=null; CURRENT_REC=null;
@@ -986,6 +979,7 @@ function renderBreaksCard(){
     '<div id="brkBody" style="'+(open?"":"display:none")+'">'+tabs+head+'<div class="brklist">'+rows+'</div>'+totalRow+'</div></div>';
   if(isToday&&open) updateBreakCountdown();
   if(isToday) scheduleBreakNotifs();
+  if(typeof scheduleShiftNotif==="function") scheduleShiftNotif();
 }
 function toggleBrkCard(){
   var b=document.getElementById("brkBody"), c=document.getElementById("brkCar"); if(!b)return;
@@ -1447,6 +1441,47 @@ function dayFillTick(){
 }
 dayFillTick(); setInterval(dayFillTick,30000);
 
+/* ===== من معي اليوم ===== */
+function renderWithMe(){
+  var box=document.getElementById("withMeBox"); if(!box)return;
+  if(!WEEK_FULL||!WEEK_FULL.agents||!WEEK_FULL.meta||!CURRENT_HRID){ box.innerHTML=""; return; }
+  var ar=(LANG==="ar"), cols=WEEK_FULL.meta.dayCols||[], today=new Date(), ti=-1;
+  for(var i=0;i<cols.length;i++){ var d=serialToDate(cols[i].serial); if(d&&sameDay(d,today)){ ti=i; break; } }
+  if(ti<0){ box.innerHTML=""; return; }
+  var me=WEEK_FULL.agents[CURRENT_HRID]; if(!me){ box.innerHTML=""; return; }
+  var myInfo=classifyVal((me.d||me.days||[])[ti]);
+  if(!myInfo.isWork){ box.innerHTML=""; return; }
+  var myKey=myInfo.txt+"|"+(myInfo.mer||"");
+  var mates=[];
+  Object.keys(WEEK_FULL.agents).forEach(function(h){
+    if(h===CURRENT_HRID)return;
+    var a=WEEK_FULL.agents[h], inf=classifyVal((a.d||a.days||[])[ti]);
+    if(inf.isWork && (inf.txt+"|"+(inf.mer||""))===myKey) mates.push({n:a.n||a.name||h, t:normTL(a.t||a.tl||"")});
+  });
+  mates.sort(function(a,b){ return (a.t===b.t)?(a.n<b.n?-1:1):(a.t<b.t?-1:1); });
+  var myTL=normTL(me.t||me.tl||"");
+  var open=(localStorage.getItem("wmOpen")!=="0");
+  var rows=mates.map(function(m){ var mine=(m.t===myTL); return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 12px;border-radius:11px;background:var(--glass);border:1px solid '+(mine?'color-mix(in srgb,var(--mint) 45%,transparent)':'var(--stroke-soft)')+';font-size:13px"><span style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(mine?"⭐ ":"")+esc(m.n)+'</span><span style="color:var(--txt-dim);font-size:11.5px;white-space:nowrap">'+esc(m.t)+'</span></div>'; }).join("");
+  box.innerHTML='<div class="card"><div class="lbl" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;font-weight:700;font-size:15px;margin-bottom:'+(open?'10':'0')+'px" onclick="toggleWithMe()"><span>👥 '+(ar?"من معي اليوم؟":"Who\'s with me today?")+' <span style="color:var(--txt-dim);font-size:12.5px;font-weight:600">('+mates.length+')</span></span><span id="wmCar" style="font-size:13px;color:var(--txt-dim)">'+(open?"▴":"▾")+'</span></div>'+
+    '<div id="wmBody" style="'+(open?"":"display:none")+'"><div style="font-size:12px;color:var(--txt-dim);margin-bottom:9px">'+(ar?("نفس شفتك "+myInfo.txt+" "+(myInfo.mer||"")):("Same shift "+myInfo.txt+" "+(myInfo.mer||"")))+' · ⭐ '+(ar?"فريقك":"your team")+'</div><div style="display:flex;flex-direction:column;gap:7px;max-height:300px;overflow-y:auto">'+(rows||'<div style="color:var(--txt-faint);font-size:12.5px;text-align:center;padding:8px">'+(ar?"لا أحد آخر بنفس شفتك اليوم":"No one else on your shift")+'</div>')+'</div></div></div>';
+}
+function toggleWithMe(){
+  var b=document.getElementById("wmBody"), c=document.getElementById("wmCar"); if(!b)return;
+  var open=b.style.display==="none"; b.style.display=open?"":"none"; if(c)c.textContent=open?"▴":"▾";
+  localStorage.setItem("wmOpen",open?"1":"0"); renderWithMe();
+}
+/* ===== تنبيه قبل الشفت بساعة ===== */
+var SHIFT_NTF_TIMERS=[];
+function scheduleShiftNotif(){
+  SHIFT_NTF_TIMERS.forEach(clearTimeout); SHIFT_NTF_TIMERS=[];
+  if(localStorage.getItem("brkNotif")!=="1") return;
+  if(typeof buildShiftStarts!=="function"||!LAST_RECORDS) return;
+  var ar=(LANG==="ar"), now=Date.now();
+  var arr=buildShiftStarts(LAST_RECORDS).map(function(x){return x&&x.start?x.start.getTime():null;}).filter(function(v){return v&&v>now;}).sort(function(a,b){return a-b;});
+  if(!arr.length)return;
+  var st=arr[0], pre=st-3600000;
+  if(pre>now) SHIFT_NTF_TIMERS.push(setTimeout(function(){ fireBrkNotif(ar?"🕐 شفتك يبدأ بعد ساعة":"🕐 Shift starts in 1 hour", ar?"استعد — شفتك على وشك البدء":"Get ready — your shift starts soon"); },pre-now));
+}
 function startPresence(){
   if(!db || !CURRENT_HRID) return;
   var uid=(firebase.auth().currentUser||{}).uid || ("s_"+CURRENT_HRID+"_"+Date.now());
@@ -1475,7 +1510,7 @@ function toggleBrkNotif(on){
   if(on){
     if(!("Notification" in window)){ alert(LANG==="ar"?"المتصفح لا يدعم الإشعارات":"Notifications unsupported"); return; }
     Notification.requestPermission().then(function(p){
-      if(p==="granted"){ localStorage.setItem("brkNotif","1"); scheduleBreakNotifs(); }
+      if(p==="granted"){ localStorage.setItem("brkNotif","1"); scheduleBreakNotifs(); scheduleShiftNotif(); }
       else { alert(LANG==="ar"?"يُرجى السماح بالإشعارات من إعدادات المتصفح":"Please allow notifications"); localStorage.setItem("brkNotif","0"); }
       buildSettings();
     });
@@ -1587,7 +1622,9 @@ function liveWeeks(hrid){
     if(records.length){
       CURRENT_REC=records[0].rec;
       LAST_RECORDS=records;
+      WEEK_FULL=weeks[ids[0]]||null;
       renderWeeks(records); renderToday(records); startTodayTick();
+      renderWithMe();
       dbg("🔄 تحديث مباشر للجدول");
     }
   });
