@@ -232,10 +232,10 @@
   .day.code.ph .val,.day.code.eid .val{color:var(--amber)}
   .day.code.support .val{color:var(--support)}
   .day.today{border-color:var(--mint);box-shadow:0 0 0 1px var(--mint),0 14px 30px -12px color-mix(in srgb,var(--mint) 40%,transparent)}
-  .day.today::before{content:"";position:absolute;left:0;right:0;bottom:0;height:var(--dayfill,0%);background:linear-gradient(180deg,color-mix(in srgb,var(--mint) 34%,transparent),color-mix(in srgb,var(--mint-deep) 26%,transparent));transition:height 1s ease;z-index:0;pointer-events:none}
-  .day.today::after{content:"";position:absolute;left:0;right:0;bottom:calc(var(--dayfill,0%) - 2px);height:2.5px;background:color-mix(in srgb,var(--mint) 75%,transparent);filter:blur(.4px);animation:wave 2.6s ease-in-out infinite;z-index:0;pointer-events:none}
+  .day .dayfill{position:absolute;left:0;right:0;bottom:0;height:var(--dayfill,0%);background:linear-gradient(180deg,color-mix(in srgb,var(--mint) 34%,transparent),color-mix(in srgb,var(--mint-deep) 26%,transparent));transition:height 1s ease;z-index:0;pointer-events:none}
+  .day .daywave{position:absolute;left:0;right:0;bottom:calc(var(--dayfill,0%) - 2px);height:2.5px;background:color-mix(in srgb,var(--mint) 75%,transparent);filter:blur(.4px);animation:wave 2.6s ease-in-out infinite;z-index:0;pointer-events:none}
   @keyframes wave{0%,100%{transform:translateX(-5%) scaleX(1.02)}50%{transform:translateX(5%) scaleX(.98)}}
-  .day.today>*{position:relative;z-index:1}
+  .day.today>*:not(.dayfill):not(.daywave){position:relative;z-index:1}
   .day.today::after{content:"اليوم";position:absolute;top:7px;left:7px;font-size:9px;font-weight:700;color:#04211c;background:var(--mint);padding:2px 7px;border-radius:6px}
   .day.past{opacity:.42;filter:grayscale(.4)}
   .day.past .dn,.day.past .dd,.day.past .val{text-decoration:line-through;text-decoration-thickness:1.5px}
@@ -1252,7 +1252,7 @@ function renderWeeks(records){ setTimeout(function(){ if(typeof dayFillTick==="f
       var cls="day "+info.cls+(info.isWork?" work":"")+(isToday?" today":"")+(isPast?" past":"");
       var valHtml = '<div class="val">'+esc(info.txt)+ (info.mer?'<span class="meridiem">'+info.mer+'</span>':'') +'</div>';
       var hasNote=!!dayNotes()[col.serial];
-      html+='<div class="'+cls+'" data-serial="'+col.serial+'" onclick="openDayStats('+(col.serial!=null?col.serial:'null')+')" style="cursor:pointer">'+(hasNote?'<span style="position:absolute;top:6px;inset-inline-start:7px;font-size:9px">📝</span>':'')+'<div class="dn">'+esc(dn)+'</div><div class="dd">'+esc(dd)+'</div>'+valHtml+'</div>';
+      html+='<div class="'+cls+'" data-serial="'+col.serial+'" onclick="openDayStats('+(col.serial!=null?col.serial:'null')+')" style="cursor:pointer">'+(isToday?'<span class="dayfill"></span><span class="daywave"></span>':'')+(hasNote?'<span style="position:absolute;top:6px;inset-inline-start:7px;font-size:9px">📝</span>':'')+'<div class="dn">'+esc(dn)+'</div><div class="dd">'+esc(dd)+'</div>'+valHtml+'</div>';
     }
     html+='</div>';
   });
