@@ -913,9 +913,32 @@ function delWeek(id){
   db.ref("weeks/"+id).remove().then(()=>{loadWeeksList()}).catch(e=>console.error(e));
 }
 /* ---- جدول البريكات ---- */
-function brHM(v){ if(v==null||v==="")return ""; if(typeof v==="number"){ var f=v-Math.floor(v); var t=Math.round(f*1440); var hh=Math.floor(t/60)%24, mm=t%60; return (hh<10?"0":"")+hh+":"+(mm<10?"0":"")+mm; } var s=String(v); var m=s.match(/(\d{1,2}):(\d{2})/); return m?((m[1].length<2?"0":"")+m[1]+":"+m[2]):""; }
+function brHM(v){
+  /* datetime مثل 1900-01-01 08:00 → "08:00" */
+  if(v&&typeof v==="string"&&v.indexOf("1900-01-01")>=0){
+    var dm=v.match(/(\d{1,2}):(\d{2})/); if(dm) return ("0"+dm[1]).slice(-2)+":"+dm[2];
+  }
+  if(v instanceof Date){ return ("0"+v.getHours()).slice(-2)+":"+("0"+v.getMinutes()).slice(-2); } if(v==null||v==="")return ""; if(typeof v==="number"){ var f=v-Math.floor(v); var t=Math.round(f*1440); var hh=Math.floor(t/60)%24, mm=t%60; return (hh<10?"0":"")+hh+":"+(mm<10?"0":"")+mm; } var s=String(v); var m=s.match(/(\d{1,2}):(\d{2})/); return m?((m[1].length<2?"0":"")+m[1]+":"+m[2]):""; }
 function brMin(v){ if(v==null||v==="")return 0; if(typeof v==="number"){ return Math.round((v-Math.floor(v))*1440); } var s=String(v); var m=s.match(/(\d{1,2}):(\d{2})/); return m?(parseInt(m[1],10)*60+parseInt(m[2],10)):0; }
-function sheetToWeekday(name){
+function sheetToWeekday(name,fileHint){
+  /* dateHint: اسم الملف مثل Break_14_Sep → يحول لليوم */
+  if((!name||name.toLowerCase().trim()==="sheet1")&&fileHint){
+    var fh=String(fileHint).toLowerCase();
+    var months={jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+    var WD2=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+    var mm; var yr=new Date().getFullYear();
+    mm=fh.match(/(\d{1,2})[_\-\s]([a-z]{3})/);
+    if(!mm) mm=fh.match(/([a-z]{3})[_\-\s](\d{1,2})/);
+    if(mm){
+      var day2=parseInt(mm[1],10), mo2=mm[2];
+      if(isNaN(day2)){ day2=parseInt(mm[2],10); mo2=mm[1]; }
+      if(months[mo2.slice(0,3)]!=null){
+        var d2=new Date(yr,months[mo2.slice(0,3)],day2);
+        if(!isNaN(d2.getTime())) return WD2[d2.getDay()];
+      }
+    }
+  }
+function sheetToWeekday_orig(name){
   var s=String(name||"").trim(), low=s.toLowerCase();
   var wd=["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
   var WD=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
@@ -933,8 +956,10 @@ function sheetToWeekday(name){
   if(!d){ m=s.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/); if(m) d=new Date(parseInt(m[3]),parseInt(m[2])-1,parseInt(m[1])); }
   if(d && !isNaN(d.getTime())) return WD[d.getDay()];
   return s;
-}
-function parseBreaks(wb){
+} /* end sheetToWeekday_orig */
+  return sheetToWeekday_orig(name);
+} /* end sheetToWeekday */
+function parseBreaks(wb,fileName){
   var out=[];
   wb.SheetNames.forEach(function(sn){
     var rows=wb.Sheets[sn]||[], hr=-1, col={};
@@ -955,7 +980,7 @@ function parseBreaks(wb){
       if(!b.length)continue;
       agents[hrid]={n:String(col.name!=null?(ar[col.name]||""):"").trim(), ss:brHM(ar[col.ss]), se:brHM(ar[col.se]), b:b};
     }
-    if(Object.keys(agents).length) out.push({day:sheetToWeekday(sn), agents:agents});
+    if(Object.keys(agents).length) out.push({day:sheetToWeekday(sn,fileName), agents:agents});
   });
   return out;
 }
@@ -968,7 +993,7 @@ function uploadBreaks(){
   r.onload=function(e){
     try{
       var wb=XLSXLite.read(new Uint8Array(e.target.result));
-      var parsed=parseBreaks(wb);
+      var parsed=parseBreaks(wb,f.name);
       if(!parsed.length){$("breaksMsg").textContent="لم يتم العثور على أعمدة البريكات (HRID/B1/B2/B3).";return;}
       var ops=parsed.map(function(p){ var dayKey=String(p.day).replace(/[.#$[\]/]/g,"_"); return db.ref("breaks/"+dayKey).set({meta:{day:p.day,updatedAt:firebase.database.ServerValue.TIMESTAMP,count:Object.keys(p.agents).length},agents:p.agents}); });
       Promise.all(ops).then(function(){ $("breaksMsg").className="err ok"; $("breaksMsg").textContent="تم رفع البريكات ✓ ("+parsed.map(function(p){return p.day+":"+Object.keys(p.agents).length;}).join(" · ")+")"; loadBreaksList(); })
