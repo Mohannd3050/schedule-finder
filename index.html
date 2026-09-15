@@ -962,6 +962,7 @@ function brkUsedSec(i, live){ var bk=(MY_LOG&&MY_LOG.breaks)?MY_LOG.breaks[i]:nu
 function brkIsActive(i){ var bk=(MY_LOG&&MY_LOG.breaks)?MY_LOG.breaks[i]:null; return !!(bk&&bk.active); }
 function toggleBreakUsage(i){
   if(!db||!CURRENT_HRID)return;
+  /* البريك حر — لا قيد على وقت البداية */
   var today=dayNameLocal();
   var b=((BREAKS_CACHE[today]||{}).b||[])[i]; if(!b)return;
   var log=MY_LOG||{}; if(!log.breaks)log.breaks={};
@@ -1040,7 +1041,7 @@ function updateBreakCountdown(){
   data.b.forEach(function(b,i){ var st=brkToMs(b.t), en=st+((b.d||0)*60000); if(now>=st&&now<en){ cur={en:en}; curI=i; } else if(st>now&&(nextSt===null||st<nextSt)){ nextSt=st; nextI=i; } });
   if(cur){ nx.innerHTML='<b style="color:var(--mint)">'+(ar?"وقت بريكك الآن ☕":"Break time ☕")+'</b> · '+(ar?"ينتهي بعد ":"ends in ")+fmtDur(cur.en-now); }
   else if(nextI>=0){ nx.innerHTML=(ar?"بريكك القادم ":"Next break ")+'<b>'+esc(fmtBrk(data.b[nextI].t))+'</b> '+(ar?"بعد ":"in ")+fmtDur(nextSt-now); }
-  else { nx.innerHTML=(ar?"انتهت أوقات بريكاتك اليوم":"Scheduled breaks ended"); }
+  else { nx.innerHTML=(ar?"يمكنك أخذ بريك في أي وقت ☕":"You can take a break anytime ☕"); }
 }
 
 function closeDayStats(){ var ov=document.getElementById("dayOv"); if(ov)ov.classList.remove("show"); }
