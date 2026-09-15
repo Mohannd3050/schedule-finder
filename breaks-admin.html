@@ -225,7 +225,7 @@ function render(){
   var q=$("search").value.trim().toLowerCase();
   var list=states.filter(function(s){
     if(q && !(String(s.name).toLowerCase().indexOf(q)>-1 || String(s.hrid).indexOf(q)>-1)) return false;
-    if(FILTER==="onb"&&!s.active) return false;
+    if(FILTER==="onb"&&!(s.active||s.status==="onb")) return false;
     if(FILTER==="over") return false; // فلتر المتجاوزين أُزيل
     if(FILTER==="took"&&!(s.status==="took")) return false;
     if(FILTER==="none"&&s.status!=="none"&&s.status!=="passed") return false;
