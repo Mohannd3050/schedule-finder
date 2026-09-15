@@ -98,9 +98,7 @@
   .ds-brk-u.over{color:var(--rose);font-weight:700}
   .bu{font-size:12.5px;color:var(--txt-dim);font-variant-numeric:tabular-nums}
   .bu.over{color:var(--rose);font-weight:700}
-  .brkbtn{border:none;border-radius:11px;padding:9px 20px;font-family:inherit;font-weight:700;font-size:12.5px;cursor:pointer;color:#04211c;background:linear-gradient(135deg,var(--mint),var(--mint-deep));transition:.16s}
-  .brkbtn:hover{transform:translateY(-1px)}
-  .brkbtn.act{background:linear-gradient(135deg,var(--amber),#d97706);color:#3b1d00}
+  /* brkbtn removed */
   .brksel{width:100%;background:var(--glass);border:1px solid var(--stroke-soft);color:var(--txt);font-family:inherit;font-size:13.5px;font-weight:700;border-radius:11px;padding:10px 12px;cursor:pointer;margin-bottom:9px;outline:none;text-align:center;text-align-last:center}
   .brkrow.over{border-color:var(--rose);box-shadow:0 0 0 1px var(--rose)}
   .brktotal{display:flex;justify-content:space-between;align-items:center;margin-top:9px;padding:9px 12px;border-radius:11px;background:color-mix(in srgb,var(--mint) 10%,transparent);border:1px solid var(--stroke-soft);font-size:12.5px}
@@ -960,9 +958,7 @@ function selectBreakDay(d){ SEL_BREAK_DAY=d; renderBreaksCard(); }
 function fmtMS(sec){ sec=Math.max(0,Math.floor(sec)); var m=Math.floor(sec/60), s=sec%60; return (m<10?"0":"")+m+":"+(s<10?"0":"")+s; }
 function brkUsedSec(i, live){ var bk=(MY_LOG&&MY_LOG.breaks)?MY_LOG.breaks[i]:null; if(!bk)return 0; var u=bk.usedSec||0; if(live&&bk.active&&bk.startTs){ u+=Math.max(0,Math.floor((Date.now()-bk.startTs)/1000)); } return u; }
 function brkIsActive(i){ var bk=(MY_LOG&&MY_LOG.breaks)?MY_LOG.breaks[i]:null; return !!(bk&&bk.active); }
-function toggleBreakUsage(i){
-  if(!db||!CURRENT_HRID)return;
-  /* البريك حر — لا قيد على وقت البداية */
+function toggleBreakUsage(i){ /* deprecated — breaks now tracked by admin only */ return; if(!db||!CURRENT_HRID)return;
   var today=dayNameLocal();
   var b=((BREAKS_CACHE[today]||{}).b||[])[i]; if(!b)return;
   var log=MY_LOG||{}; if(!log.breaks)log.breaks={};
@@ -997,11 +993,10 @@ function renderBreaksCard(){
             '<div class="brkr-time">'+fmtBrkRange(b.t,b.d)+'</div>';
     if(!isToday){ return '<div class="brkrow row2" data-bi="'+i+'">'+top+'</div>'; }
     var used=brkUsedSec(i,true); totUsed+=used; var active=brkIsActive(i); var over=used>(b.d||0)*60;
-    var btn='<button class="brkbtn'+(active?" act":"")+'" onclick="toggleBreakUsage('+i+')">'+(active?(ar?"⏹️ إيقاف":"⏹️ Stop"):(ar?"▶️ بدء":"▶️ Start"))+'</button>';
     var pct=Math.min(100,Math.round(used/((b.d||15)*60)*100));
-    return '<div class="brkrow row2'+(active?" on":"")+(over?" over":"")+'" data-bi="'+i+'">'+top+
+    return '<div class="brkrow row2'+(active?" on":"")+'" data-bi="'+i+'">'+top+
       '<div class="brkbar"><i id="bbar'+i+'" style="width:'+pct+'%"></i></div>'+
-      '<div class="brkr-bot"><span class="bu'+(over?" over":"")+'" id="bu'+i+'">'+(ar?"المُستخدَم ":"Used ")+fmtMS(used)+'</span>'+btn+'</div></div>';
+      '<div class="brkr-bot"><span class="bu" id="bu'+i+'">'+(ar?"المُستخدَم ":"Used ")+fmtMS(used)+'</span>'+(active?'<span style="font-size:12px;color:var(--mint);font-weight:700">☕ '+(ar?"على بريك":"On break")+'</span>':'')+'</div></div>';
   }).join("");
   var head = isToday ? '<div id="brkNext" class="brknext">—</div>' : '<div class="brknext" style="color:var(--txt-dim)">'+(ar?"بريكات يوم ":"Breaks · ")+(ar?WEEK_DAYS_AR[WEEK_DAYS.indexOf(sel)]:sel)+'</div>';
   var totalRow = isToday ? '<div class="brktotal"><span>'+(ar?"الإجمالي المستخدم":"Total used")+'</span><b id="buTot">'+fmtMS(totUsed)+' / '+totPlan+(ar?" د":" min")+'</b></div>' : '';
@@ -1682,7 +1677,7 @@ function handleShortcutAction(){
     for(var i=0;i<data.b.length;i++){
       var st=brkToMs(data.b[i].t), en=st+((data.b[i].d||0)*60000);
       if(now>=st&&now<en&&!brkIsActive(i)){
-        if(confirm((LANG==="ar"?"بدء بريك ":"Start break ")+(i+1)+" "+(LANG==="ar"?"الآن؟":"now?"))) toggleBreakUsage(i);
+        var mb=document.getElementById("myBreaksBox"); if(mb) mb.scrollIntoView({behavior:"smooth"});
         return;
       }
     }
